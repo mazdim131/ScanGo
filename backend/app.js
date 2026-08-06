@@ -13,6 +13,26 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
 const ORIGIN_FRONTEND = process.env.CORS_ORIGIN;
+const WA_GATEWAY_URL = `http://localhost:${process.env.WA_PORT || 3001}`;
+
+function kirimNotifikasiWeb(siswa, jenis) {
+  if (!siswa?.whatsapp) return;
+
+  fetch(`${WA_GATEWAY_URL}/api/send-notification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      whatsapp: siswa.whatsapp,
+      username: siswa.username,
+      rombel: siswa.rombel,
+      jenis,
+    }),
+  })
+    .then(() => console.log(`✅ Notifikasi WA (${jenis}) dikirim ke gateway.`))
+    .catch((err) =>
+      console.error("❌ Gagal hubungi gateway WhatsApp:", err.message),
+    );
+}
 
 app.use(
   cors({
@@ -51,7 +71,7 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
 
     const { data: uservalid, error: userError } = await supabase
       .from("users")
-      .select("username, idcard")
+      .select("username, idcard, whatsapp, rombel")
       .eq("idcard", idcard)
       .maybeSingle();
 
@@ -116,6 +136,8 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
         .json({ success: false, message: "Gagal menyimpan absensi." });
     }
 
+    kirimNotifikasiWeb(uservalid, "MASUK");
+
     res.json({
       success: true,
       message: `Absensi berhasil dicatat! Selamat belajar ${namaPemilik}`,
@@ -129,7 +151,7 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
 
 app.post("/api/attendances/manual", verifyToken, async (req, res) => {
   try {
-    const { username, status, keterangan } = req.body;
+    const { username, status, note } = req.body;
 
     if (!username || !username.trim()) {
       return res
@@ -139,7 +161,7 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
 
     const { data: user, error: userError } = await supabase
       .from("users")
-      .select("username, idcard")
+      .select("username, idcard, whatsapp, rombel")
       .ilike("username", username.trim())
       .maybeSingle();
 
@@ -162,7 +184,7 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
           idcard: user.idcard,
           mac_address: "Manual Input",
           status: status || "Hadir",
-          note: keterangan || null,
+          note: note || "Tidak ada catatan",
         },
       ])
       .select();
@@ -173,6 +195,8 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
         .status(500)
         .json({ success: false, error: "Gagal menyimpan absensi manual." });
     }
+
+    kirimNotifikasiWeb(user, "MASUK");
 
     res.json({
       success: true,
@@ -269,6 +293,24 @@ app.put("/api/attendances/:id", verifyToken, async (req, res) => {
         .json({ success: false, error: "Data absensi tidak ditemukan" });
     }
 
+    if (time_finish) {
+      const { data: attRow } = await supabase
+        .from("attendances")
+        .select("idcard")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (attRow?.idcard) {
+        const { data: userPulang } = await supabase
+          .from("users")
+          .select("username, rombel, whatsapp")
+          .eq("idcard", String(attRow.idcard).trim())
+          .maybeSingle();
+
+        kirimNotifikasiWeb(userPulang, "PULANG");
+      }
+    }
+
     res.json({
       success: true,
       message: "Data absensi berhasil diupdate",
@@ -354,12 +396,12 @@ app.get("/api/users/:nis", verifyToken, async (req, res) => {
 
 app.put("/api/users/:nis", verifyToken, verifyAdmin, async (req, res) => {
   const { nis } = req.params;
-  const { username, email, rombel, role, idcard } = req.body;
+  const { username, email, rombel, role, idcard, whatsapp } = req.body;
 
   try {
     const { data, error } = await supabase
       .from("users")
-      .update({ username, email, rombel, role, idcard })
+      .update({ username, email, rombel, role, idcard, whatsapp })
       .eq("nis", nis);
 
     if (error) {

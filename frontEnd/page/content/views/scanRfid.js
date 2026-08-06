@@ -69,14 +69,13 @@ function renderScanRfid() {
             <datalist id="daftar-siswa"></datalist>
           </div>
 
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button class="scan-btn" onclick="submitManual()" style="flex: 2; background-color: #28a745;">
+            <button class="scan-btn" onclick="submitManual()">
               <i class="bi bi-check-circle"></i> Simpan Absen
             </button>
-            <button class="inputManual-btn" onclick="toggleAbsenMode('scan')" style="flex: 1; margin: 0;">
+
+            <button class="inputManual-btn" onclick="toggleAbsenMode('scan')">
               Batal
             </button>
-          </div>
 
         </div>
 
@@ -238,8 +237,7 @@ async function submitScan() {
       if (dataHariIni.time_finish || dataHariIni.status_keluar) {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        resultEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> Anda sudah absen masuk & keluar hari ini!</div>`;
-        showToast("Kuota absen hari ini sudah habis", "warning");
+        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Anda sudah absen masuk & keluar hari ini!</div>`;
         return;
       }
 
@@ -389,7 +387,7 @@ async function submitManual() {
         body: JSON.stringify({
           username: nama,
           status: status,
-          keterangan: keterangan,
+          note: keterangan,
         }),
       });
     }

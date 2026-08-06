@@ -62,6 +62,13 @@ function renderInputSiswa() {
       </div>
 
       <div class="form-group full-width">
+        <label class="form-label" for="call">
+          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua
+        </label>
+        <input type="text" id="whatsapp" class="form-control-modern" placeholder="+62 *** **** ****" value="+62 *** **** ****">
+      </div>
+
+      <div class="form-group full-width">
         <label class="form-label" for="rombel">
           <i class="bi bi-people"></i> Rombel
         </label>
@@ -153,6 +160,7 @@ function renderInputSiswa() {
               <th>Rombel</th>
               <th>UID RFID</th>
               <th>Status</th>
+              <th>Whatsapp Orang Tua</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -182,6 +190,7 @@ function initInputSiswaListener() {
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
     const roleInput = document.getElementById("selectRole");
+    const whatsappInput = document.getElementById("whatsapp");
 
     if (
       !IdRfidInput ||
@@ -190,7 +199,8 @@ function initInputSiswaListener() {
       !usernameInput ||
       !emailInput ||
       !passwordInput ||
-      !roleInput
+      !roleInput ||
+      !whatsappInput
     ) {
       console.error("Ada elemen HTML yang gagal dimuat!");
       return;
@@ -203,6 +213,7 @@ function initInputSiswaListener() {
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
     const role = roleInput.value.trim();
+    const whatsapp = whatsappInput.value.trim();
 
     if (
       !username ||
@@ -211,7 +222,8 @@ function initInputSiswaListener() {
       !rombel ||
       !idcard ||
       !nis ||
-      !role
+      !role ||
+      !whatsapp
     ) {
       showToast("Wajib mengisi semua kolom input!", "danger");
       Swal.fire({
@@ -224,6 +236,22 @@ function initInputSiswaListener() {
         },
         buttonsStyling: false,
       });
+      return;
+    }
+
+    if (!whatsapp.startsWith("62")) {
+      showToast("Nomor WhatsApp harus diawali 62", "warning");
+      Swal.fire({
+        title: "Format WhatsApp Salah",
+        text: "Nomor WhatsApp harus diawali dengan 62",
+        icon: "warning",
+        customClass: {
+          popup: "sweetalert-popup",
+          confirmButton: "sweetalert-btn-success",
+        },
+        buttonsStyling: false,
+      });
+      whatsappInput.focus();
       return;
     }
 
@@ -243,6 +271,7 @@ function initInputSiswaListener() {
           idcard,
           rombel,
           nis,
+          whatsapp,
         }),
       });
 
@@ -282,6 +311,7 @@ function initInputSiswaListener() {
       nisInput.value = "";
       IdRfidInput.value = "";
       roleInput.value = "";
+      whatsappInput.value = "";
 
       document.getElementById("formInputContainer").style.display = "none";
       document.getElementById("dataContainer").style.display = "block";
@@ -315,7 +345,7 @@ async function loadTableSiswa() {
 
     const response = await fetch("http://localhost:3000/api/users", {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -351,6 +381,7 @@ async function loadTableSiswa() {
         <td>${user.rombel || "-"}</td>
         <td><code>${user.idcard}</code></td>
         <td><span class="status-aktif">Aktif</span></td>
+        <td>${user.whatsapp}</td>
         <td>
           <button class= "btn-detail btn btn-secondary btn-sm" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-eye"></i></button>
           <button class="btn-edit btn btn-primary btn-sm" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-pencil-square"></i></button>
@@ -519,7 +550,7 @@ function initActionButtonsListener() {
       try {
         const response = await fetch(`http://localhost:3000/api/users/${nis}`, {
           method: "DELETE",
-          credentials: "include"
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -558,7 +589,7 @@ function initActionButtonsListener() {
       const nis = button.getAttribute("data-nis");
 
       routerState = {
-        nis: nis
+        nis: nis,
       };
 
       navigateTo("detail-siswa");
@@ -584,6 +615,7 @@ async function actionEditSiswa(nis, email) {
         ? ""
         : row.cells[2].innerText.trim();
     const idcard = row.cells[3].querySelector("code").innerText.trim();
+    const whatsapp = row.cells[5].innerText.trim();
 
     const { value: formValues } = await Swal.fire({
       title: "Edit Data Siswa / Guru",
@@ -599,6 +631,11 @@ async function actionEditSiswa(nis, email) {
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>UID RFID</label></div>
         <input id="swal-idcard" class="swal2-input" style="margin-top:0;" value="${idcard}">
+
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
+        <label>Whatsapp Orang Tua</label></div>
+        <input id="swal-whatsapp" class="swal2-input" style="margin-top:0;" value="${whatsapp}">
+
 
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>Peran</label></div>
@@ -621,6 +658,7 @@ async function actionEditSiswa(nis, email) {
           idcard: document.getElementById("swal-idcard").value.trim(),
           role: document.getElementById("swal-role").value,
           rombel: document.getElementById("swal-rombel").value.trim(),
+          whatsapp: document.getElementById("swal-whatsapp").value.trim(),
         };
       },
     });
@@ -675,7 +713,8 @@ async function handleRombelFilterInput() {
     if (!rombelCell) return;
 
     const rombelText = rombelCell.textContent.trim();
-    const match = !currentSelectedRombel || rombelText === currentSelectedRombel;
+    const match =
+      !currentSelectedRombel || rombelText === currentSelectedRombel;
 
     row.style.display = match ? "" : "none";
     if (match) visibleCount++;
@@ -697,7 +736,7 @@ async function actionDetailSiswa(nis) {
   try {
     const response = await fetch(`http://localhost:3000/api/users/${nis}`, {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
 
     if (!response.ok) {

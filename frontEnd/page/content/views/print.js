@@ -50,7 +50,7 @@ function renderPrint() {
                 <input type="month" id="printBulan" class="form-control bg-light border-0 rounded-3" style="height: 40px;" value="${currentMonth}">
             </div>
 
-            <button id="btnProsesCetakExcel" class="btn btn-primary w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500;">
+            <button id="btnProsesCetakExcel" class="btn btn-success w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500;">
                 <i class="bi bi-file-earmark-excel-fill"></i> Generate & Unduh Excel
             </button>
             <button id="btnProsesCetakPdf" class="btn btn-danger w-100 rounded-3 mt-2 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500;">

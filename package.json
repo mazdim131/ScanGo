@@ -5,6 +5,7 @@
   "main": "appjs",
   "scripts": {
     "start": "node backend/app.js",
+    "start:wa": "node backend/config/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,9 @@
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.21.0",
-    "sweetalert2": "^11.26.25"
+    "puppeteer": "^25.4.0",
+    "qrcode-terminal": "^0.12.0",
+    "sweetalert2": "^11.26.25",
+    "whatsapp-web.js": "^1.34.7"
   }
 }
