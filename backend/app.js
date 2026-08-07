@@ -41,7 +41,11 @@ function kirimNotifikasiWeb(siswa, jenis) {
 }
 
 // Helmet & body parser harus dipasang sebelum route
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
@@ -515,8 +519,11 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server STANDBY di: http://localhost:${PORT}`);
-});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server STANDBY di: http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
