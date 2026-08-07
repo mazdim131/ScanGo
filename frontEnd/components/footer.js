@@ -25,8 +25,8 @@ footer.innerHTML = `
         <div class="col-lg-2 col-6">
           <h6 class="fw-bold">Perusahaan</h6>
           <ul class="list-unstyled text-muted">
-            <li class="mb-2"><a href="/frontend/page/structure/about.html" class="text-secondary text-decoration-none">Tentang</a></li>
-            <li class="mb-2"><a href="/frontend/page/structure/contact.html" class="text-secondary text-decoration-none">Kontak</a></li>
+            <li class="mb-2"><a href="/frontEnd/page/structure/about.html" class="text-secondary text-decoration-none">Tentang</a></li>
+            <li class="mb-2"><a href="/frontEnd/page/structure/contact.html" class="text-secondary text-decoration-none">Kontak</a></li>
           </ul>
         </div>
 

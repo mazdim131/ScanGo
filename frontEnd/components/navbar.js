@@ -16,8 +16,8 @@ navbar.innerHTML = `
         <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-4 mx-lg-auto">
           <a class="nav-link active text-center" aria-current="page" href="/index.html">Beranda</a>     
           <a class="nav-link text-center" href="/frontEnd/page/structure/guide.html">Panduan</a>
-          <a class="nav-link text-center" href="/frontend/page/structure/about.html">Tentang</a>
-          <a class="nav-link text-center" href="/frontend/page/structure/company.html">Pengembang</a>
+          <a class="nav-link text-center" href="/frontEnd/page/structure/about.html">Tentang</a>
+          <a class="nav-link text-center" href="/frontEnd/page/structure/company.html">Pengembang</a>
         </div>
 
         <div class="d-flex justify-content-center gap-2">

@@ -128,7 +128,7 @@
                     options = options || {};
                     options.headers = options.headers || {};
                     options.credentials = options.credentials || "include";
-                    const token = localStorage.getItem("token");
+                    const token = sessionStorage.getItem("token");
                     if (token && !options.headers["Authorization"]) {
                         options.headers["Authorization"] = "Bearer " + token;
                     }
@@ -136,6 +136,8 @@
                 };
             })();
             </script>
+            <!-- script config api base -->
+            <script src="/frontEnd/config.js"></script>
             <!-- script changetheme -->
             <script src="/frontEnd/components/changetheme.js"></script>
             <!-- script content statistika -->
@@ -143,7 +145,7 @@
 
             <!-- <script src="/frontEnd/page/content/views/inputStudent.js"></script> -->
             <!-- <script src="/frontEnd/page/content/views/dashboad.js"></script> -->
-            <script src="/backend/routes/router.js"></script>
+            <script src="/frontEnd/components/router.js"></script>
             <script src="/frontEnd/page/content/views/scanRfid.js"></script>
 
             <!-- script component navbar -->

@@ -1,6 +1,6 @@
 let routerState = {};
-if (typeof window.routerState === "undifined") {
-  window.routerState = {};
+if (typeof window.routerState === "undefined") {
+  window.routerState = routerState;
 }
 
 function navigateTo(page) {

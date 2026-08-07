@@ -50,8 +50,8 @@ function initDetailSiswaListener(routerState) {
   }
 
   Promise.all([
-    fetch(`https://scan-go-kappa.vercel.app/api/users/${nis}`, { credentials: "include" }).then((r) => r.json()),
-    fetch(`https://scan-go-kappa.vercel.app/api/users/${nis}/attendances`, { credentials: "include" }).then((r) =>
+    fetch(`${API_BASE}/api/users/${nis}`, { credentials: "include" }).then((r) => r.json()),
+    fetch(`${API_BASE}/api/users/${nis}/attendances`, { credentials: "include" }).then((r) =>
       r.json(),
     ),
   ])

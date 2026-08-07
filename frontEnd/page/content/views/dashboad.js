@@ -51,7 +51,7 @@ async function initDashboardListener() {
 
 async function fetchAttendanceData() {
   try {
-    const response = await fetch("https://scan-go-kappa.vercel.app/api/attendances", {
+    const response = await fetch(`${API_BASE}/api/attendances`, {
       method: "GET",
       credentials: "include"
     });
@@ -381,7 +381,7 @@ async function editAttendancesStatus(id, currentStatus) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/api/attendances/${id}`,
+      `${API_BASE}/api/attendances/${id}`,
       {
         method: "PUT",
         headers: {
@@ -411,7 +411,7 @@ async function deleteAttendanceLog(id) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/api/attendances/${id}`,
+      `${API_BASE}/api/attendances/${id}`,
       {
         method: "DELETE",
         credentials: "include",

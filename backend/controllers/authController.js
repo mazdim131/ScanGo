@@ -47,8 +47,12 @@ const register = async (req, res) => {
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const allowedRoles = ["admin", "user", "teacher", "student"];
-    const userRole = allowedRoles.includes(role) ? role : "user";
+
+    // Hanya role student/user yang boleh dibuat lewat registrasi publik.
+    // Role "teacher" hanya boleh dibuat setelah lolos verifikasi admin
+    // (dijaga oleh middleware ensureAdminIfTeacher di authRoutes.js).
+    const allowedRoles = ["student", "user"];
+    const userRole = allowedRoles.includes(role) ? role : "student";
 
     const { data, error } = await supabase
       .from("users")

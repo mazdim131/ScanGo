@@ -259,7 +259,7 @@ function initInputSiswaListener() {
       btnDaftar.disabled = true;
       btnDaftar.innerText = "Memproses...";
 
-      const response = await fetch("https://scan-go-kappa.vercel.app/api/auth/register", {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -343,7 +343,7 @@ async function loadTableSiswa() {
   try {
     tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>`;
 
-    const response = await fetch("https://scan-go-kappa.vercel.app/api/users", {
+    const response = await fetch(`${API_BASE}/api/users`, {
       method: "GET",
       credentials: "include",
     });
@@ -455,7 +455,7 @@ function initImportExcelListener() {
         }
 
         const response = await fetch(
-          "https://scan-go-kappa.vercel.app/api/auth/register-bulk",
+          `${API_BASE}/api/auth/register-bulk`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -548,7 +548,7 @@ function initActionButtonsListener() {
       if (!confirm.isConfirmed) return;
 
       try {
-        const response = await fetch(`https://scan-go-kappa.vercel.app/api/users/${nis}`, {
+        const response = await fetch(`${API_BASE}/api/users/${nis}`, {
           method: "DELETE",
           credentials: "include",
         });
@@ -666,7 +666,7 @@ async function actionEditSiswa(nis, email) {
     if (!formValues) return;
 
     const updateResponse = await fetch(
-      `http://localhost:3000/api/users/${nis}`,
+      `${API_BASE}/api/users/${nis}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -734,7 +734,7 @@ async function handleRombelFilterInput() {
 //detailsiswa
 async function actionDetailSiswa(nis) {
   try {
-    const response = await fetch(`https://scan-go-kappa.vercel.app/api/users/${nis}`, {
+    const response = await fetch(`${API_BASE}/api/users/${nis}`, {
       method: "GET",
       credentials: "include",
     });

@@ -12,10 +12,16 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
-const ORIGIN_FRONTEND = process.env.CORS_ORIGIN;
-const WA_GATEWAY_URL = process.env.WA_GATEWAY_URL || `http://localhost:${process.env.WA_PORT || 3001}`;
+const ORIGIN_FRONTEND = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const WA_ENABLED = process.env.WA_ENABLED === "true";
+const WA_GATEWAY_URL = process.env.WA_GATEWAY_URL || "";
 
 function kirimNotifikasiWeb(siswa, jenis) {
+  if (!WA_ENABLED) return;
   if (!siswa?.whatsapp) return;
 
   fetch(`${WA_GATEWAY_URL}/api/send-notification`, {
@@ -34,29 +40,36 @@ function kirimNotifikasiWeb(siswa, jenis) {
     );
 }
 
+// Helmet & body parser harus dipasang sebelum route
+app.use(helmet());
+app.use(express.json({ limit: "1mb" }));
+app.use(cookieParser());
+
+// CORS: izinkan origin eksplisit (dari env) + request same-origin (tanpa Origin header)
 app.use(
   cors({
-    origin: ORIGIN_FRONTEND,
+    origin(origin, callback) {
+      if (!origin || ORIGIN_FRONTEND.length === 0 || ORIGIN_FRONTEND.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Origin tidak diizinkan oleh CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "api-token"],
   }),
 );
 
-app.use(express.json());
-app.use(cookieParser());
-
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
-
-app.use(helmet());
+// Rate limiter global sebelum route API
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   message: { success: false, message: "Terlalu banyak permintaan. Coba lagi nanti." }
 });
-
 app.use("/api", globalLimiter);
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.post("/api/attendances/store", verifyToken, async (req, res) => {
   try {
@@ -505,3 +518,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server STANDBY di: http://localhost:${PORT}`);
 });
+
+module.exports = app;

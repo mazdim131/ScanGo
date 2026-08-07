@@ -4,27 +4,41 @@ const path = require("path");
 require("dotenv").config();
 
 const PROJECT_REF = process.env.PROJECT_REF;
+const DATABASE_URL = process.env.DATABASE_URL;
+
+function buildClient(poolerPort) {
+  if (DATABASE_URL) {
+    return new Client({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: true },
+      connectionTimeoutMillis: 10000,
+    });
+  }
+  return new Client({
+    user: `postgres.${PROJECT_REF}`,
+    password: process.env.DATABASE_PASSWORD,
+    host: "aws-0-ap-southeast-1.pooler.supabase.com",
+    port: poolerPort,
+    database: "postgres",
+    ssl: { rejectUnauthorized: true },
+    connectionTimeoutMillis: 10000,
+  });
+}
+
+async function runMigration(client, label) {
+  const sqlPath = path.join(__dirname, "migrations", "001_create_attendances.sql");
+  const sql = fs.readFileSync(sqlPath, "utf8");
+  await client.query(sql);
+  console.log(`Migration 001_create_attendances.sql berhasil dijalankan (${label})!`);
+}
 
 async function migrate() {
-    const client = new Client({
-        user: `postgres.${PROJECT_REF}`,
-        password: process.env.DATABASE_PASSWORD,
-        host: "aws-0-ap-southeast-1.pooler.supabase.com",
-        port: 6543,
-        database: "postgres",
-        ssl: { rejectUnauthorized: true },
-        connectionTimeoutMillis: 10000,
-    });
+    let client = buildClient(6543);
 
     try {
         await client.connect();
         console.log("Connected to database via pooler");
-
-        const sqlPath = path.join(__dirname, "migrations", "001_create_attendances.sql");
-        const sql = fs.readFileSync(sqlPath, "utf8");
-
-        await client.query(sql);
-        console.log("Migration 001_create_attendances.sql berhasil dijalankan!");
+        await runMigration(client, "pooler");
     } catch (error) {
         console.error("Migration error:", error.message);
         console.log("Mencoba koneksi langsung ke database...");
@@ -40,12 +54,7 @@ async function migrate() {
             });
             await directClient.connect();
             console.log("Connected to database directly");
-
-            const sqlPath = path.join(__dirname, "migrations", "001_create_attendances.sql");
-            const sql = fs.readFileSync(sqlPath, "utf8");
-
-            await directClient.query(sql);
-            console.log("Migration 001_create_attendances.sql berhasil dijalankan!");
+            await runMigration(directClient, "direct");
             await directClient.end();
         } catch (directError) {
             console.error("Direct connection error:", directError.message);
