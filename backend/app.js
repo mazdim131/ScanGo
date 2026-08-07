@@ -13,7 +13,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
 const ORIGIN_FRONTEND = process.env.CORS_ORIGIN;
-const WA_GATEWAY_URL = `http://localhost:${process.env.WA_PORT || 3001}`;
+const WA_GATEWAY_URL = process.env.WA_GATEWAY_URL || `http://localhost:${process.env.WA_PORT || 3001}`;
 
 function kirimNotifikasiWeb(siswa, jenis) {
   if (!siswa?.whatsapp) return;

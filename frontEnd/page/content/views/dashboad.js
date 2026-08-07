@@ -51,7 +51,7 @@ async function initDashboardListener() {
 
 async function fetchAttendanceData() {
   try {
-    const response = await fetch("http://localhost:3000/api/attendances", {
+    const response = await fetch("https://scan-go-kappa.vercel.app/api/attendances", {
       method: "GET",
       credentials: "include"
     });

@@ -456,12 +456,12 @@ window.initGrafikListener = async function () {
   let users = [];
   let attendances = [];
   try {
-    const resA = await fetch("http://localhost:3000/api/attendances", { credentials: "include" });
+    const resA = await fetch("https://scan-go-kappa.vercel.app/api/attendances", { credentials: "include" });
     if (resA.ok) {
       const dataA = await resA.json();
       if (dataA.success) attendances = dataA.data || [];
     }
-    const resU = await fetch("http://localhost:3000/api/users", { credentials: "include" });
+    const resU = await fetch("https://scan-go-kappa.vercel.app/api/users", { credentials: "include" });
     if (resU.ok) {
       const dataU = await resU.json();
       if (dataU.success) users = dataU.data || [];

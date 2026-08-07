@@ -123,7 +123,7 @@ function initScanRfid() {
 
 async function loadDaftarSiswa() {
   try {
-    const res = await fetch("http://localhost:3000/api/users", {
+    const res = await fetch("https://scan-go-kappa.vercel.app/api/users", {
       method: "GET",
       credentials: "include"
     });
@@ -173,7 +173,7 @@ async function cariNamaSiswa(nama) {
   }
 
   try {
-    const res = await fetch("http://localhost:3000/api/users", {
+    const res = await fetch("https://scan-go-kappa.vercel.app/api/users", {
       method: "GET",
       credentials: "include"
     });
@@ -210,7 +210,7 @@ async function submitScan() {
     '<span class="scan-status-badge scanning"><i class="bi bi-arrow-repeat"></i> Memproses...</span>';
 
   try {
-    const resCheck = await fetch("http://localhost:3000/api/attendances", {
+    const resCheck = await fetch("https://scan-go-kappa.vercel.app/api/attendances", {
       method: "GET",
       credentials: "include"
     });
@@ -244,7 +244,7 @@ async function submitScan() {
       const sekarangJam = new Date().toISOString();
 
       response = await fetch(
-        `http://localhost:3000/api/attendances/${dataHariIni.id}`,
+        `https://scan-go-kappa.vercel.app/api/attendances/${dataHariIni.id}`,
         {
           method: "PUT",
           headers: {
@@ -258,7 +258,7 @@ async function submitScan() {
       );
     } else {
       response = await fetch(
-        "http://localhost:3000/api/attendances/store?idcard=" +
+        "https://scan-go-kappa.vercel.app/api/attendances/store?idcard=" +
           encodeURIComponent(cardId) +
           "&mac_address=RFID",
         {
@@ -322,7 +322,7 @@ async function submitManual() {
     '<div class="alert alert-warning">Menyimpan data...</div>';
 
   try {
-    const resCheck = await fetch("http://localhost:3000/api/attendances", {
+    const resCheck = await fetch("https://scan-go-kappa.vercel.app/api/attendances", {
       method: "GET",
       credentials: "include"
     });
@@ -365,7 +365,7 @@ async function submitManual() {
       const sekarangJam = new Date().toISOString();
 
       response = await fetch(
-        `http://localhost:3000/api/attendances/${dataHariIni.id}`,
+        `https://scan-go-kappa.vercel.app/api/attendances/${dataHariIni.id}`,
         {
           method: "PUT",
           headers: {
@@ -378,7 +378,7 @@ async function submitManual() {
         },
       );
     } else {
-      response = await fetch("http://localhost:3000/api/attendances/manual", {
+      response = await fetch("https://scan-go-kappa.vercel.app/api/attendances/manual", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
