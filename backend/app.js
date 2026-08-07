@@ -504,7 +504,13 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
       });
     }
 
-    const { data, error } = await supabase.from("users").insert(users).select();
+    const usersNormalized = users.map((u) => ({
+      ...u,
+      idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
+      nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
+    }));
+
+    const { data, error } = await supabase.from("users").insert(usersNormalized).select();
     if (error) throw error;
 
     res.json({

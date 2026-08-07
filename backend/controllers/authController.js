@@ -48,6 +48,9 @@ const register = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    const idcardNum = idcard !== "" ? Number(idcard) : null;
+    const nisNum = nis !== "" ? Number(nis) : null;
+
     // Hanya role student/user yang boleh dibuat lewat registrasi publik.
     // Role "teacher" hanya boleh dibuat setelah lolos verifikasi admin
     // (dijaga oleh middleware ensureAdminIfTeacher di authRoutes.js).
@@ -62,9 +65,9 @@ const register = async (req, res) => {
           password: hashedPassword,
           role: userRole,
           username: username,
-          idcard: idcard,
+          idcard: idcardNum,
           rombel: rombel,
-          nis: nis,
+          nis: nisNum,
           whatsapp: whatsapp
         },
       ])
