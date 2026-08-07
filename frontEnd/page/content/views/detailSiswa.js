@@ -50,8 +50,8 @@ function initDetailSiswaListener(routerState) {
   }
 
   Promise.all([
-    fetch(`http://localhost:3000/api/users/${nis}`, { credentials: "include" }).then((r) => r.json()),
-    fetch(`http://localhost:3000/api/users/${nis}/attendances`, { credentials: "include" }).then((r) =>
+    fetch(`${API_BASE}/api/users/${nis}`, { credentials: "include" }).then((r) => r.json()),
+    fetch(`${API_BASE}/api/users/${nis}/attendances`, { credentials: "include" }).then((r) =>
       r.json(),
     ),
   ])

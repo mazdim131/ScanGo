@@ -16,3 +16,7 @@ build/
 
 .DS_Store
 Thumbs.db
+
+# Sesi & cache whatsapp-web.js (berisi kredensial login WA)
+.wwebjs_auth/
+.wwebjs_cache/

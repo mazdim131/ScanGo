@@ -117,7 +117,7 @@ content.innerHTML = `
             </div>
             <div class="col-lg-6">
                 <div class="p-3 h-100">
-                    <img src="/frontend/assets/background/1684477396-post.jpg" class="img-fluid img-stretch shadow-sm reveal" alt="ScanGo Workspace">
+                    <img src="/frontEnd/assets/background/1684477396-post.jpg" class="img-fluid img-stretch shadow-sm reveal" alt="ScanGo Workspace">
                 </div>
             </div>
         </div>

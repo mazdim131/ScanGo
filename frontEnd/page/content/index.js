@@ -21,10 +21,10 @@ content.innerHTML = `
             <button class="btn btn-lg btn-watch" onclick="btnGuide()">Lihat Demo</button>
         </div>
 
-        <a href="/frontend/page/structure/about.html#dev" class="d-flex gap-2 mt-5 animate__animated animate__fadeInUp text-decoration-none" style="color: var(--color-teks) !important;">
-            <img src="/frontend/assets/profiles/dimas.png" alt="Profile Dev" class="img-profile-dev">
-            <img src="/frontend/assets/profiles/hifzhi.jpeg" alt="Profile Dev" class="img-profile-dev">
-            <img src="/frontend/assets/profiles/yazid.jpeg" alt="Profile Dev" class="img-profile-dev">
+        <a href="/frontEnd/page/structure/about.html#dev" class="d-flex gap-2 mt-5 animate__animated animate__fadeInUp text-decoration-none" style="color: var(--color-teks) !important;">
+            <img src="/frontEnd/assets/profiles/dimas.png" alt="Profile Dev" class="img-profile-dev">
+            <img src="/frontEnd/assets/profiles/hifzhi.jpeg" alt="Profile Dev" class="img-profile-dev">
+            <img src="/frontEnd/assets/profiles/yazid.jpeg" alt="Profile Dev" class="img-profile-dev">
             <p class="dev-text">
                 Lihat Profil Pengembang
             </p>
@@ -238,38 +238,42 @@ function btnGuide() {
 
 const swiperEl = document.querySelector(".mySwiper");
 
-swiperEl.addEventListener("mouseenter", () => {
-  swiper.autoplay.stop();
-});
+const swiper = swiperEl
+  ? new Swiper(".mySwiper", {
+      loop: true,
+      allowTouchMove: false,
 
-swiperEl.addEventListener("mouseleave", () => {
-  swiper.autoplay.start();
-});
+      autoplay: {
+        delay: 0,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+      },
 
-const swiper = new Swiper(".mySwiper", {
-  loop: true,
-  allowTouchMove: false,
+      speed: 4000,
 
-  autoplay: {
-    delay: 0,
-    disableOnInteraction: false,
-    pauseOnMouseEnter: true,
-  },
+      breakpoints: {
+        320: {
+          slidesPerView: 2,
+          spaceBetween: 20,
+        },
+        768: {
+          slidesPerView: 3,
+          spaceBetween: 30,
+        },
+        1024: {
+          slidesPerView: 5,
+          spaceBetween: 40,
+        },
+      },
+    })
+  : null;
 
-  speed: 4000,
+if (swiper && swiperEl) {
+  swiperEl.addEventListener("mouseenter", () => {
+    swiper.autoplay.stop();
+  });
 
-  breakpoints: {
-    320: {
-      slidesPerView: 2,
-      spaceBetween: 20,
-    },
-    768: {
-      slidesPerView: 3,
-      spaceBetween: 30,
-    },
-    1024: {
-      slidesPerView: 5,
-      spaceBetween: 40,
-    },
-  },
-});
+  swiperEl.addEventListener("mouseleave", () => {
+    swiper.autoplay.start();
+  });
+}

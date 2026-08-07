@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   try {
-    const { email, password, role, username, idcard, rombel, nis } = req.body;
+    const { email, password, role, username, idcard, rombel, nis, whatsapp } = req.body;
 
     if (
       !email ||
@@ -13,7 +13,8 @@ const register = async (req, res) => {
       !idcard ||
       !role ||
       !rombel ||
-      !nis
+      !nis ||
+      !whatsapp
     ) {
       return res.status(400).json({
         message: "Semua kolom input wajib diisi!",
@@ -46,8 +47,12 @@ const register = async (req, res) => {
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const allowedRoles = ["admin", "user", "teacher", "student"];
-    const userRole = allowedRoles.includes(role) ? role : "user";
+
+    // Hanya role student/user yang boleh dibuat lewat registrasi publik.
+    // Role "teacher" hanya boleh dibuat setelah lolos verifikasi admin
+    // (dijaga oleh middleware ensureAdminIfTeacher di authRoutes.js).
+    const allowedRoles = ["student", "user"];
+    const userRole = allowedRoles.includes(role) ? role : "student";
 
     const { data, error } = await supabase
       .from("users")
@@ -59,7 +64,8 @@ const register = async (req, res) => {
           username: username,
           idcard: idcard,
           rombel: rombel,
-          nis: nis
+          nis: nis,
+          whatsapp: whatsapp
         },
       ])
       .select();
@@ -75,7 +81,8 @@ const register = async (req, res) => {
         username: data[0].username,
         idcard: data[0].idcard,
         rombel: data[0].rombel,
-        nis: data[0].nis
+        nis: data[0].nis,
+        whatsapp : data[0].whatsapp
       },
     });
   } catch (error) {
@@ -123,7 +130,8 @@ const login = async (req, res) => {
         username: user.username,
         idcard: user.idcard,
         rombel: user.rombel,
-        nis: user.nis
+        nis: user.nis,
+        whatsapp: user.whatsapp 
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" },
@@ -146,7 +154,8 @@ const login = async (req, res) => {
         username: user.username,
         idcard: user.idcard,
         rombel: user.rombel,
-        nis: user.nis
+        nis: user.nis,
+        whatsapp: user.whatsapp
       },
     });
   } catch (error) {

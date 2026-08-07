@@ -3,6 +3,7 @@ const router = express.Router();
 const rateLimit = require("express-rate-limit");
 const authController = require("../controllers/authController");
 const verifyToken = require("../middlewares/authMiddleware");
+const verifyAdmin = require("../middlewares/adminMiddleware");
 
 const loginLimiter = rateLimit({
   windowMs: 30 * 1000,
@@ -22,7 +23,16 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post("/register", apiLimiter, authController.register);
+// Registrasi publik hanya boleh membuat akun student/user.
+// Membuat akun dengan role "teacher" harus melewati verifikasi admin.
+const ensureAdminIfTeacher = (req, res, next) => {
+  if (req.body && req.body.role === "teacher") {
+    return verifyToken(req, res, () => verifyAdmin(req, res, next));
+  }
+  next();
+};
+
+router.post("/register", apiLimiter, ensureAdminIfTeacher, authController.register);
 router.post("/login", loginLimiter, authController.login);
 
 router.get("/test-vip", apiLimiter, verifyToken, (req, res) => {

@@ -69,14 +69,13 @@ function renderScanRfid() {
             <datalist id="daftar-siswa"></datalist>
           </div>
 
-          <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button class="scan-btn" onclick="submitManual()" style="flex: 2; background-color: #28a745;">
+            <button class="scan-btn" onclick="submitManual()">
               <i class="bi bi-check-circle"></i> Simpan Absen
             </button>
-            <button class="inputManual-btn" onclick="toggleAbsenMode('scan')" style="flex: 1; margin: 0;">
+
+            <button class="inputManual-btn" onclick="toggleAbsenMode('scan')">
               Batal
             </button>
-          </div>
 
         </div>
 
@@ -124,7 +123,7 @@ function initScanRfid() {
 
 async function loadDaftarSiswa() {
   try {
-    const res = await fetch("http://localhost:3000/api/users", {
+    const res = await fetch(`${API_BASE}/api/users`, {
       method: "GET",
       credentials: "include"
     });
@@ -174,7 +173,7 @@ async function cariNamaSiswa(nama) {
   }
 
   try {
-    const res = await fetch("http://localhost:3000/api/users", {
+    const res = await fetch(`${API_BASE}/api/users`, {
       method: "GET",
       credentials: "include"
     });
@@ -211,7 +210,7 @@ async function submitScan() {
     '<span class="scan-status-badge scanning"><i class="bi bi-arrow-repeat"></i> Memproses...</span>';
 
   try {
-    const resCheck = await fetch("http://localhost:3000/api/attendances", {
+    const resCheck = await fetch(`${API_BASE}/api/attendances`, {
       method: "GET",
       credentials: "include"
     });
@@ -238,15 +237,14 @@ async function submitScan() {
       if (dataHariIni.time_finish || dataHariIni.status_keluar) {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        resultEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> Anda sudah absen masuk & keluar hari ini!</div>`;
-        showToast("Kuota absen hari ini sudah habis", "warning");
+        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Anda sudah absen masuk & keluar hari ini!</div>`;
         return;
       }
 
       const sekarangJam = new Date().toISOString();
 
       response = await fetch(
-        `http://localhost:3000/api/attendances/${dataHariIni.id}`,
+        `${API_BASE}/api/attendances/${dataHariIni.id}`,
         {
           method: "PUT",
           headers: {
@@ -260,7 +258,7 @@ async function submitScan() {
       );
     } else {
       response = await fetch(
-        "http://localhost:3000/api/attendances/store?idcard=" +
+        `${API_BASE}/api/attendances/store?idcard=` +
           encodeURIComponent(cardId) +
           "&mac_address=RFID",
         {
@@ -324,7 +322,7 @@ async function submitManual() {
     '<div class="alert alert-warning">Menyimpan data...</div>';
 
   try {
-    const resCheck = await fetch("http://localhost:3000/api/attendances", {
+    const resCheck = await fetch(`${API_BASE}/api/attendances`, {
       method: "GET",
       credentials: "include"
     });
@@ -367,7 +365,7 @@ async function submitManual() {
       const sekarangJam = new Date().toISOString();
 
       response = await fetch(
-        `http://localhost:3000/api/attendances/${dataHariIni.id}`,
+        `${API_BASE}/api/attendances/${dataHariIni.id}`,
         {
           method: "PUT",
           headers: {
@@ -380,7 +378,7 @@ async function submitManual() {
         },
       );
     } else {
-      response = await fetch("http://localhost:3000/api/attendances/manual", {
+      response = await fetch(`${API_BASE}/api/attendances/manual`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -389,7 +387,7 @@ async function submitManual() {
         body: JSON.stringify({
           username: nama,
           status: status,
-          keterangan: keterangan,
+          note: keterangan,
         }),
       });
     }
