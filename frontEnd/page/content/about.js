@@ -49,7 +49,7 @@ content.innerHTML = `
                     <div class="col">
                       <div class="card" style="border: none !important; background-color: var(--bg-sidebar) !important; color: var(--color-teks) !important;">
                         <div class="card-body">
-                          <h3><b>1.5K+</b></h3>
+                          <h3><b>4+</b></h3>
                           <p>Perangkat Aktif</p>
                         </div>
                       </div>
@@ -65,7 +65,7 @@ content.innerHTML = `
                     <div class="col">
                       <div class="card mt-4" style="border: none !important; background-color: var(--bg-sidebar) !important; color: var(--color-teks) !important;">
                         <div class="card-body">
-                          <h3><b>V1.1</b> <button class="btn btn-success btn-sm">Beta</button></h3>
+                          <h3><b>V1.2</b> <button class="btn btn-success btn-sm">Public</button></h3>
                           <p>Versi Update</p>
                         </div>
                       </div>

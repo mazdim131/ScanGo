@@ -254,7 +254,7 @@ body {
   .title-index {
     font-size: 3rem;
     margin-top: 20% !important;
-    max-width: 350px;
+    /* max-width: 350px; */
   }
 
   footer {

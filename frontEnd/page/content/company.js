@@ -54,7 +54,7 @@ content.innerHTML = `
 
         <div class="container" style="margin-top: 50px;">
   <div class="row">
-    <div class="col">
+    <div class="col-12 col-md-4 mt-2">
       <div class="card rounded-5" style="padding: 20px; background: var(--bg-sidebar); height: 500px; border: none !important; color: var(--color-teks); width: 100%;">
   <img src="/frontEnd/assets/mascot/bertanya-tanya.webp" class="card-img-top" alt="..." loading="lazy" decoding="async">
   <div class="card-body">
@@ -63,12 +63,12 @@ content.innerHTML = `
   </div>
 </div>
     </div>
-    <div class="col">
+    <div class="col-12 col-md-4 mt-2">
         <div class="card d-flex align-items-center justify-content-center text-center rounded-5" style="width: 100%; background-color: var(--bg-sidebar); padding: 20px; height: 500px; color: var(--color-teks); border: none !important;">  
             <h5>Projek Belum tersedia</h5>
         </div>
     </div>
-    <div class="col">
+    <div class="col-12 col-md-4 mt-2">
         <div class="card d-flex align-items-center justify-content-center text-center rounded-5" style="width: 100%; background-color: var(--bg-sidebar); padding: 20px; height: 500px; color: var(--color-teks); border: none !important;">  
             <h5>Projek Belum tersedia</h5>
         </div>
@@ -84,7 +84,7 @@ content.innerHTML = `
         "Absensi bukan sekadar mencatat kehadiran, tapi tentang membangun budaya disiplin yang transparan. Dengan sistem ScanGo, kami memangkas waktu dan menghilangkan lelah nya berteriak dikala absensi demi efisiensi operasional yang maksimal."
       </h4>
       <div class="d-flex gap-2 justify-content-center mt-5">
-        <img src="/frontEnd/assets/profiles/dimas.webp" alt="profile dev" class="profile-dev reveal" style="border-radius: 50%; height: 50px;" loading="lazy" decoding="async">
+        <img src="/frontEnd/assets/profiles/dimas.webp" alt="profile dev" class="profile-dev reveal" style="border-radius: 50%; height: 45px;" loading="lazy" decoding="async">
         <p class="position-dimas reveal" style="color: var(--color-teks);"><b>Dimas Hadi Syandana</b><br> Lead Developer of ScanGo</p>
       </div>
     </div>

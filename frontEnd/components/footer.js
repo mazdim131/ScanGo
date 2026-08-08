@@ -15,6 +15,13 @@ footer.innerHTML = `
           </p>
         </div>
 
+        <div class="col-lg-2 col-6">
+          <h6 class="fw-bold text-center">Kerja Sama</h6>
+          <ul class="list-unstyled text-muted">
+            <li class="mb-2"><a href="/frontEnd/page/structure/ourEcosystem.html" class="text-secondary text-decoration-none">Mitra</a></li>
+          </ul>
+        </div>
+
         <div class="col-lg-2 col-6" style="text-align: end !important;">
           <h6 class="fw-bold text-center">Perusahaan</h6>
           <ul class="list-unstyled text-muted">
@@ -27,7 +34,6 @@ footer.innerHTML = `
           <h6 class="fw-bold text-center">Produk</h6>
           <ul class="list-unstyled text-muted">
             <li class="mb-2"><a href="/frontEnd/page/structure/signIn.html" class="text-secondary text-decoration-none">Kehadiran</a></a></li>
-            <li class="mb-2"><a href="/frontEnd/page/structure/ourEcosystem.html" class="text-secondary text-decoration-none">Mitra</a></li>
             <li class="mb-2"><a href="/frontEnd/page/structure/guide.html" class="text-secondary text-decoration-none">Panduan</a></li>
           </ul>
         </div>

@@ -41,15 +41,6 @@
   transform: translateY(-20px);
 }
 
-.position-dimas {
-  transition: 0.3s ease-in-out;
-}
-
-.position-dimas:hover {
-  box-shadow: 0 24px 100px #e67e22;
-  transform: translateX(20px);
-}
-
 .card {
   transition: 0.3s ease-in-out;
 }
