@@ -1,14 +1,99 @@
 function renderDashboard() {
   return `
-    <div class="dashboard-container animate__animated animate__fadeIn">
-        <div class="main-wrapper mt-4" style="flex: 1; display: flex; flex-direction: column;">
-            <main class="main-content" style="padding: 20px; overflow-y: auto;">
-                
-                <div id="content"></div>
+  <!-- Tempat Stat Cards (Atas) -->
+  <div id="top-stats-container"></div>
+  
+  <div class="dashboard-layout">
+  <!-- panel kiri -->
+    <aside class="left-panel">
+      <div class="scan-rfid-container">
 
-            </main>
+        <div class="scan-card" id="container-scan-rfid" style="margin: 0; padding: 30px 24px; max-width: 100%;">
+          <div class="scan-header">
+            <h3>Scan RFID</h3>
+            <p>Tempelkan kartu RFID siswa untuk mencatat kehadiran</p>
+          </div>
+
+          <div class="scan-icon-wrapper">
+            <i class="bi bi-upc-scan"></i>
+          </div>
+
+          <div id="scan-status">
+            <span class="scan-status-badge idle">
+              <i class="bi bi-radio"></i> Menunggu scan kartu...
+            </span>
+          </div>
+
+          <div class="scan-input-group">
+            <input
+              type="text"
+              id="card-id-input"
+              class="form-control"
+              placeholder="Tempelkan kartu RFID..."
+              autofocus
+            >
+            <button class="scan-btn" onclick="submitScan()">
+              <i class="bi bi-upc-scan"></i> Scan Sekarang
+            </button>
+
+            <div class="scan-divider">atau</div>
+
+            <button class="inputManual-btn" onclick="toggleAbsenMode('manual')">
+              <i class="bi bi-pencil-square"></i> Input Manual
+            </button>
+          </div>
+
+          <div id="scan-result"></div>
         </div>
+
+        <div class="scan-card" id="container-input-manual" style="display: none; margin: 0; padding: 30px 24px; max-width: 100%;">
+          <div class="scan-header" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <h3>Input Manual</h3>
+            <p>Pilih nama dan isi keterangan absensi siswa</p>
+          </div>
+
+          <div class="scan-input-group" style="text-align: left; gap: 15px;">
+          
+            <div>
+              <label style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Nama Siswa</label>
+              <input type="text" id="manual-nama" class="form-control" placeholder="Ketik nama siswa..." list="daftar-siswa" style="width: 100%;">
+            </div>
+
+            <div>
+              <label style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Status Kehadiran</label>
+              <select id="manual-status" class="form-control" style="width: 100%; background-color: #fff;">
+                <option value="Hadir">Hadir</option>
+                <option value="Sakit">Sakit</option>
+                <option value="Izin">Izin</option>
+                <option value="Alfa">Alfa</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Keterangan</label>
+              <textarea id="manual-keterangan" class="form-control" rows="3" placeholder="Tulis alasan atau keterangan di sini..." style="width: 100%; height: auto; padding: 8px 12px;"></textarea>
+              <datalist id="daftar-siswa"></datalist>
+            </div>
+
+            <button class="scan-btn" onclick="submitManual()">
+              <i class="bi bi-check-circle"></i> Simpan Absen
+            </button>
+
+            <button class="inputManual-btn" onclick="toggleAbsenMode('scan')">
+              Batal
+            </button>
+
+          </div>
+
+          <div id="manual-result" style="margin-top: 15px;"></div>
+        </div>
+
+      </div>
+    </aside>
+  <!-- panel kanan-->
+    <div class="right-panel" id="absensi-table-content">
     </div>
+  </div>
   `;
 }
 
@@ -124,29 +209,29 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
     dataFiltered.length === 0
       ? `<tr><td colspan="7" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
       : dataFiltered
-          .map((row) => {
-            const jamAbsen = row.created_at
-              ? new Date(row.created_at).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "-";
+        .map((row) => {
+          const jamAbsen = row.created_at
+            ? new Date(row.created_at).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+            : "-";
 
-            const jamKeluar = row.time_finish
-              ? new Date(row.time_finish).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "-";
+          const jamKeluar = row.time_finish
+            ? new Date(row.time_finish).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+            : "-";
 
-            const namaSiswa = row.users
-              ? Array.isArray(row.users)
-                ? row.users[0]?.username
-                : row.users.username
-              : null;
-            const displayNama = namaSiswa || row.idcard || "Tidak Dikenal";
+          const namaSiswa = row.users
+            ? Array.isArray(row.users)
+              ? row.users[0]?.username
+              : row.users.username
+            : null;
+          const displayNama = namaSiswa || row.idcard || "Tidak Dikenal";
 
-            return `
+          return `
                 <tr>
                     <td class="text-muted">${row.id}</td>
                     <td>
@@ -162,10 +247,11 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     <td><span class="status-badge ${getStatusClass(row.status)}">${row.status || "Hadir"}</span></td>
                 </tr>
             `;
-          })
-          .join("");
+        })
+        .join("");
 
-  return `
+  return {
+    statsHtml: `
         <div class="row g-3 mb-4">
             <div class="col-12 col-md-6 col-lg-3">
                 <div class="stat-card">
@@ -217,8 +303,9 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 </div>
             </div>
         </div>
-
-        <div class="data-card">
+    `,
+    tableHtml: `
+        <div class="data-card" style="margin-top: 0;">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                 <div class="d-flex align-items-center gap-2">
                     <h5 class="fw-bold m-0" style="color: var(--color-teks); font-size: 1.05rem;">Riwayat Absensi Kelas ${namaKelas}</h5>
@@ -275,39 +362,38 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 </table>
             </div>
         </div>
-    `;
+    `
+  };
 }
 
 async function initTabs() {
   const tabs = document.querySelectorAll(".header-nav-tabs .nav-tab-item");
-  const contentContainer = document.getElementById("content");
+  const tableContainer = document.getElementById("absensi-table-content");
+  const statsContainer = document.getElementById("top-stats-container");
 
-  if (contentContainer) {
-    contentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Memuat data absensi...</p></div>`;
+  if (tableContainer && statsContainer) {
+    tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Memuat data absensi...</p></div>`;
     const dataTerbaru = await fetchAttendanceData();
-    contentContainer.innerHTML = generateKontenKelasTemplate(
-      currentSelectedClass,
-      dataTerbaru,
-    );
+    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    statsContainer.innerHTML = result.statsHtml;
+    tableContainer.innerHTML = result.tableHtml;
   }
 
   tabs.forEach((tab) => {
     tab.addEventListener("click", async function (e) {
       e.preventDefault();
-
       tabs.forEach((t) => t.classList.remove("active"));
       this.classList.add("active");
 
       currentSelectedClass = this.getAttribute("data-kelas");
       currentSelectedRombel = null;
 
-      if (contentContainer) {
-        contentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Memeriksa database...</p></div>`;
+      if (tableContainer && statsContainer) {
+        tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Memeriksa database...</p></div>`;
         const dataTerbaru = await fetchAttendanceData();
-        contentContainer.innerHTML = generateKontenKelasTemplate(
-          currentSelectedClass,
-          dataTerbaru,
-        );
+        const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+        statsContainer.innerHTML = result.statsHtml;
+        tableContainer.innerHTML = result.tableHtml;
         attachFilters();
       }
     });
@@ -335,15 +421,15 @@ async function handleRombelFilter() {
   if (!selectElement) return;
   const val = selectElement.value;
   currentSelectedRombel = val || null;
-  const contentContainer = document.getElementById("content");
+  const tableContainer = document.getElementById("absensi-table-content");
+  const statsContainer = document.getElementById("top-stats-container");
 
-  if (contentContainer) {
-    contentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring rombel...</p></div>`;
+  if (tableContainer && statsContainer) {
+    tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring rombel...</p></div>`;
     const dataTerbaru = await fetchAttendanceData();
-    contentContainer.innerHTML = generateKontenKelasTemplate(
-      currentSelectedClass,
-      dataTerbaru,
-    );
+    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    statsContainer.innerHTML = result.statsHtml;
+    tableContainer.innerHTML = result.tableHtml;
     attachFilters();
   }
 }
@@ -353,15 +439,15 @@ async function handleTanggalFilter() {
   if (!dateInputElement) return;
 
   currentSelectedDate = dateInputElement.value;
-  const contentContainer = document.getElementById("content");
+  const tableContainer = document.getElementById("absensi-table-content");
+  const statsContainer = document.getElementById("top-stats-container");
 
-  if (contentContainer) {
-    contentContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring tanggal...</p></div>`;
+  if (tableContainer && statsContainer) {
+    tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring tanggal...</p></div>`;
     const dataTerbaru = await fetchAttendanceData();
-    contentContainer.innerHTML = generateKontenKelasTemplate(
-      currentSelectedClass,
-      dataTerbaru,
-    );
+    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    statsContainer.innerHTML = result.statsHtml;
+    tableContainer.innerHTML = result.tableHtml;
     attachFilters();
   }
 }

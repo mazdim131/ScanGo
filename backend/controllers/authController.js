@@ -85,7 +85,7 @@ const register = async (req, res) => {
         idcard: data[0].idcard,
         rombel: data[0].rombel,
         nis: data[0].nis,
-        whatsapp : data[0].whatsapp
+        whatsapp: data[0].whatsapp
       },
     });
   } catch (error) {
@@ -134,7 +134,7 @@ const login = async (req, res) => {
         idcard: user.idcard,
         rombel: user.rombel,
         nis: user.nis,
-        whatsapp: user.whatsapp 
+        whatsapp: user.whatsapp
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" },
