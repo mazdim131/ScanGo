@@ -70,7 +70,7 @@ content.innerHTML = `
             </div>
 
             <div class="right-panel">
-                <img src="/frontEnd/assets/background/9333f00957425e173ae553ca70f5b930.png" alt="Login Banner">
+                <img src="/frontEnd/assets/background/9333f00957425e173ae553ca70f5b930.webp" alt="Login Banner" fetchpriority="high" decoding="async">
             </div>
         </div>
 

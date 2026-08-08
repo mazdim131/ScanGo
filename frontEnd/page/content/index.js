@@ -22,9 +22,9 @@ content.innerHTML = `
         </div>
 
         <a href="/frontEnd/page/structure/about.html#dev" class="d-flex gap-2 mt-5 animate__animated animate__fadeInUp text-decoration-none" style="color: var(--color-teks) !important;">
-            <img src="/frontEnd/assets/profiles/dimas.png" alt="Profile Dev" class="img-profile-dev">
-            <img src="/frontEnd/assets/profiles/hifzhi.jpeg" alt="Profile Dev" class="img-profile-dev">
-            <img src="/frontEnd/assets/profiles/yazid.jpeg" alt="Profile Dev" class="img-profile-dev">
+            <img src="/frontEnd/assets/profiles/dimas.webp" alt="Profile Dev" class="img-profile-dev" loading="lazy" decoding="async">
+            <img src="/frontEnd/assets/profiles/hifzhi.webp" alt="Profile Dev" class="img-profile-dev" loading="lazy" decoding="async">
+            <img src="/frontEnd/assets/profiles/yazid.webp" alt="Profile Dev" class="img-profile-dev" loading="lazy" decoding="async">
             <p class="dev-text">
                 Lihat Profil Pengembang
             </p>
@@ -33,7 +33,7 @@ content.innerHTML = `
     </div>
     <div class="col" style="margin-top: 13%;">
       <div class="p-3">
-        <img src="/frontEnd/assets/images/hero.jpg" class="img-hero rounded-4 animate__animated animate__fadeInDown" style="height: 400px;">
+        <img src="/frontEnd/assets/images/hero.webp" class="img-hero rounded-4 animate__animated animate__fadeInDown" style="height: 400px;" fetchpriority="high" decoding="async">
         
 <div class="scango-stats-container animate__animated animate__fadeInUp">
   <div class="stat-item">
@@ -137,7 +137,7 @@ content.innerHTML = `
   <div class="row align-items-center how gx-0 gx-md-5 gy-4 reveal"> 
     
     <div class="col-12 col-md-6 how text-center">
-      <img src="/frontEnd/assets/mascot/bertanya-tanya.png" class="img-fluid" style="max-height: 500px; width: auto;">
+      <img src="/frontEnd/assets/mascot/bertanya-tanya.webp" class="img-fluid" style="max-height: 500px; width: auto;" loading="lazy" decoding="async">
     </div>
     
     <div class="col-12 col-md-6">

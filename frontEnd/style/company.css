@@ -64,6 +64,12 @@
   max-width: 100%;
 }
 
+@media (max-width: 1183px) {
+  .hero-company {
+    margin-top: 20% !important;
+  }
+}
+
 @media (max-width: 768px) {
   .title {
     margin-top: 30% !important;

@@ -15,15 +15,8 @@ footer.innerHTML = `
           </p>
         </div>
 
-        <!-- <div class="col-lg-2 col-6">
-          <h6 class="fw-bold">Sumber Daya</h6>
-          <ul class="list-unstyled text-muted">
-            <li class="mb-2"><a href="/frontEnd/page/structure/assets.html" class="text-secondary text-decoration-none">Sumber</a></li>
-          </ul>
-        </div> -->
-
         <div class="col-lg-2 col-6" style="text-align: end !important;">
-          <h6 class="fw-bold">Perusahaan</h6>
+          <h6 class="fw-bold text-center">Perusahaan</h6>
           <ul class="list-unstyled text-muted">
             <li class="mb-2"><a href="/frontEnd/page/structure/about.html" class="text-secondary text-decoration-none">Tentang</a></li>
             <li class="mb-2"><a href="/frontEnd/page/structure/contact.html" class="text-secondary text-decoration-none">Kontak</a></li>
@@ -31,7 +24,7 @@ footer.innerHTML = `
         </div>
 
         <div class="col-lg-2 col-6" style="text-align: end !important;">
-          <h6 class="fw-bold">Produk</h6>
+          <h6 class="fw-bold text-center">Produk</h6>
           <ul class="list-unstyled text-muted">
             <li class="mb-2"><a href="/frontEnd/page/structure/signIn.html" class="text-secondary text-decoration-none">Kehadiran</a></a></li>
             <li class="mb-2"><a href="/frontEnd/page/structure/ourEcosystem.html" class="text-secondary text-decoration-none">Mitra</a></li>

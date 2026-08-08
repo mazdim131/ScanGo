@@ -39,7 +39,7 @@ const listItems = [
   // update info
   {
     update: "ScanGo V1.1 Beta(rilis)",
-    documentationUpdate: "/frontEnd/assets/background/1695789061-post.jpg",
+    documentationUpdate: "/frontEnd/assets/background/1695789061-post.webp",
     dateUpdate: "-",
     sourceUpdate: "Sukses Bersama Team",
     linkUpdate: '#',

@@ -119,7 +119,7 @@ content.innerHTML = `
                                 <td class="text-muted">12510917</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <img src="/frontEnd/assets/profiles/dimas.png" class="avatar-img">
+                                        <img src="/frontEnd/assets/profiles/dimas.webp" class="avatar-img">
                                         <span class="fw-semibold" style="color: #1e293b;">Dimas Hadi Syandana</span>
                                     </div>
                                 </td>
@@ -133,7 +133,7 @@ content.innerHTML = `
                                 <td class="text-muted">12510916</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <img src="/frontEnd/assets/profiles/hifzhi.jpeg" class="avatar-img">
+                                        <img src="/frontEnd/assets/profiles/hifzhi.webp" class="avatar-img">
                                         <span class="fw-semibold" style="color: #1e293b;">Mochammad Hifzhi Syaukani</span>
                                     </div>
                                 </td>3
@@ -147,7 +147,7 @@ content.innerHTML = `
                                 <td class="text-muted">12510915</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <img src="/frontEnd/assets/profiles/yazid.jpeg" class="avatar-img">
+                                        <img src="/frontEnd/assets/profiles/yazid.webp" class="avatar-img">
                                         <span class="fw-semibold" style="color: #1e293b;">Yazid Diansyah</span>
                                     </div>
                                 </td>

@@ -201,7 +201,7 @@ body {
   height: 100%;
   padding: 100px;
   color: white !important;
-  background-image: url("/frontEnd/assets/background/9333f00957425e173ae553ca70f5b930\ -\ Copy.png");
+  background-image: url("/frontEnd/assets/background/9333f00957425e173ae553ca70f5b930 - Copy.webp");
   background-repeat: none !important;
   background-size: cover;
 
@@ -217,6 +217,16 @@ body {
 
 .promote:hover {
   background-size: 110% auto;
+}
+
+@media (max-width: 1183px) {
+  .title-index {
+    margin-top: 10% !important;
+  }
+  
+  .img-hero {
+    display: none !important;
+  }
 }
 
 @media (max-width: 768px) {

@@ -15,7 +15,7 @@ function profileHifzhi() {
 }
 
 content.innerHTML = `
-    <div class="animate__animated animate__fadeInDown container w-100 bg-white rounded-4" style="background-color: var(--hero-about) !important; margin-top: 8%; padding: 20px;">
+    <div class="section-top animate__animated animate__fadeInDown container w-100 bg-white rounded-4" style="background-color: var(--hero-about) !important; margin-top: 8%; padding: 20px;">
         <div class="container px-4">
           <div class="row gx-5">
             <div class="col-12 col-md-6">
@@ -35,7 +35,7 @@ content.innerHTML = `
             
             <div class="col-12 col-md-6">
               <div class="p-3">
-                <img src="/frontEnd/assets/background/1728261320-berita.jpg" class="rounded-4 mt-3" style="width: 100%;">
+                <img src="/frontEnd/assets/background/1728261320-berita.webp" class="rounded-4 mt-3" style="width: 100%;" loading="lazy" decoding="async">
                 <div class="container text-center" style="margin-top: 10%;">
                   <div class="row row-cols-2">
                     <div class="col">
@@ -117,7 +117,7 @@ content.innerHTML = `
             </div>
             <div class="col-lg-6">
                 <div class="p-3 h-100">
-                    <img src="/frontEnd/assets/background/1684477396-post.jpg" class="img-fluid img-stretch shadow-sm reveal" alt="ScanGo Workspace">
+                    <img src="/frontEnd/assets/background/1684477396-post.webp" class="img-fluid img-stretch shadow-sm reveal" alt="ScanGo Workspace" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -131,7 +131,7 @@ content.innerHTML = `
             </div>
             <div class="row g-4 justify-content-center">
                 <div class="col-12 col-md-4 reveal">
-                    <div class="card d-flex shadow-sm rounded-5 position-relative overflow-hidden" style="border: none; background-image: url('/frontEnd/assets/profiles/sampulProfileHifzhi.png'); background-size: cover; background-position: left center; background-repeat: no-repeat;">
+                    <div class="card d-flex shadow-sm rounded-5 position-relative overflow-hidden" style="border: none; background-image: url('/frontEnd/assets/profiles/sampulProfileHifzhi.webp'); background-size: cover; background-position: left center; background-repeat: no-repeat;">
                         <h6 class="ms-5 text-white" style="font-weight: 600; margin-bottom: 1px; margin-top: 110%;">Mochammad Hifzhi <span class="text-white">Syaukani</h6>
                         <p class="ms-5 mb-4" style="font-size: 14px; color: white;">Fullstack Development</p>
                         <a href="javascript:void(0)" onclick="profileHifzhi()" class="linkedin-icon-btn">
@@ -141,7 +141,7 @@ content.innerHTML = `
                 </div>
 
                 <div class="col-12 col-md-4 reveal">
-                    <div class="card d-flex shadow-sm rounded-5 position-relative overflow-hidden" style="border: none; background-image: url('/frontEnd/assets/profiles/sampulProfileDimas.png'); background-size: cover; background-position: left center; background-repeat: no-repeat;">
+                    <div class="card d-flex shadow-sm rounded-5 position-relative overflow-hidden" style="border: none; background-image: url('/frontEnd/assets/profiles/sampulProfileDimas.webp'); background-size: cover; background-position: left center; background-repeat: no-repeat;">
                         <h6 class="ms-5" style="font-weight: 600; margin-bottom: 1px; margin-top: 110%;">Dimas Hadi Syandana</h6>
                         <p class="ms-5 mb-4" style="font-size: 14px; color: #6c757d;">Lead of Project</p>
                         <a href="javascript:void(0)" onclick="profileDimas()" class="linkedin-icon-btn">
@@ -151,7 +151,7 @@ content.innerHTML = `
                 </div>
 
                 <div class="col-12 col-md-4 reveal">
-                    <div class="card d-flex shadow-sm rounded-5 position-relative overflow-hidden" style="border: none; background-image: url('/frontEnd/assets/profiles/sampulProfileYazid.png'); background-size: cover; background-position: left center; background-repeat: no-repeat;">
+                    <div class="card d-flex shadow-sm rounded-5 position-relative overflow-hidden" style="border: none; background-image: url('/frontEnd/assets/profiles/sampulProfileYazid.webp'); background-size: cover; background-position: left center; background-repeat: no-repeat;">
                         <h6 class="ms-5 text-white" style="font-weight: 600; margin-bottom: 1px; margin-top: 110%;">Yazid Diansyah</h6>
                         <p class="ms-5 mb-4" style="font-size: 14px; color: white;">UI/UX & Frontend</p>
                         <a href="javascript:void(0)" onclick="profileYazid()" class="linkedin-icon-btn">

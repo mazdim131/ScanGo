@@ -1,7 +1,7 @@
 const content = document.getElementById("content");
 
 content.innerHTML = `
-    <div class="container-sm hero-company animate__animated animate__fadeInDown w-100 bg-white" style="border-radius: 20px 40px 20px 40px; margin-top: 8%; background-image: url('/frontEnd/assets/background/1704346349-slider$slider.jpg'); padding: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+    <div class="container-sm hero-company animate__animated animate__fadeInDown w-100 bg-white" style="border-radius: 20px 40px 20px 40px; margin-top: 8%; background-image: url('/frontEnd/assets/background/1704346349-slider$slider.webp'); padding: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
       <div class="container px-4">
         <div class="row align-items-center gy-4">
           <div class="col-12 col-md-6">
@@ -24,19 +24,19 @@ content.innerHTML = `
       <div class="row g-3 align-items-stretch"> 
         <div class="col-12 col-md-6 animate__animated animate__zoomInLeft">
           <div class="ratio ratio-1x1 h-100">
-            <img src="/frontEnd/assets/images/WhatsApp Image 2026-05-11 at 22.05.50.jpeg" class="img-fluid rounded-4 object-fit-cover leftBig-img" alt="Scan & Go System">
+            <img src="/frontEnd/assets/images/wa-company-2.webp" class="img-fluid rounded-4 object-fit-cover leftBig-img" alt="Scan & Go System" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="col-12 col-md-6">
           <div class="row g-3 h-100">
             <div class="col-12 h-50 animate__animated animate__bounceInRight">
               <div class="ratio ratio-16x9 h-100">
-                <img src="/frontEnd/assets/images/WhatsApp Image 2026-06-22 at 11.09.51.jpeg" class="img-fluid rounded-4 object-fit-cover rightSmall-img" alt="Modern Attendance">
+                <img src="/frontEnd/assets/images/wa-company-3.webp" class="img-fluid rounded-4 object-fit-cover rightSmall-img" alt="Modern Attendance" loading="lazy" decoding="async">
               </div>
             </div>
             <div class="col-12 h-50 animate__animated animate__bounceInLeft">
               <div class="ratio ratio-16x9 h-100">
-                <img src="/frontEnd/assets/images/WhatsApp Image 2026-05-11 at 22.05.523.jpeg" class="img-fluid rounded-4 object-fit-cover rightSmall-img" alt="Barcode Detection">
+                <img src="/frontEnd/assets/images/wa-company-1.webp" class="img-fluid rounded-4 object-fit-cover rightSmall-img" alt="Barcode Detection" loading="lazy" decoding="async">
               </div>
             </div>
           </div>
@@ -56,7 +56,7 @@ content.innerHTML = `
   <div class="row">
     <div class="col">
       <div class="card rounded-5" style="padding: 20px; background: var(--bg-sidebar); height: 500px; border: none !important; color: var(--color-teks); width: 100%;">
-  <img src="/frontEnd/assets/mascot/bertanya-tanya.png" class="card-img-top" alt="...">
+  <img src="/frontEnd/assets/mascot/bertanya-tanya.webp" class="card-img-top" alt="..." loading="lazy" decoding="async">
   <div class="card-body">
     <h5 class="card-title"><b>ScanGo</b></h5>
     <p class="card-text">Absensi Digital</p>
@@ -84,7 +84,7 @@ content.innerHTML = `
         "Absensi bukan sekadar mencatat kehadiran, tapi tentang membangun budaya disiplin yang transparan. Dengan sistem ScanGo, kami memangkas waktu dan menghilangkan lelah nya berteriak dikala absensi demi efisiensi operasional yang maksimal."
       </h4>
       <div class="d-flex gap-2 justify-content-center mt-5">
-        <img src="/frontEnd/assets/profiles/dimas.png" alt="profile dev" class="profile-dev reveal" style="border-radius: 50%; height: 50px;">
+        <img src="/frontEnd/assets/profiles/dimas.webp" alt="profile dev" class="profile-dev reveal" style="border-radius: 50%; height: 50px;" loading="lazy" decoding="async">
         <p class="position-dimas reveal" style="color: var(--color-teks);"><b>Dimas Hadi Syandana</b><br> Lead Developer of ScanGo</p>
       </div>
     </div>

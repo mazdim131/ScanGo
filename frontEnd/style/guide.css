@@ -182,6 +182,12 @@ body {
     }
 }
 
+@media (max-width: 1183px) {
+    .section-title {
+        margin-top: 10% !important;
+    }
+}
+
 /* HP / Mobile */
 @media (max-width: 576px) {
     .section-title {

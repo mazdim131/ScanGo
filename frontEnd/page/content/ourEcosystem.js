@@ -5,7 +5,7 @@ content.innerHTML = `
             <div class="row gy-4 align-items-center">
                 <div class="col-12 col-md-6">
                     <div class="p-1">
-                        <img src="/frontEnd/assets/background/2dacb37bc5341f95a136b218ca7a8b15.jpg" class="gambar-depan-wikrama" style="width: 100%; height: auto; border-radius: 14px; object-fit: cover;">
+                        <img src="/frontEnd/assets/background/2dacb37bc5341f95a136b218ca7a8b15.webp" class="gambar-depan-wikrama" style="width: 100%; height: auto; border-radius: 14px; object-fit: cover;" loading="lazy" decoding="async">
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
