@@ -56,6 +56,8 @@ app.use(
       if (!origin || ORIGIN_FRONTEND.length === 0 || ORIGIN_FRONTEND.includes(origin)) {
         return callback(null, true);
       }
+      const reqOrigin = req.protocol + "://" + req.get("host");
+      if (origin === reqOrigin) return callback(null, true);
       return callback(new Error("Origin tidak diizinkan oleh CORS"));
     },
     credentials: true,
@@ -504,7 +506,13 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
       });
     }
 
-    const { data, error } = await supabase.from("users").insert(users).select();
+    const usersNormalized = users.map((u) => ({
+      ...u,
+      idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
+      nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
+    }));
+
+    const { data, error } = await supabase.from("users").insert(usersNormalized).select();
     if (error) throw error;
 
     res.json({
