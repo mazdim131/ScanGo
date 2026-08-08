@@ -40,7 +40,7 @@
   border-radius: 12px;
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 991.98px) {
   .dashboard-layout {
     flex-direction: column;
   }
@@ -558,17 +558,62 @@
   color: #3b82f6;
 }
 
+@media (max-width: 991.98px) {
+  .main-content {
+    padding: 20px 16px;
+  }
+}
+
 @media (max-width: 767.98px) {
   .main-content {
     padding: 16px;
     /* Lebih ramah layar HP */
   }
-}
 
-@media (max-width: 767.98px) {
   .header-panel {
+    flex-wrap: wrap;
+    gap: 12px 8px;
     margin-bottom: 16px;
     padding-left: 0 !important;
     /* Menghilangkan margin/padding bawaan desktop */
+  }
+
+  .header-panel .header-title h4,
+  .header-panel h4 {
+    font-size: 1.1rem;
+    margin-left: 0 !important;
+  }
+
+  .header-panel .clock-date-wrapper {
+    margin-left: auto;
+  }
+
+  .header-nav-tabs,
+  #content .header-nav-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .header-nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header-nav-tabs .nav-tab-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .header-panel #date {
+    display: none;
+  }
+
+  .header-panel #time {
+    font-size: 0.92rem;
   }
 }

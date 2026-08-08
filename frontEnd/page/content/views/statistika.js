@@ -1,10 +1,6 @@
 
 function renderGrafik() {
   return `
-            <div class="header-nav-tabs justify-content-center" id="rombelTabs">
-                <!-- rombel tabs diisi oleh renderRombel() -->
-            </div>
-
                 <div class="wrap">
                     <div class="summary">
                         <div class="scard">
@@ -59,6 +55,24 @@ function renderGrafik() {
                                 <div class="value" id="val-belum-absen">-</div>
                                 <div class="label">Belum Absen</div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- dropdown filter kelas & rombel (di bawah kartu monitor) -->
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterKelas"><i class="bi bi-collection"></i> Kelas</label>
+                            <select id="filterKelas" class="form-select">
+                                <option value="X">Kelas X</option>
+                                <option value="XI">Kelas XI</option>
+                                <option value="XII">Kelas XII</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterRombel"><i class="bi bi-people"></i> Rombel</label>
+                            <select id="filterRombel" class="form-select">
+                                <!-- diisi oleh renderRombel() -->
+                            </select>
                         </div>
                     </div>
 
@@ -272,39 +286,27 @@ const rombelMap = {
   ]
 };
 
-function initRombelTabs() {
-  const tabs = document.querySelectorAll("#rombelTabs .nav-tab-item");
-  tabs.forEach(tab => {
-    tab.addEventListener("click", function (e) {
-      e.preventDefault();
-      tabs.forEach(t => t.classList.remove("active"));
-      this.classList.add("active");
-      selectedRombel = this.textContent.trim();
-      renderGuru(selectedRombel);
-      initGrafikListener();
-    });
-  });
-}
-
 function renderRombel(kelas) {
-  const container = document.getElementById("rombelTabs");
-  if (!container) return;
+  const rombelSelect = document.getElementById("filterRombel");
+  if (!rombelSelect) return;
 
   // Simpan kelas aktif
   selectedKelas = kelas;
 
-  // Bangun semua tab sekaligus dalam satu string (hindari innerHTML += dalam loop)
-  const tabsHtml = rombelMap[kelas].map((rombel, index) =>
-    `<a href="#" class="nav-tab-item${index === 0 ? ' active' : ''}" data-rombel="${rombel}">${rombel}</a>`
+  // Sinkronkan dropdown kelas
+  const kelasSelect = document.getElementById("filterKelas");
+  if (kelasSelect) kelasSelect.value = kelas;
+
+  // Isi dropdown rombel sesuai kelas yang dipilih
+  const rombels = rombelMap[kelas] || [];
+  rombelSelect.innerHTML = rombels.map(
+    rombel => `<option value="${rombel}">${rombel}</option>`
   ).join('');
-  container.innerHTML = tabsHtml;
 
   // Set rombel default (pertama)
-  selectedRombel = rombelMap[kelas][0];
+  selectedRombel = rombels[0] || "";
+  rombelSelect.value = selectedRombel;
   renderGuru(selectedRombel);
-
-  // Pasang listener rombel tabs SETELAH DOM diperbarui
-  initRombelTabs();
 
   // Muat data untuk rombel yang aktif
   initGrafikListener();
@@ -359,24 +361,24 @@ function initStatistikaListener() {
   updateClock();
   clockInterval = setInterval(updateClock, 1000);
 
-  // ── Pasang listener untuk Kelas X / XI / XII di sini ──
-  // (harus di dalam initDashboardListener agar bekerja saat SPA router load)
-  const kelasTabs = document.querySelectorAll(".header-panel .nav-tab-item[data-kelas]");
-  kelasTabs.forEach(tab => {
-    // Hapus listener lama dulu supaya tidak dobel
-    const newTab = tab.cloneNode(true);
-    tab.parentNode.replaceChild(newTab, tab);
-  });
-  // Ambil ulang setelah clone
-  document.querySelectorAll(".header-panel .nav-tab-item[data-kelas]").forEach(tab => {
-    tab.addEventListener("click", function (e) {
-      e.preventDefault();
-      document.querySelectorAll(".header-panel .nav-tab-item[data-kelas]").forEach(t => t.classList.remove("active"));
-      this.classList.add("active");
-      const kelas = this.dataset.kelas;
-      renderRombel(kelas);
+  // ── Dropdown Kelas (X / XI / XII) ──
+  const kelasSelect = document.getElementById("filterKelas");
+  if (kelasSelect) {
+    kelasSelect.value = selectedKelas;
+    kelasSelect.addEventListener("change", function () {
+      renderRombel(this.value);
     });
-  });
+  }
+
+  // ── Dropdown Rombel (PPLG 1-5) ──
+  const rombelSelect = document.getElementById("filterRombel");
+  if (rombelSelect) {
+    rombelSelect.addEventListener("change", function () {
+      selectedRombel = this.value;
+      renderGuru(selectedRombel);
+      initGrafikListener();
+    });
+  }
 
   // Inisialisasi rombel default (Kelas X → PPLG X-1) dan muat data pertama kali
   renderRombel(selectedKelas);

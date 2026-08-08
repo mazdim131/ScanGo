@@ -290,4 +290,13 @@
     max-width: 100%;
     width: 100%;
   }
+  .detail-history-panel {
+    min-width: 0;
+    width: 100%;
+    padding: 16px;
+    overflow-x: auto;
+  }
+  .detail-history-table {
+    min-width: 560px;
+  }
 }
