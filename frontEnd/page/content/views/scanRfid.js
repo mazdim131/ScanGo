@@ -259,8 +259,8 @@ async function submitScan() {
     } else {
       response = await fetch(
         `${API_BASE}/api/attendances/store?idcard=` +
-          encodeURIComponent(cardId) +
-          "&mac_address=RFID",
+        encodeURIComponent(cardId) +
+        "&mac_address=RFID",
         {
           method: "POST",
           credentials: "include"
@@ -282,7 +282,7 @@ async function submitScan() {
 
       setTimeout(() => {
         if (typeof navigateTo === "function") {
-          navigateTo("scan-rfid");
+          window.location.href = "/frontEnd/page/structure/dashboard.html";
         } else {
           window.location.href = "/frontEnd/page/structure/dashboard.html";
         }

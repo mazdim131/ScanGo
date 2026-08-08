@@ -59,9 +59,10 @@
                     <i class="bi bi-house-door"></i>
                 </div>
 
-                <div class="menu-icon" onclick="navigateTo('scan-rfid')">
+                <!-- <div class="menu-icon" onclick="navigateTo('scan-rfid')">
                     <i class="bi bi-upc-scan"></i>
-                </div>
+                </div> -->
+
                 <div class="menu-icon" onclick="navigateTo('print')">
                     <i class="bi bi-printer"></i>
                 </div>
@@ -128,19 +129,19 @@
 
             <!-- auth helper -->
             <script>
-            (function() {
-                const origFetch = window.fetch;
-                window.fetch = function(url, options) {
-                    options = options || {};
-                    options.headers = options.headers || {};
-                    options.credentials = options.credentials || "include";
-                    const token = sessionStorage.getItem("token");
-                    if (token && !options.headers["Authorization"]) {
-                        options.headers["Authorization"] = "Bearer " + token;
-                    }
-                    return origFetch.call(this, url, options);
-                };
-            })();
+                (function () {
+                    const origFetch = window.fetch;
+                    window.fetch = function (url, options) {
+                        options = options || {};
+                        options.headers = options.headers || {};
+                        options.credentials = options.credentials || "include";
+                        const token = sessionStorage.getItem("token");
+                        if (token && !options.headers["Authorization"]) {
+                            options.headers["Authorization"] = "Bearer " + token;
+                        }
+                        return origFetch.call(this, url, options);
+                    };
+                })();
             </script>
             <!-- script config api base -->
             <script src="/frontEnd/config.js?v20260807"></script>

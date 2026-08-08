@@ -166,35 +166,35 @@ content.innerHTML = `
 `;
 
 function startRealTimeClockAndDate() {
-  const timeElement = document.getElementById("time");
-  const dateElement = document.getElementById("date");
+    const timeElement = document.getElementById("time");
+    const dateElement = document.getElementById("date");
 
-  const dateOptions = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
+    const dateOptions = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    };
 
-  function updateClock() {
-    const now = new Date();
+    function updateClock() {
+        const now = new Date();
 
-    let hours = now.getHours().toString().padStart(2, "0");
-    let minutes = now.getMinutes().toString().padStart(2, "0");
-    let seconds = now.getSeconds().toString().padStart(2, "0");
+        let hours = now.getHours().toString().padStart(2, "0");
+        let minutes = now.getMinutes().toString().padStart(2, "0");
+        let seconds = now.getSeconds().toString().padStart(2, "0");
 
-    let localDate = now.toLocaleDateString("id-ID", dateOptions);
+        let localDate = now.toLocaleDateString("id-ID", dateOptions);
 
-    if (timeElement) {
-      timeElement.innerHTML = `${hours}:${minutes}:${seconds}`;
+        if (timeElement) {
+            timeElement.innerHTML = `${hours}:${minutes}:${seconds}`;
+        }
+        if (dateElement) {
+            dateElement.innerHTML = `${localDate}`;
+        }
     }
-    if (dateElement) {
-      dateElement.innerHTML = `${localDate}`;
-    }
-  }
 
-  updateClock();
-  setInterval(updateClock, 1000);
+    updateClock();
+    setInterval(updateClock, 1000);
 }
 
 startRealTimeClockAndDate();
