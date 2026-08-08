@@ -56,6 +56,8 @@ app.use(
       if (!origin || ORIGIN_FRONTEND.length === 0 || ORIGIN_FRONTEND.includes(origin)) {
         return callback(null, true);
       }
+      const reqOrigin = req.protocol + "://" + req.get("host");
+      if (origin === reqOrigin) return callback(null, true);
       return callback(new Error("Origin tidak diizinkan oleh CORS"));
     },
     credentials: true,
