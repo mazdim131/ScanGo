@@ -5,7 +5,7 @@ content.innerHTML = `
       <div class="container px-4">
         <div class="row align-items-center gy-4">
           <div class="col-12 col-md-6">
-            <div class="p-3">
+            <div class="text-top p-3">
               <span class="text-uppercase fw-bold text-white" style="letter-spacing: 2px; font-size: 14px;">We Are</span>
               <h1 class="text-white"><b>SUKSES BERSAMA TEAM</b></h1>
               <p class="text-secondary mt-4 text-white" style="font-size: 18px;">"Start Together, Grow Together!"</p>
@@ -13,7 +13,7 @@ content.innerHTML = `
           </div>
           <div class="col-12 col-md-6">
             <div class="p-3 d-flex">
-              <img src="/frontEnd/assets/logo/logoTeam.png" style="height: 200px; margin-right: 50px;" class="justify-content-end ms-auto">
+              <img src="/frontEnd/assets/logo/logoTeam.png" style="height: 200px; margin-right: 50px;" class="logo-team justify-content-end ms-auto">
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ content.innerHTML = `
     </div>
     </div>
 
-    <div class="text-center" style="margin-top: 5%;">
+    <div class="qoute text-center" style="margin-top: 5%;">
       <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" style="color: var(--color-teks);" class="bi bi-quote animate__animated animate__fadeInDown reveal" viewBox="0 0 16 16">
         <path d="M12 12a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1h-1.388q0-.527.062-1.054.093-.558.31-.992t.559-.683q.34-.279.868-.279V3q-.868 0-1.52.372a3.3 3.3 0 0 0-1.085.992 4.9 4.9 0 0 0-.62 1.458A7.7 7.7 0 0 0 9 7.558V11a1 1 0 0 0 1 1zm-6 0a1 1 0 0 0 1-1V8.558a1 1 0 0 0-1-1H4.612q0-.527.062-1.054.094-.558.31-.992.217-.434.559-.683.34-.279.868-.279V3q-.868 0-1.52.372a3.3 3.3 0 0 0-1.085.992 4.9 4.9 0 0 0-.62 1.458A7.7 7.7 0 0 0 3 7.558V11a1 1 0 0 0 1 1z"/>
       </svg>
