@@ -49,20 +49,31 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
-// CORS: izinkan origin eksplisit (dari env) + request same-origin (tanpa Origin header)
+// CORS: izinkan origin eksplisit (dari env), request same-origin, dan request tanpa Origin header
 app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || ORIGIN_FRONTEND.length === 0 || ORIGIN_FRONTEND.includes(origin)) {
-        return callback(null, true);
+  cors((req, callback) => {
+    const origin = req.get("Origin");
+    let allow = false;
+
+    if (!origin || ORIGIN_FRONTEND.length === 0 || ORIGIN_FRONTEND.includes(origin)) {
+      allow = true;
+    } else {
+      const reqHost = req.get("host");
+      if (reqHost) {
+        try {
+          if (new URL(origin).host === reqHost) allow = true;
+        } catch (e) {
+          allow = false;
+        }
       }
-      const reqOrigin = req.protocol + "://" + req.get("host");
-      if (origin === reqOrigin) return callback(null, true);
-      return callback(new Error("Origin tidak diizinkan oleh CORS"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization", "api-token"],
+    }
+
+    callback(null, {
+      origin: allow,
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders: ["Content-Type", "Authorization", "api-token"],
+    });
   }),
 );
 
