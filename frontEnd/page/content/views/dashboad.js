@@ -62,7 +62,6 @@ async function fetchAttendanceData() {
     return [];
   }
 }
-
 function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
   let dataFiltered = dataAbsensi.filter((row) => {
     if (!row.created_at) return false;
@@ -92,38 +91,38 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
     dataFiltered.length === 0
       ? `<tr><td colspan="7" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
       : dataFiltered
-          .map((row) => {
-            const jamAbsen = row.created_at
-              ? new Date(row.created_at).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "-";
+        .map((row) => {
+          const jamAbsen = row.created_at
+            ? new Date(row.created_at).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+            : "-";
 
-            const namaSiswa = row.users
-              ? Array.isArray(row.users)
-                ? row.users[0]?.username
-                : row.users.username
-              : null;
-            const displayNama = namaSiswa || row.idcard || "Tidak Dikenal";
+          const namaSiswa = row.users
+            ? Array.isArray(row.users)
+              ? row.users[0]?.username
+              : row.users.username
+            : null;
+          const displayNama = namaSiswa || row.idcard || "Tidak Dikenal";
 
-            return `
+          return `
                 <tr>
-                    <td class="text-muted">${row.id}</td>
+                    <td class="text-muted d-none d-md-table-cell">${row.id}</td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-semibold" style="color: var(--color-teks);">${displayNama}</span>
                         </div>
                     </td>
-                    <td class="text-muted">${row.idcard}</td>
+                    <td class="text-muted d-none d-md-table-cell">${row.idcard}</td>
                     <td class="fw-semibold">${row.rombel || "-"}</td>
                     <td class="fw-semibold">${jamAbsen}</td>
                     <td class="text-muted">-</td>
                     <td><span class="status-badge status-present">${row.status || "Hadir"}</span></td>
                 </tr>
             `;
-          })
-          .join("");
+        })
+        .join("");
 
   return `
         <div class="row g-3 mb-4">
@@ -219,9 +218,9 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 <table class="table align-middle custom-table mb-0 w-100">
                     <thead>
                         <tr>
-                            <th style="width: 10%;">ID Log</th>
+                            <th class="d-none d-md-table-cell" style="width: 10%;">ID Log</th>
                             <th style="width: 15%;">Nama Lengkap</th>
-                            <th style="width: 15%;">Id RFID</th>
+                            <th class="d-none d-md-table-cell" style="width: 15%;">Id RFID</th>
                             <th style="width: 15%;">Rombel</th>
                             <th style="width: 12%;">Jam Absen</th>
                             <th style="width: 12%;">Keterangan</th>
@@ -235,7 +234,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
             </div>
         </div>
     `;
-}
+} 
 
 async function initTabs() {
   const tabs = document.querySelectorAll(".header-nav-tabs .nav-tab-item");

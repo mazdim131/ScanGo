@@ -8,23 +8,21 @@
 
 .dashboard-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: var(--bg-body);
   font-family: "Inter", sans-serif;
   width: 100%;
+  overflow: hidden;
 }
 
 .sidebar {
   width: 240px;
-  /* Diubah dari 72px ke 240px agar muat tulisan */
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-sidebar);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* Diubah dari center ke flex-start agar teks rata kiri */
   padding: 24px;
-  /* Diubah agar padding-nya merata dan rapi */
   gap: 24px;
   flex-shrink: 0;
   transition: background-color var(--transition-speed), border-color var(--transition-speed);
@@ -40,13 +38,10 @@
   width: 100%;
   height: auto;
   background-color: transparent !important;
-  /* Menghapus warna biru yang memanjang */
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  /* Tetap rata kiri */
   padding-left: 8px;
-  /* Jarak logo dari pinggir sidebar */
   margin-bottom: 24px;
 }
 
@@ -55,18 +50,13 @@
   align-items: center;
   justify-content: center;
   width: 42px;
-  /* Mengunci lebar kotak logo */
   height: 42px;
-  /* Mengunci tinggi kotak logo */
   background-color: #e0e7ff;
-  /* Warna biru kotak kecil dipasang di sini */
   border-radius: 12px;
-  /* Sudut membulat kotak logo */
 }
 
 .sidebar-logo a img {
   height: 24px;
-  /* Sesuaikan tingginya agar tidak mentok kotak biru */
   width: auto;
   object-fit: contain;
 }
@@ -75,7 +65,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  /* Diperkecil jarak antar menu vertikalnya agar lebih rapi */
   width: 100%;
   align-items: flex-start;
 }
@@ -86,19 +75,14 @@
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
-  /* Diubah dari 40px ke 100% agar memanjang ke kanan */
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  /* Diubah dari center ke flex-start */
   padding: 0 12px;
-  /* Tambah padding dalam agar tidak mentok kiri */
   gap: 12px;
-  /* Jarak antara ikon dan teks menu */
   border-radius: 10px;
   text-decoration: none;
-  /* Jaga-jaga kalau pakai tag <a> */
 }
 
 .menu-icon span {
@@ -117,9 +101,10 @@
   padding: 24px 32px;
   background-color: var(--bg-content);
   transition: background-color var(--transition-speed);
+  overflow-y: auto;
+  min-width: 0;
 }
 
-/* Efek interaktif tombol menu grid di dalam handphone */
 .offcanvas-body .row .col-4 {
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease;
@@ -127,10 +112,8 @@
 
 .offcanvas-body .row .col-4:active {
   transform: scale(0.95);
-  /* Efek membal saat ditekan di HP */
 }
 
-/* Memastikan background bottom sheet mengikuti variabel tema dashboard kamu */
 .offcanvas.offcanvas-bottom {
   background-color: var(--color-card-bg) !important;
   color: var(--color-teks) !important;
@@ -146,12 +129,10 @@
   font-weight: 700;
 }
 
-/* Mengatur ukuran teks icon menu di bottom sheet */
 .offcanvas-body .bi {
   color: var(--color-sub);
 }
 
-/* Mengatur warna label menu di bottom sheet */
 .offcanvas-body .small {
   color: var(--color-teks-sub, var(--color-sub));
 }
@@ -489,17 +470,114 @@
   color: #3b82f6;
 }
 
+/* =========================================
+   1. TAMPILAN RESPONSIVE MOBILE (Layar HP Umum < 768px)
+   ========================================= */
 @media (max-width: 767.98px) {
+
+  /* --- Main Content --- */
   .main-content {
     padding: 16px;
-    /* Lebih ramah layar HP */
+    width: 100%;
+    overflow-x: hidden;
+    /* Mencegah layar goyang ke samping */
+  }
+
+  /* --- Header & Jam --- */
+  .header-panel {
+    display: flex;
+    flex-wrap: nowrap !important;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-left: 0 !important;
+  }
+
+  .header-title {
+    flex: 1;
+  }
+
+  .header-title h4 {
+    font-size: 1.25rem !important;
+    font-weight: 600;
+    white-space: normal !important;
+    line-height: 1.1 !important;
+    max-width: 130px;
+    margin: 0;
+  }
+
+  .clock-date-wrapper {
+    flex: 0 0 auto;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  #time {
+    font-size: 0.95rem !important;
+    font-weight: 700;
+    margin-bottom: 2px !important;
+    line-height: 1;
+  }
+
+  #date {
+    font-size: 0.75rem !important;
+    white-space: nowrap;
+    margin: 0 !important;
+  }
+
+  /* --- Stat Card (Bubble Total Siswa) --- */
+  .stat-card {
+    padding: 16px !important;
+  }
+
+  .stat-label {
+    font-size: 0.75rem !important;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .stat-value {
+    font-size: 1.75rem !important;
+  }
+
+  .stat-indicator {
+    font-size: 0.75rem;
   }
 }
 
-@media (max-width: 767.98px) {
-  .header-panel {
-    margin-bottom: 16px;
-    padding-left: 0 !important;
-    /* Menghilangkan margin/padding bawaan desktop */
+@media (max-width: 414px) {
+
+  /* Bikin ruang kanan-kiri sedikit lebih lega */
+  .main-content {
+    padding: 12px 16px !important;
+  }
+
+  /* Judul disesuaikan biar gak nabrak ikon menu / jam */
+  .header-title h4 {
+    font-size: 1.1rem !important;
+    max-width: 110px !important;
+  }
+
+  /* Jam & Tanggal ikut dikecilin dikit */
+  #time {
+    font-size: 0.85rem !important;
+  }
+
+  #date {
+    font-size: 0.65rem !important;
+  }
+
+  /* Perkecil padding dalam bubble card biar isinya gak kegencet */
+  .stat-card {
+    padding: 12px !important;
+  }
+
+  .stat-value {
+    font-size: 1.5rem !important;
   }
 }
