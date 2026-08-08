@@ -66,15 +66,40 @@
 
 @media (max-width: 768px) {
   .title {
-    margin-top: 35% !important;
+    margin-top: 30% !important;
+  }
+
+  .text-top {
+    margin-top: 30% !important;
+  }
+
+  .text-top span {
+    font-size: 20px !important;
+  }
+
+  .text-top p {
+    font-size: 20px !important;
+  }
+
+  .text-top h1 {
+    font-size: 50px !important;
+  }
+
+  .logo-team {
+    display: none !important;
+    margin-right: 0 !important;
   }
 
   .hero-company {
-    margin-top: 8% !important; 
+    margin-top: 30% !important; 
   }
 
   .title h1 {
     font-size: 30px;
+  }
+
+  .qoute {
+    margin-top: 30% !important;
   }
 
   .title p {
