@@ -5,21 +5,20 @@ content.innerHTML = `
 
     <!-- Header -->
     <div class="text-center mb-5">
-        <h1 class="section-title">Choose a Trail That<br>Fits You</h1>
+        <h1 class="section-title">Jelajahi fitur tanpa kebingungan</h1>
         <p class="section-subtitle mt-3">
-        Whether you're just starting out or chasing summits, find trails tailored to your experience
+        Kami menyediakan beberapa panduan dasar mengenai fitur pada platform ini
         </p>
     </div>
 
-    <!-- Cards Grid -->
-    <div class="row g-4 justify-content-center">
+    <div class="row g-4 justify-content-center animate__animated animate__fadeIn">
 
         <!-- Card 1 -->
         <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-    <div class="trail-card" onclick="openVideo('ganti video', 'GANTI_NAMA_TRAIL')">
+    <div class="trail-card" onclick="openVideo('/frontEnd/assets/videos/login.mp4')">
     <div class="trail-thumb">
         <img src="GANTI_PATH_GAMBAR.jpg"
-            onerror="this.src='https://placehold.co/600x400/a8d5a2/ffffff?text=gambar'"
+            onerror="this.src='/frontEnd/assets/images/bgGuide.png'"
             alt="GANTI_NAMA_TRAIL">
         <div class="play-overlay">
         <div class="play-btn-circle">
@@ -28,20 +27,90 @@ content.innerHTML = `
         </div>
     </div>
     <div class="trail-body">
-        <span class="badge-level">GANTI_LEVEL</span>
-        <p class="trail-name">GANTI_NAMA_TRAIL</p>
-        <p class="trail-desc">GANTI_DESKRIPSI</p>
-        <div class="trail-stat"><i class="bi bi-triangle"></i> GANTI_ELEVASI m elevation gain</div>
-        <div class="trail-stat"><i class="bi bi-arrow-left-right"></i> GANTI_JARAK km trail length</div>
+        <span class="badge-level bg-primary">Fitur Inti</span>
+        <p class="trail-name">Login Dashboard</p>
+        <p class="trail-desc">Masuk menuju akun anda</p>
     </div>
     </div>
 </div>
 
 <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-    <div class="trail-card" onclick="openVideo('GANTI_PATH_VIDEO.mp4', 'GANTI_NAMA_TRAIL')">
+    <div class="trail-card" onclick="openVideo('/frontEnd/assets/videos/inputStudent.mp4')">
     <div class="trail-thumb">
         <img src="GANTI_PATH_GAMBAR.jpg"
-            onerror="this.src='https://placehold.co/600x400/a8d5a2/ffffff?text=Trail'"
+            onerror="this.src='/frontEnd/assets/images/bgGuide.png'"
+            alt="GANTI_NAMA_TRAIL">
+        <div class="play-overlay">
+        <div class="play-btn-circle"> 
+            <i class="bi bi-play-fill"></i>   
+        </div>
+        </div>
+    </div>
+    <div class="trail-body">
+        <span class="badge-level bg-primary">Fitur Inti</span>
+        <p class="trail-name">Register Akun</p>
+        <p class="trail-desc">Daftarkan anak didik baru untuk pencatatan absensi</p>
+    </div>
+    </div>
+</div>
+<div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="trail-card" onclick="openVideo('/frontEnd/assets/videos/scan.mp4')">
+    <div class="trail-thumb">
+        <img src="GANTI_PATH_GAMBAR.jpg"
+            onerror="this.src='/frontEnd/assets/images/bgGuide.png'"
+            alt="GANTI_NAMA_TRAIL">
+        <div class="play-overlay">
+        <div class="play-btn-circle">
+            <i class="bi bi-play-fill"></i>
+        </div>
+        </div>
+    </div>
+    <div class="trail-body">
+        <span class="badge-level bg-primary">Fitur Inti</span>
+        <p class="trail-name">Absensi</p>
+        <p class="trail-desc">Mulai absensi dengan tap kartu anda</p>
+    </div>
+    </div>
+</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-5">
+        <button class="btn-adventure" id="btnAnotherCard" onclick="anotherGuide()">Lihat Panduan Selengkapnya</button>
+    </div>
+</div>
+
+<!-- panduan optional -->
+
+<div id="anotherCard" class="animate__animated animate__fadeIn container mt-5" style="display: none;">
+        <div class="row g-4 justify-content-center">
+
+        <!-- Card 1 -->
+        <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="trail-card" onclick="openVideo('/frontEnd/assets/videos/about.mp4')">
+    <div class="trail-thumb">
+        <img src="GANTI_PATH_GAMBAR.jpg"
+            onerror="this.src='/frontEnd/assets/images/bgGuide.png'"
+            alt="GANTI_NAMA_TRAIL">
+        <div class="play-overlay">
+        <div class="play-btn-circle">
+            <i class="bi bi-play-fill"></i>
+        </div>
+        </div>
+    </div>
+    <div class="trail-body">
+        <span class="badge-level bg-secondary">Halaman Lainnya</span>
+        <p class="trail-name">Tentang ScanGo</p>
+        <p class="trail-desc">Melihat lebih detail lagi apa itu ScanGo</p>
+    </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="trail-card" onclick="openVideo('/frontEnd/assets/videos/founder.mp4')">
+    <div class="trail-thumb">
+        <img src="GANTI_PATH_GAMBAR.jpg"
+            onerror="this.src='/frontEnd/assets/images/bgGuide.png'"
             alt="GANTI_NAMA_TRAIL">
         <div class="play-overlay">
         <div class="play-btn-circle"> 
@@ -50,19 +119,17 @@ content.innerHTML = `
         </div>
     </div>
     <div class="trail-body">
-        <span class="badge-level">GANTI_LEVEL</span>
-        <p class="trail-name">GANTI_NAMA_TRAIL</p>
-        <p class="trail-desc">GANTI_DESKRIPSI</p>
-        <div class="trail-stat"><i class="bi bi-triangle"></i> GANTI_ELEVASI m elevation gain</div>
-        <div class="trail-stat"><i class="bi bi-arrow-left-right"></i> GANTI_JARAK km trail length</div>
+        <span class="badge-level bg-secondary">Halaman Lainnya</span>
+        <p class="trail-name">Pengembang ScanGo</p>
+        <p class="trail-desc">Mencari tahu siapa dibalik ScanGo</p>
     </div>
     </div>
 </div>
 <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-    <div class="trail-card" onclick="openVideo('GANTI_PATH_VIDEO.mp4', 'GANTI_NAMA_TRAIL')">
+    <div class="trail-card" onclick="openVideo('/frontEnd/assets/videos/contact.mp4')">
     <div class="trail-thumb">
         <img src="GANTI_PATH_GAMBAR.jpg"
-            onerror="this.src='https://placehold.co/600x400/a8d5a2/ffffff?text=Trail'"
+            onerror="this.src='/frontEnd/assets/images/bgGuide.png'"
             alt="GANTI_NAMA_TRAIL">
         <div class="play-overlay">
         <div class="play-btn-circle">
@@ -71,22 +138,17 @@ content.innerHTML = `
         </div>
     </div>
     <div class="trail-body">
-        <span class="badge-level">GANTI_LEVEL</span>
-        <p class="trail-name">GANTI_NAMA_TRAIL</p>
-        <p class="trail-desc">GANTI_DESKRIPSI</p>
-        <div class="trail-stat"><i class="bi bi-triangle"></i> GANTI_ELEVASI m elevation gain</div>
-        <div class="trail-stat"><i class="bi bi-arrow-left-right"></i> GANTI_JARAK km trail length</div>
+        <span class="badge-level bg-secondary">Halaman Lainnya</span>
+        <p class="trail-name">Hubungi Kami</p>
+        <p class="trail-desc">Tetap terhubung dengan kami</p>
     </div>
     </div>
 </div>
     </div>
 
-    <!-- CTA -->
-    <div class="text-center mt-5">
-        <button class="btn-adventure">Find More Adventures</button>
-    </div>
 </div>
 </section>
+
 <!-- ===================== VIDEO MODAL ===================== -->
 <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -109,5 +171,17 @@ content.innerHTML = `
     </div>
     </div>
 </div>
-`
+`;
 
+function anotherGuide() {
+  const card = document.getElementById("anotherCard");
+  const btn = document.getElementById("btnAnotherCard");
+
+  if (card.style.display === "none" || card.style.display === "") {
+    card.style.display = "block";
+    btn.innerText = "Sembunyikan Panduan Lainnya";
+  } else {
+    card.style.display = "none";
+    btn.innerText = "Lihat Panduan Lainnya";
+  }
+}

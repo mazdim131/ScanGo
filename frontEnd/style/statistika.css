@@ -6,7 +6,11 @@
   box-sizing: border-box !important;
 }
 
-.dashboard-container {
+/* ── Struktur halaman statistika.html ─────────────────────────────
+   Semua rule struktur di-scope ke .statistika-page agar TIDAK menimpa
+   dashboard.css saat statistika.css ikut di-load di dashboard.html
+   (khususnya lebar sidebar 240px dan menu teks di dashboard). */
+.statistika-page .dashboard-container {
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-body);
@@ -14,7 +18,7 @@
   width: 100%;
 }
 
-.sidebar {
+.statistika-page .sidebar {
   width: 72px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-sidebar);
@@ -27,7 +31,7 @@
   transition: background-color var(--transition-speed), border-color var(--transition-speed);
 }
 
-.sidebar-logo {
+.statistika-page .sidebar-logo {
   width: 42px;
   height: 42px;
   background-color: #e0e7ff;
@@ -40,7 +44,7 @@
   margin-bottom: 12px;
 }
 
-.sidebar-menu {
+.statistika-page .sidebar-menu {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -48,7 +52,7 @@
   align-items: center;
 }
 
-.menu-icon {
+.statistika-page .menu-icon {
   font-size: 1.3rem;
   color: var(--color-sub);
   cursor: pointer;
@@ -61,20 +65,20 @@
   border-radius: 10px;
 }
 
-.menu-icon:hover,
-.menu-icon.active {
+.statistika-page .menu-icon:hover,
+.statistika-page .menu-icon.active {
   color: #4f46e5;
   background-color: var(--bg-hover);
 }
 
-.main-content {
+.statistika-page .main-content {
   flex: 1;
   padding: 24px 32px;
   background-color: var(--bg-content);
   transition: background-color var(--transition-speed);
 }
 
-.header-panel {
+.statistika-page .header-panel {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -82,14 +86,14 @@
   width: 100%;
 }
 
-.header-title h4 {
+.statistika-page .header-title h4 {
   font-weight: 700;
   color: var(--color-teks);
   margin: 0;
   font-size: 1.4rem;
 }
 
-.header-nav-tabs {
+.statistika-page .header-nav-tabs {
   display: flex;
   background-color: var(--bg-tab);
   padding: 4px;
@@ -97,7 +101,7 @@
   gap: 2px;
 }
 
-.nav-tab-item {
+.statistika-page .nav-tab-item {
   padding: 6px 16px;
   font-size: 0.85rem;
   font-weight: 500;
@@ -107,13 +111,13 @@
   transition: all 0.2s ease;
 }
 
-.nav-tab-item.active {
+.statistika-page .nav-tab-item.active {
   background-color: var(--color-card-bg);
   color: #4f46e5;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-#time {
+.statistika-page #time {
   font-size: 1rem;
   font-weight: 700;
   display: flex;
@@ -123,7 +127,7 @@
   line-height: 1.2;
 }
 
-#date {
+.statistika-page #date {
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--color-sub);
@@ -131,7 +135,7 @@
   line-height: 1.2;
 }
 
-.header-nav-tabs {
+.statistika-page .header-nav-tabs {
   display: flex;
   gap: 12px;
   width: fit-content;
@@ -288,6 +292,44 @@
 .clockbox .date {
   color: var(--color-teks-sub);
   font-size: 12.5px;
+}
+
+/* dropdown filter kelas & rombel (di bawah kartu monitor) */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-teks-sub);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-group .form-select {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--border-form);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-teks);
+  padding: 10px 14px;
+  height: auto;
+  width: 100%;
+  cursor: pointer;
 }
 
 .summary {
@@ -673,4 +715,118 @@
   .summary {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 991.98px) {
+  .wrap {
+    padding: 20px 16px 48px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .statistika-page .header-panel {
+    flex-wrap: wrap;
+    gap: 12px 8px;
+    margin-bottom: 16px;
+    padding-left: 0 !important;
+  }
+
+  .statistika-page .header-panel .header-title h4 {
+    font-size: 1.1rem;
+    margin-left: 0 !important;
+  }
+
+  .statistika-page .header-panel .clock-date-wrapper {
+    margin-left: auto;
+  }
+
+  /* Navbar statistika di HP: bungkus supaya tabs turun ke baris sendiri */
+  .statistika-page .header-panel > .d-flex {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header-nav-tabs,
+  #content .header-nav-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .header-nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header-nav-tabs .nav-tab-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .topbar {
+    flex-direction: column;
+  }
+
+  .clockbox {
+    text-align: left;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .panel-head {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .delta-row {
+    flex-wrap: wrap;
+  }
+
+  .delta-item {
+    flex: 1 1 40%;
+  }
+
+  .rank-item {
+    gap: 8px;
+  }
+
+  .teacher-item {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* offcanvas bottom-sheet (mobile menu) mengikuti tema */
+.offcanvas.offcanvas-bottom {
+  background-color: var(--color-card-bg) !important;
+  color: var(--color-teks) !important;
+  border-top: 1px solid var(--border-sidebar);
+}
+
+.offcanvas-header {
+  border-bottom: 1px solid var(--border-form) !important;
+}
+
+.offcanvas-title {
+  color: var(--color-teks) !important;
+  font-weight: 700;
+}
+
+.offcanvas-body .bi {
+  color: var(--color-sub);
+}
+
+.offcanvas-body .small {
+  color: var(--color-teks-sub, var(--color-sub));
+}
+
+.offcanvas-body .row .col-4 {
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.offcanvas-body .row .col-4:active {
+  transform: scale(0.95);
 }

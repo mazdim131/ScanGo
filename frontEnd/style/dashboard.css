@@ -6,13 +6,66 @@
   box-sizing: border-box !important;
 }
 
+.dashboard-layout {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.left-panel {
+  flex: 0 0 350px;
+  width: 350px;
+  color: #fff;
+  border-radius: 12px;
+  position: sticky;
+  top: 20px;
+}
+
+.dashboard-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.right-panel {
+  flex: 1;
+  min-width: 0;
+  background-color: var(--bg-content);
+  border-radius: 12px;
+}
+
+.main-wrapper {
+  width: 100%;
+  background-color: var(--bg-content);
+  border-radius: 12px;
+}
+
+@media (max-width: 991.98px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .left-panel {
+    flex: none;
+    width: 100%;
+    position: static;
+  }
+
+  .right-panel,
+  .main-wrapper {
+    flex: none;
+    width: 100%;
+  }
+}
+
+
+
 .dashboard-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
   background-color: var(--bg-body);
   font-family: "Inter", sans-serif;
-  width: 100%;
-  overflow: hidden;
 }
 
 .sidebar {
@@ -270,6 +323,21 @@
   display: inline-block;
 }
 
+.status-sick {
+  background-color: #FA6868;
+  color: white;
+}
+
+.status-alpa {
+  background-color: #f0f0f0;
+  color: black;
+}
+
+.status-izin {
+  background-color: #89D4FF;
+  color: #1A05A2;
+}
+
 .status-present {
   background-color: #ecfdf5;
   color: #10b981;
@@ -378,96 +446,10 @@
   margin-bottom: 12px;
 }
 
-/* Container Card Tema */
-#changeTheme2 .theme-cards-container {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-/* Base Style Tombol / Card Tema */
-.theme-card {
-  background: var(--color-card-bg);
-  border: 2px solid var(--border-form);
-  border-radius: 12px;
-  padding: 8px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
-}
-
-/* Ilustrasi Mini Dashboard di Dalam Card */
-.theme-preview {
-  width: 100%;
-  height: 60px;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
-  background: var(--bg-body);
-}
-
-/* Komponen Ilustrasi Mini */
-.preview-sidebar {
-  width: 25%;
-  height: 100%;
-}
-
-.preview-content {
-  width: 75%;
-  height: 100%;
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-}
-
-.preview-header {
-  height: 8px;
-  width: 100%;
-  border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.preview-badge {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  position: absolute;
-  bottom: 6px;
-  right: 6px;
-}
-
-/* Label Nama Tema */
-.theme-label {
-  font-size: 0.78rem !important;
-  font-weight: 600 !important;
-  color: var(--color-sub);
-  margin-bottom: 0 !important;
-  transition: color 0.2s ease;
-}
-
-/* Hover Effect */
-.theme-card:hover {
-  border-color: var(--color-sub);
-  transform: translateY(-2px);
-}
-
-/* State Aktif / Terpilih (Active Style) */
-.theme-card.active {
-  border-color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.theme-card.active .theme-label {
-  color: #3b82f6;
+@media (max-width: 991.98px) {
+  .main-content {
+    padding: 20px 16px;
+  }
 }
 
 /* =========================================
@@ -548,36 +530,51 @@
   .stat-indicator {
     font-size: 0.75rem;
   }
+
+  .header-panel {
+    flex-wrap: wrap;
+    gap: 12px 8px;
+    margin-bottom: 16px;
+    padding-left: 0 !important;
+    /* Menghilangkan margin/padding bawaan desktop */
+  }
+
+  .header-panel .header-title h4,
+  .header-panel h4 {
+    font-size: 1.1rem;
+    margin-left: 0 !important;
+  }
+
+  .header-panel .clock-date-wrapper {
+    margin-left: auto;
+  }
+
+  .header-nav-tabs,
+  #content .header-nav-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .header-nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header-nav-tabs .nav-tab-item {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
 }
 
-@media (max-width: 414px) {
-
-  /* Bikin ruang kanan-kiri sedikit lebih lega */
-  .main-content {
-    padding: 12px 16px !important;
+@media (max-width: 575.98px) {
+  .header-panel #date {
+    display: none;
   }
 
-  /* Judul disesuaikan biar gak nabrak ikon menu / jam */
-  .header-title h4 {
-    font-size: 1.1rem !important;
-    max-width: 110px !important;
-  }
-
-  /* Jam & Tanggal ikut dikecilin dikit */
-  #time {
-    font-size: 0.85rem !important;
-  }
-
-  #date {
-    font-size: 0.65rem !important;
-  }
-
-  /* Perkecil padding dalam bubble card biar isinya gak kegencet */
-  .stat-card {
-    padding: 12px !important;
-  }
-
-  .stat-value {
-    font-size: 1.5rem !important;
+  .header-panel #time {
+    font-size: 0.92rem;
   }
 }

@@ -1,48 +1,6 @@
 
 function renderGrafik() {
   return `
-            <div class="header-nav-tabs justify-content-center" id="rombelTabs">
-                    <a href="#" class="nav-tab-item active">PPLG X-1</a>
-                    <a href="#" class="nav-tab-item">PPLG X-2</a>
-                    <a href="#" class="nav-tab-item">PPLG X-3</a>
-                    <a href="#" class="nav-tab-item">PPLG X-4</a>
-                    <a href="#" class="nav-tab-item">PPLG X-5</a>
-                </div>
-
-                <div class="teacher-schedule">
-                    <div class="teacher-schedule-header">
-                        <i class="bi bi-person-workspace"></i>
-                        <span>Guru Mengajar Hari Ini</span>
-                    </div>
-
-                    <div class="teacher-list">
-                        <div class="teacher-item">
-                            <div class="teacher-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div class="teacher-info">
-                                <div class="teacher-name">Pak Iqbal Fajar Syahbana</div>
-                                <div class="teacher-subject">
-                                    Pemrograman Dasar • 07:00 - 10:00
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="teacher-item">
-                            <div class="teacher-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div class="teacher-info">
-                                <div class="teacher-name">Bu Duma dianis sari siregar</div>
-                                <div class="teacher-subject">
-                                    Basis Data • 10:15 - 12:30
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
                 <div class="wrap">
                     <div class="summary">
                         <div class="scard">
@@ -97,6 +55,24 @@ function renderGrafik() {
                                 <div class="value" id="val-belum-absen">-</div>
                                 <div class="label">Belum Absen</div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- dropdown filter kelas & rombel (di bawah kartu monitor) -->
+                    <div class="filter-bar">
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterKelas"><i class="bi bi-collection"></i> Kelas</label>
+                            <select id="filterKelas" class="form-select">
+                                <option value="X">Kelas X</option>
+                                <option value="XI">Kelas XI</option>
+                                <option value="XII">Kelas XII</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterRombel"><i class="bi bi-people"></i> Rombel</label>
+                            <select id="filterRombel" class="form-select">
+                                <!-- diisi oleh renderRombel() -->
+                            </select>
                         </div>
                     </div>
 
@@ -206,7 +182,84 @@ function renderGrafik() {
 
                 </div>
   `;
+
+
 }
+
+
+// const guruMap = {
+
+//   "PPLG X-1": [
+//     {
+//       nama: "Pak Iqbal",
+//       mapel: "Pemrograman Dasar",
+//       jam: "07:00 - 10:00"
+//     },
+//     {
+//       nama: "Bu Duma",
+//       mapel: "Basis Data",
+//       jam: "10:15 - 12:30"
+//     }
+//   ],
+
+//   "PPLG X-2": [
+//     {
+//       nama: "Pak Andi",
+//       mapel: "Basis Data",
+//       jam: "07:00 - 09:30"
+//     }
+//   ],
+
+//   "PPLG XI-1": [
+//     {
+//       nama: "Bu Sinta",
+//       mapel: "Web Programming",
+//       jam: "08:00 - 10:00"
+//     }
+//   ]
+
+// };
+
+function renderGuru(rombel) {
+
+  const container = document.querySelector(".teacher-list");
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const guru = guruMap[rombel] || [];
+
+  guru.forEach(g => {
+
+    container.innerHTML += `
+        <div class="teacher-item">
+
+            <div class="teacher-avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div class="teacher-info">
+
+                <div class="teacher-name">
+                    ${g.nama}
+                </div>
+
+                <div class="teacher-subject">
+                    ${g.mapel} • ${g.jam}
+                </div>
+
+            </div>
+
+        </div>
+        `;
+
+  });
+
+}
+
+let selectedRombel = "PPLG X-1";
+let selectedKelas = "X";
 const rombelMap = {
   X: [
     "PPLG X-1",
@@ -234,36 +287,54 @@ const rombelMap = {
 };
 
 function renderRombel(kelas) {
-  const container = document.getElementById("rombelTabs");
-  container.innerHTML = "";
-  for (let i = 1; i <= 5; i++) {
-    container.innerHTML += `
-            <a href="#"
-               class="nav-tab-item ${i === 1 ? "active" : ""}"
-               data-kelas="${kelas}"
-               data-rombel="${i}">
-                PPLG ${kelas}-${i}
-            </a>
-        `;
-  }
-  // console.log(kelas);
-  initTabs();
+  const rombelSelect = document.getElementById("filterRombel");
+  if (!rombelSelect) return;
+
+  // Simpan kelas aktif
+  selectedKelas = kelas;
+
+  // Sinkronkan dropdown kelas
+  const kelasSelect = document.getElementById("filterKelas");
+  if (kelasSelect) kelasSelect.value = kelas;
+
+  // Isi dropdown rombel sesuai kelas yang dipilih
+  const rombels = rombelMap[kelas] || [];
+  rombelSelect.innerHTML = rombels.map(
+    rombel => `<option value="${rombel}">${rombel}</option>`
+  ).join('');
+
+  // Set rombel default (pertama)
+  selectedRombel = rombels[0] || "";
+  rombelSelect.value = selectedRombel;
+  renderGuru(selectedRombel);
+
+  // Muat data untuk rombel yang aktif
+  initGrafikListener();
 }
 
-const kelasTabs = document.querySelectorAll(".header-panel .nav-tab-item[data-kelas]");
-kelasTabs.forEach(tab => {
-  tab.addEventListener("click", function (e) {
-    e.preventDefault();
-    kelasTabs.forEach(t => t.classList.remove("active"));
-    this.classList.add("active");
-    const kelas = this.dataset.kelas;
-    renderRombel(kelas);
-  });
-});
+// function renderRombel(kelas) {
+//   const container = document.getElementById("rombelTabs");
+//   container.innerHTML = "";
+//   for (let i = 1; i <= 5; i++) {
+//     container.innerHTML += `
+//             <a href="#"
+//                class="nav-tab-item ${i === 1 ? "active" : ""}"
+//                data-kelas="${kelas}"
+//                data-rombel="${i}">
+//                 PPLG ${kelas}-${i}
+//             </a>
+//         `;
+//   }
+//   // console.log(kelas);
+//   initTabs();
+// }
 
-let clockInterval = null;
+// Listener kelas tabs dipasang di dalam initDashboardListener()
+// agar bekerja saat halaman di-load lewat SPA router
 
-function initDashboardListener() {
+if (typeof window.clockInterval === "undefined") window.clockInterval = null;
+
+function initStatistikaListener() {
   const timeElement = document.getElementById("time");
   const dateElement = document.getElementById("date");
 
@@ -280,23 +351,37 @@ function initDashboardListener() {
     let minutes = now.getMinutes().toString().padStart(2, "0");
     let seconds = now.getSeconds().toString().padStart(2, "0");
     let localDate = now.toLocaleDateString("id-ID", dateOptions);
-
     if (timeElement) timeElement.innerHTML = `${hours}:${minutes}:${seconds}`;
     if (dateElement) dateElement.innerHTML = `${localDate}`;
   }
 
-  // Perbaikan validasi interval biar gak bikin crash kodingan di bawahnya
   if (typeof clockInterval !== "undefined" && clockInterval !== null) {
     clearInterval(clockInterval);
   }
-
   updateClock();
   clockInterval = setInterval(updateClock, 1000);
 
-  // Jalankan inisialisasi tab kelas
-  if (typeof initTabs === 'function') {
-    initTabs();
+  // ── Dropdown Kelas (X / XI / XII) ──
+  const kelasSelect = document.getElementById("filterKelas");
+  if (kelasSelect) {
+    kelasSelect.value = selectedKelas;
+    kelasSelect.addEventListener("change", function () {
+      renderRombel(this.value);
+    });
   }
+
+  // ── Dropdown Rombel (PPLG 1-5) ──
+  const rombelSelect = document.getElementById("filterRombel");
+  if (rombelSelect) {
+    rombelSelect.addEventListener("change", function () {
+      selectedRombel = this.value;
+      renderGuru(selectedRombel);
+      initGrafikListener();
+    });
+  }
+
+  // Inisialisasi rombel default (Kelas X → PPLG X-1) dan muat data pertama kali
+  renderRombel(selectedKelas);
 }
 
 
@@ -353,19 +438,32 @@ function gridLines(svg, max, steps) {
   }
 }
 
+// ── Helper: normalisasi format rombel ──────────────────────────────────
+// DB menyimpan rombel sebagai "X_3", "XI_2", dsb.
+// Frontend menampilkan sebagai "PPLG X-3", "PPLG XI-2", dsb.
+// Fungsi ini mengubah keduanya ke key yang sama sehingga bisa dibandingkan.
+function normalizeRombel(r) {
+  if (!r) return '';
+  return String(r)
+    .replace(/pplg\s*/i, '')   // hapus prefix "PPLG "
+    .replace(/[-\s]/g, '_')    // ubah dash / spasi jadi underscore
+    .toUpperCase()             // uppercase supaya case-insensitive
+    .trim();
+}
+// ─────────────────────────────────────────────────────────────────────
+
 // ===================== 1. Kehadiran 7 Hari Terakhir (single line) =====================
-window.initGrafikListerner = async function () {
-  initDashboardListener();
+window.initGrafikListener = async function () {
 
   let users = [];
   let attendances = [];
   try {
-    const resA = await fetch("http://localhost:3000/api/attendances");
+    const resA = await fetch(`${API_BASE}/api/attendances`, { credentials: "include" });
     if (resA.ok) {
       const dataA = await resA.json();
       if (dataA.success) attendances = dataA.data || [];
     }
-    const resU = await fetch("http://localhost:3000/api/users");
+    const resU = await fetch(`${API_BASE}/api/users`, { credentials: "include" });
     if (resU.ok) {
       const dataU = await resU.json();
       if (dataU.success) users = dataU.data || [];
@@ -375,15 +473,27 @@ window.initGrafikListerner = async function () {
   }
 
   const td = new Date();
+  // Filter pakai normalizeRombel supaya cocok walaupun format beda ("PPLG X-3" vs "X_3")
+  const selectedRombelKey = normalizeRombel(selectedRombel);
+  const usersRombel = users.filter(
+    user => normalizeRombel(user.rombel) === selectedRombelKey
+  );
+  const idcards = usersRombel.map(u => String(u.idcard).trim());
+
   const todayAtt = attendances.filter(a => {
     if (!a.created_at) return false;
     const d = new Date(a.created_at);
     return d.getFullYear() === td.getFullYear() && d.getMonth() === td.getMonth() && d.getDate() === td.getDate();
   });
 
-  const totalSiswa = users.length;
+  const todayAttRombel = todayAtt.filter(att =>
+    idcards.includes(String(att.idcard).trim())
+  );
+
+
+  const totalSiswa = usersRombel.length;
   const hadirMap = new Map();
-  todayAtt.forEach(a => {
+  todayAttRombel.forEach(a => {
     let cId = String(a.idcard || '').trim();
     if (cId) {
       if (!hadirMap.has(cId)) {
@@ -396,47 +506,86 @@ window.initGrafikListerner = async function () {
       }
     }
   });
-  const hadirCards = Array.from(hadirMap.keys());
-  const totalHadir = hadirCards.length;
-  const totalBelum = Math.max(0, totalSiswa - totalHadir);
 
-  // Data List Siswa (Status Hari Ini) & Menghitung Terlambat
+  // Data List Siswa (Status Hari Ini) & Menghitung status
   const studentsList = [];
   const absentList = [];
   let countTepat = 0;
   let countTerlambat = 0;
+  let countSakit = 0;
+  let countIzin = 0;
+  let countAlfa = 0;
+  let countHadirTotal = 0;
+  let countBelum = 0;
 
-  users.forEach(u => {
+  usersRombel.forEach(u => {
     let uId = String(u.idcard || '').trim();
     if (uId && hadirMap.has(uId)) {
-      let timeStr = "00:00";
-      let isTerlambat = false;
       const attObj = hadirMap.get(uId);
-      if (attObj && attObj.created_at) {
-        const dtt = new Date(attObj.created_at);
-        const hrs = dtt.getHours();
-        const mins = dtt.getMinutes();
-        if (hrs > 8 || (hrs === 8 && mins > 30)) {
-          isTerlambat = true;
-        }
-        timeStr = String(hrs).padStart(2, '0') + ':' + String(mins).padStart(2, '0');
-      }
-      if (isTerlambat) countTerlambat++;
-      else countTepat++;
+      const attStatus = (attObj.status || "Hadir").toLowerCase();
+      let timeStr = "00:00";
 
-      studentsList.push({ name: u.username, rombel: u.rombel, status: isTerlambat ? "terlambat" : "sudah", time: timeStr });
+      if (attObj.created_at) {
+        const dtt = new Date(attObj.created_at);
+        timeStr = String(dtt.getHours()).padStart(2, '0') + ':' + String(dtt.getMinutes()).padStart(2, '0');
+      }
+
+      if (attStatus === "sakit") {
+        countSakit++;
+        absentList.push({ name: u.username, rombel: u.rombel, status: "Sakit" });
+        studentsList.push({ name: u.username, rombel: u.rombel, status: "sakit", time: timeStr });
+      } else if (attStatus === "izin") {
+        countIzin++;
+        absentList.push({ name: u.username, rombel: u.rombel, status: "Izin" });
+        studentsList.push({ name: u.username, rombel: u.rombel, status: "izin", time: timeStr });
+      } else if (attStatus === "alfa") {
+        countAlfa++;
+        absentList.push({ name: u.username, rombel: u.rombel, status: "Alfa" });
+        studentsList.push({ name: u.username, rombel: u.rombel, status: "alfa", time: timeStr });
+      } else {
+        // Hadir
+        let isTerlambat = false;
+        if (attObj.created_at) {
+          const dtt = new Date(attObj.created_at);
+          const hrs = dtt.getHours();
+          const mins = dtt.getMinutes();
+          if (hrs > 7 || (hrs === 7 && mins >= 30)) {
+            isTerlambat = true;
+          }
+        }
+
+        if (isTerlambat) countTerlambat++;
+        else countTepat++;
+        countHadirTotal++;
+
+        // Cek note khusus "Tidak bawa kartu"
+        let noteStr = "";
+        const pNote = (attObj.note || "").toLowerCase();
+        if (pNote.includes("kartu") || pNote.includes("gak bawa") || attObj.mac_address === "Manual Input") {
+          noteStr = " (Tdk bawa kartu)";
+        }
+
+        studentsList.push({
+          name: u.username,
+          rombel: u.rombel,
+          status: isTerlambat ? "terlambat" : "sudah",
+          time: timeStr,
+          note: noteStr
+        });
+      }
     } else {
+      countBelum++;
       studentsList.push({ name: u.username, rombel: u.rombel, status: "belum" });
-      absentList.push({ name: u.username, rombel: u.rombel, status: "Tidak Hadir" });
+      absentList.push({ name: u.username, rombel: u.rombel, status: "Belum Absen" });
     }
   });
 
   const valTotal = document.getElementById("val-total-siswa"); if (valTotal) valTotal.innerText = totalSiswa;
-  const valHadir = document.getElementById("val-hadir"); if (valHadir) valHadir.innerText = totalHadir;
-  const valSakit = document.getElementById("val-sakit"); if (valSakit) valSakit.innerText = "0";
-  const valIzin = document.getElementById("val-izin"); if (valIzin) valIzin.innerText = "0";
+  const valHadir = document.getElementById("val-hadir"); if (valHadir) valHadir.innerText = countHadirTotal;
+  const valSakit = document.getElementById("val-sakit"); if (valSakit) valSakit.innerText = countSakit;
+  const valIzin = document.getElementById("val-izin"); if (valIzin) valIzin.innerText = countIzin;
   const valTerlambat = document.getElementById("val-terlambat"); if (valTerlambat) valTerlambat.innerText = countTerlambat;
-  const valBelum = document.getElementById("val-belum-absen"); if (valBelum) valBelum.innerText = totalBelum;
+  const valBelum = document.getElementById("val-belum-absen"); if (valBelum) valBelum.innerText = (countBelum + countAlfa);
 
   // Data Kehadiran 7 Hari
   const trendLabels = [];
@@ -452,7 +601,10 @@ window.initGrafikListerner = async function () {
     const atts = attendances.filter(a => {
       if (!a.created_at) return false;
       const ad = new Date(a.created_at);
-      return ad.getFullYear() === d.getFullYear() && ad.getMonth() === d.getMonth() && ad.getDate() === d.getDate();
+      return (ad.getFullYear() === d.getFullYear() &&
+        ad.getMonth() === d.getMonth() &&
+        ad.getDate() === d.getDate()) &&
+        idcards.includes(String(a.idcard).trim());
     });
     const unique = new Set(atts.map(a => String(a.idcard).trim())).size;
     trendData.push(unique || 0);
@@ -462,27 +614,22 @@ window.initGrafikListerner = async function () {
   const donutData = [
     { label: "Tepat Waktu", value: countTepat, color: "#1FA871" },
     { label: "Terlambat", value: countTerlambat, color: "#EAB308" },
-    { label: "Sakit/Izin", value: 0, color: "#3FA9E0" },
-    { label: "Tidak Hadir", value: totalBelum, color: "#E25C5C" }
+    { label: "Sakit/Izin", value: countSakit + countIzin, color: "#3FA9E0" },
+    { label: "Tidak Hadir", value: countBelum + countAlfa, color: "#E25C5C" }
   ];
 
-  // Jam Tap-in
-  const nowHrs = new Date().getHours();
+  // Jam Tap-in — selalu tampilkan 07:00 sampai 14:00 (8 slot)
+  const TAP_START_HR = 7; // mulai jam 7 pagi
   const tLabels = [];
-  const startHr = nowHrs - 7;
   for (let i = 0; i < 8; i++) {
-    let h = startHr + i;
-    let label = "";
-    if (h < 0) label = "<00:00";
-    else label = String(h).padStart(2, '0') + ":00";
-    tLabels.push(label);
+    tLabels.push(String(TAP_START_HR + i).padStart(2, '0') + ":00");
   }
 
   let tBins = [0, 0, 0, 0, 0, 0, 0, 0];
   Array.from(hadirMap.values()).forEach(a => {
     if (a.created_at) {
       const hrs = new Date(a.created_at).getHours();
-      let binIdx = hrs - startHr;
+      let binIdx = hrs - TAP_START_HR;
       if (binIdx < 0) binIdx = 0;
       if (binIdx > 7) binIdx = 7;
       tBins[binIdx]++;
@@ -702,8 +849,8 @@ window.initGrafikListerner = async function () {
       legendRow.innerHTML = `
           <div class="legend-item"><span class="l"><span class="dot" style="background:var(--green)"></span>Tepat Waktu</span><span class="v">${countTepat}</span></div>
           <div class="legend-item"><span class="l"><span class="dot" style="background:#EAB308"></span>Terlambat</span><span class="v">${countTerlambat}</span></div>
-          <div class="legend-item"><span class="l"><span class="dot" style="background:var(--purple)"></span>Sakit/Izin</span><span class="v">0</span></div>
-          <div class="legend-item"><span class="l"><span class="dot" style="background:var(--red)"></span>Tidak Hadir</span><span class="v">${totalBelum}</span></div>
+          <div class="legend-item"><span class="l"><span class="dot" style="background:var(--purple)"></span>Sakit/Izin</span><span class="v">${countSakit + countIzin}</span></div>
+          <div class="legend-item"><span class="l"><span class="dot" style="background:var(--red)"></span>Tidak Hadir</span><span class="v">${countBelum + countAlfa}</span></div>
        `;
     }
   })();
@@ -711,8 +858,6 @@ window.initGrafikListerner = async function () {
   // ===================== 3. Tidak Hadir Hari Ini (list: foto, nama, rombel, status) =====================
   (function () {
     const absentStudents = absentList;
-    const tagClass = { "Tidak Hadir": "absent", Sakit: "sakit", Izin: "izin" };
-
     const list = document.getElementById("absentList");
     const countPill = document.getElementById("absentCountPill");
     if (!list) return;
@@ -720,10 +865,16 @@ window.initGrafikListerner = async function () {
     absentStudents.forEach((s) => {
       const row = document.createElement("div");
       row.className = "rank-item";
+      let tagHtml = "";
+      if (s.status === "Sakit") tagHtml = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
+      else if (s.status === "Izin") tagHtml = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
+      else if (s.status === "Alfa") tagHtml = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
+      else tagHtml = `<span class="rank-tag absent">Belum Absen</span>`;
+
       row.innerHTML = `
       <div class="avatar"></div>
       <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
-      <span class="rank-tag ${tagClass[s.status]}">${s.status}</span>`;
+      ${tagHtml}`;
       list.appendChild(row);
     });
     if (countPill) countPill.textContent = absentStudents.length + " siswa";
@@ -732,9 +883,9 @@ window.initGrafikListerner = async function () {
   // ===================== 4. Status Tap Hari Ini (list: belum di atas, sudah di bawah) =====================
   (function () {
     const students = studentsList;
-    // belum absen diprioritaskan di atas, lalu terlambat, lalu sudah
+    // prioritas: belum > alfa > sakit > izin > terlambat > sudah
     students.sort((a, b) => {
-      const rank = { "belum": 1, "terlambat": 2, "sudah": 3 };
+      const rank = { "belum": 1, "alfa": 2, "sakit": 3, "izin": 4, "terlambat": 5, "sudah": 6 };
       if (rank[a.status] === rank[b.status]) return 0;
       return rank[a.status] < rank[b.status] ? -1 : 1;
     });
@@ -745,12 +896,15 @@ window.initGrafikListerner = async function () {
     students.forEach((s) => {
       const row = document.createElement("div");
       row.className = "rank-item";
-      const tag =
-        s.status === "belum"
-          ? `<span class="rank-tag belum">Belum Tap</span>`
-          : s.status === "terlambat"
-            ? `<span class="rank-tag late">Sudah (Terlambat) · ${s.time}</span>`
-            : `<span class="rank-tag sudah">Sudah · ${s.time}</span>`;
+      let note = s.note || "";
+      let tag = "";
+      if (s.status === "belum") tag = `<span class="rank-tag belum">Belum Tap</span>`;
+      else if (s.status === "terlambat") tag = `<span class="rank-tag late">Sudah (Terlambat)${note} · ${s.time}</span>`;
+      else if (s.status === "sudah") tag = `<span class="rank-tag sudah">Sudah${note} · ${s.time}</span>`;
+      else if (s.status === "sakit") tag = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
+      else if (s.status === "izin") tag = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
+      else if (s.status === "alfa") tag = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
+
       row.innerHTML = `
       <div class="avatar"></div>
       <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
@@ -770,10 +924,15 @@ window.initGrafikListerner = async function () {
     const n = data.length;
 
     const box = document.getElementById("timeChart");
+    if (!box) return;
+
+    box.innerHTML = "";
+
     const svg = svgEl("svg", {
       viewBox: `0 0 ${VW} ${VH}`,
       preserveAspectRatio: "none",
     });
+
     box.appendChild(svg);
     gridLines(svg, max, 4);
 
@@ -829,6 +988,82 @@ window.initGrafikListerner = async function () {
       t.textContent = labels[i];
       svg.appendChild(t);
     });
+  })();
+
+  // ===================== 5. Perlu Perhatian (absen >= 3 kali dalam 30 hari) =====================
+  (async function () {
+    const list = document.getElementById("perhatianList");
+    const pill = document.getElementById("perhatianCountPill");
+    if (!list) return;
+
+    // Kumpulkan hari-hari yang memang secara aktual ADA log absensi (Sistem Aktif) di 30 hari terakhir.
+    // Ini mengabaikan hari libur, tanggal merah, atau hari sebelum sistem mulai dipakai.
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const todayMs = today.getTime();
+
+    const schoolDaysMap = new Map();
+
+    attendances.forEach(a => {
+      if (a.created_at) {
+        const d = new Date(a.created_at);
+        const dow = d.getDay();
+        // Hanya hitung jika Senin(1) - Jumat(5)
+        if (dow >= 1 && dow <= 5) {
+          const dStr = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          const dMs = d.getTime();
+          const diffDays = (todayMs - dMs) / (1000 * 60 * 60 * 24);
+
+          // Sisihkan Hari Ini, dan ambil yang ada di masa lalu (1 - 31 hari ke belakang)
+          if (dStr !== todayStr && diffDays > 0 && diffDays <= 31) {
+            schoolDaysMap.set(dStr, new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+          }
+        }
+      }
+    });
+
+    const schoolDays = Array.from(schoolDaysMap.values());
+
+    // Untuk setiap siswa di rombel ini, hitung berapa hari tidak hadir dalam 30 hari
+    const perhatianSiswa = [];
+    usersRombel.forEach(u => {
+      const uId = String(u.idcard || '').trim();
+      let absentCount = 0;
+      schoolDays.forEach(sd => {
+        const hadir = attendances.some(a => {
+          if (!a.created_at) return false;
+          const ad = new Date(a.created_at);
+          return String(a.idcard || '').trim() === uId &&
+            ad.getFullYear() === sd.getFullYear() &&
+            ad.getMonth() === sd.getMonth() &&
+            ad.getDate() === sd.getDate();
+        });
+        if (!hadir) absentCount++;
+      });
+      // Masukkan ke 'perlu perhatian' jika absen 3–5 kali atau lebih
+      if (absentCount >= 3) {
+        perhatianSiswa.push({ name: u.username, rombel: u.rombel, absentCount });
+      }
+    });
+
+    perhatianSiswa.sort((a, b) => b.absentCount - a.absentCount);
+
+    list.innerHTML = '';
+    if (perhatianSiswa.length === 0) {
+      list.innerHTML = `<div style="padding:16px;text-align:center;color:#9CA3AF;font-size:13px;">Tidak ada siswa yang perlu perhatian khusus</div>`;
+    } else {
+      perhatianSiswa.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'rank-item';
+        const badgeColor = s.absentCount >= 8 ? '#DC2626' : s.absentCount >= 5 ? '#F0973C' : '#EAB308';
+        row.innerHTML = `
+          <div class="avatar"></div>
+          <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
+          <span class="rank-tag" style="background:${badgeColor}20;color:${badgeColor};border:1px solid ${badgeColor}40;">${s.absentCount}x absen</span>`;
+        list.appendChild(row);
+      });
+    }
+    if (pill) pill.textContent = perhatianSiswa.length + ' siswa';
   })();
 };
 

@@ -23,7 +23,7 @@ body {
     border: 1px solid #e5e7eb;
     border-radius: 20px;
     overflow: hidden;
-    background: #fff;
+    background: var(--bg-body);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
     cursor: pointer;
 }
@@ -86,8 +86,7 @@ body {
 
 .badge-level {
     display: inline-block;
-    border: 1.5px solid #d1d5db;
-    color: #374151;
+    color: white;
     font-size: 0.78rem;
     font-weight: 500;
     padding: 4px 14px;
@@ -99,7 +98,7 @@ body {
 .trail-name {
     font-size: 1.2rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--color-teks);
     margin-bottom: 5px;
 }
 
@@ -180,6 +179,12 @@ body {
 
     .trail-thumb {
         height: 200px;
+    }
+}
+
+@media (max-width: 1183px) {
+    .section-title {
+        margin-top: 10% !important;
     }
 }
 

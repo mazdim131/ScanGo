@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   try {
-    const { email, password, role, username, idcard, rombel, nis } = req.body;
+    const { email, password, role, username, idcard, rombel, nis, whatsapp } = req.body;
 
     if (
       !email ||
@@ -13,7 +13,8 @@ const register = async (req, res) => {
       !idcard ||
       !role ||
       !rombel ||
-      !nis
+      !nis ||
+      !whatsapp
     ) {
       return res.status(400).json({
         message: "Semua kolom input wajib diisi!",
@@ -46,7 +47,15 @@ const register = async (req, res) => {
 
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const userRole = role || "user";
+
+    const idcardNum = idcard !== "" ? Number(idcard) : null;
+    const nisNum = nis !== "" ? Number(nis) : null;
+
+    // Hanya role student/user yang boleh dibuat lewat registrasi publik.
+    // Role "teacher" hanya boleh dibuat setelah lolos verifikasi admin
+    // (dijaga oleh middleware ensureAdminIfTeacher di authRoutes.js).
+    const allowedRoles = ["student", "user"];
+    const userRole = allowedRoles.includes(role) ? role : "student";
 
     const { data, error } = await supabase
       .from("users")
@@ -56,9 +65,10 @@ const register = async (req, res) => {
           password: hashedPassword,
           role: userRole,
           username: username,
-          idcard: idcard,
+          idcard: idcardNum,
           rombel: rombel,
-          nis: nis
+          nis: nisNum,
+          whatsapp: whatsapp
         },
       ])
       .select();
@@ -74,7 +84,8 @@ const register = async (req, res) => {
         username: data[0].username,
         idcard: data[0].idcard,
         rombel: data[0].rombel,
-        nis: data[0].nis
+        nis: data[0].nis,
+        whatsapp: data[0].whatsapp
       },
     });
   } catch (error) {
@@ -122,11 +133,19 @@ const login = async (req, res) => {
         username: user.username,
         idcard: user.idcard,
         rombel: user.rombel,
-        nis: user.nis
+        nis: user.nis,
+        whatsapp: user.whatsapp
       },
-      process.env.JWT_SECRET || "Secreet__",
-      { expiresIn: "1d" },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" },
     );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       message: "Login berhasil!",
@@ -138,7 +157,8 @@ const login = async (req, res) => {
         username: user.username,
         idcard: user.idcard,
         rombel: user.rombel,
-        nis: user.nis
+        nis: user.nis,
+        whatsapp: user.whatsapp
       },
     });
   } catch (error) {

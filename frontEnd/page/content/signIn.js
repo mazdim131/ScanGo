@@ -35,7 +35,7 @@ content.innerHTML = `
             </div>
 
             <div class="right-panel">
-                <img src="/frontEnd/assets/background/9333f00957425e173ae553ca70f5b930.png" alt="Login Banner">
+                <img src="/frontEnd/assets/background/9333f00957425e173ae553ca70f5b930.webp" alt="Login Banner" fetchpriority="high" decoding="async">
             </div>
         </div>
 
@@ -95,9 +95,10 @@ btnSignIn.addEventListener("click", async function (e) {
   btnSignIn.disabled = true;
 
 try {
-    const response = await fetch("http://localhost:3000/api/auth/login", {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email: email, password: passwordValue }),
     });
 
@@ -122,10 +123,9 @@ try {
       return;
     }
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("role", data.user.role);
-    localStorage.setItem("username", data.user.username || data.user.email);
-
+    sessionStorage.setItem("token", data.token);
+    sessionStorage.setItem("role", data.user.role);
+    sessionStorage.setItem("username", data.user.username || data.user.email);
     showToast("Login Berhasil! Selamat Datang.", "success");
 
     Swal.fire({
