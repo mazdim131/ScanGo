@@ -9,7 +9,8 @@ nav {
     min-width: 200px;
   }
   .row-gap-2 {
-    justify-content: flex-end !important;
+    /* justify-content: flex-end !important; */
+    justify-content: flex-start !important;
   }
 }
 
