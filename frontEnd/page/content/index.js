@@ -6,9 +6,7 @@ content.innerHTML = `
     <div class="col" style="margin-top: 12% !important;">
         <div class="p-3">
             <h1 class="title-index animate__animated animate__fadeInDown">
-            Revolusi Absensi
-            Siswa Menjadi<br>
-            Mudah & Cepat.
+            Revolusi Absensi Siswa Menjadi Mudah & Cepat.
         </h1>
         
         <p class="subtitle-index animate__animated animate__fadeInDown">
