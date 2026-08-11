@@ -63,9 +63,9 @@ function renderInputSiswa() {
 
       <div class="form-group full-width">
         <label class="form-label" for="call">
-          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua
+          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
         </label>
-        <input type="text" id="whatsapp" class="form-control-modern" placeholder="+62 *** **** ****" value="+62 *** **** ****">
+        <input type="text" id="whatsapp" class="form-control-modern" value="62">
       </div>
 
       <div class="form-group full-width">
@@ -726,7 +726,7 @@ async function handleRombelFilterInput() {
   if (visibleCount === 0 && currentSelectedRombel) {
     const tr = document.createElement("tr");
     tr.className = "empty-filter-row";
-    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:#6c757d;">Siswa belum absen</td>`;
+    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:#6c757d;">Data siswa belum tersedia!</td>`;
     tableBody.appendChild(tr);
   }
 }

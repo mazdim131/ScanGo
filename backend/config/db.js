@@ -3,12 +3,12 @@ const { createClient } = require("@supabase/supabase-js");
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error(
-    "[db.js] SUPABASE_URL atau SUPABASE_ANON_KEY belum diatur. " +
-      "Pastikan variabel lingkungan sudah diisi (file .env lokal / dashboard Vercel).",
-  );
-}
+// if (!supabaseUrl || !supabaseKey) {
+//   console.error(
+//     "[db.js] SUPABASE_URL atau SUPABASE_ANON_KEY belum diatur. " +
+//       "Pastikan variabel lingkungan sudah diisi (file .env lokal / dashboard Vercel).",
+//   );
+// }
 
 const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",

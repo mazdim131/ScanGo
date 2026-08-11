@@ -1,4 +1,3 @@
-
 function renderGrafik() {
   return `
                 <div class="wrap">
@@ -549,7 +548,7 @@ window.initGrafikListener = async function () {
           const dtt = new Date(attObj.created_at);
           const hrs = dtt.getHours();
           const mins = dtt.getMinutes();
-          if (hrs > 7 || (hrs === 7 && mins >= 30)) {
+          if (hrs > 8 || (hrs === 8 && mins >= 10)) {
             isTerlambat = true;
           }
         }
@@ -1066,48 +1065,3 @@ window.initGrafikListener = async function () {
     if (pill) pill.textContent = perhatianSiswa.length + ' siswa';
   })();
 };
-
-// ganti profile
-const profileInput = document.getElementById("profileInput");
-const previewImage = document.getElementById("previewImage");
-const profileImgElement = document.getElementById("profileImage");
-
-// 1. Saat halaman dimuat, cek apakah ada foto yang tersimpan di localStorage
-const savedImage = localStorage.getItem("profileImageBase64");
-if (savedImage) {
-  if (profileImgElement) profileImgElement.src = savedImage;
-  if (previewImage) previewImage.src = savedImage;
-}
-
-let selectedImageBase64 = null;
-
-if (profileInput) {
-  profileInput.addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    // 2. Baca file sebagai URL Base64 yang bisa disimpan agar tidak hilang
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      selectedImageBase64 = e.target.result;
-      if (previewImage) previewImage.src = selectedImageBase64;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-const saveBtn = document.getElementById("saveProfile");
-if (saveBtn) {
-  saveBtn.addEventListener("click", function () {
-    if (!selectedImageBase64) return;
-
-    // 3. Simpan string Base64 tersebut ke dalam localStorage browser
-    localStorage.setItem("profileImageBase64", selectedImageBase64);
-    if (profileImgElement) profileImgElement.src = selectedImageBase64;
-
-    // Jika perlu menutup modal secara terprogram, kita bisa tambahkan disini
-    if (typeof showAlert === "function") {
-      showAlert("success", "Foto profil berhasil diperbarui!");
-    }
-  });
-}

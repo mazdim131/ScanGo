@@ -43,7 +43,7 @@ function renderDashboard() {
             </button>
           </div>
 
-          <div id="scan-result"></div>
+          <div id="scan-result" class="mt-3"></div>
         </div>
 
         <div class="scan-card" id="container-input-manual" style="display: none; margin: 0; padding: 30px 24px; max-width: 100%;">
@@ -89,6 +89,8 @@ function renderDashboard() {
         </div>
 
       </div>
+
+      
     </aside>
   <!-- panel kanan-->
     <div class="right-panel" id="absensi-table-content">
