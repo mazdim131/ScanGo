@@ -284,3 +284,46 @@ body {
     scrollbar-width: none;
   }
 }
+
+@media (max-width: 1280px) {
+  body {
+    text-align: center !important;
+  }
+
+  .btn-index button {
+    width: 100% !important;
+    font-size: 18px; 
+  }
+
+  .gutter-index {
+    display: none !important;
+  }
+
+  .profile-person img {
+    display: none !important;
+    text-align: center !important;
+  }
+
+  .dev-text {
+    display: none !important;
+  }
+
+  .title-index {
+    font-size: 60px !important;
+    margin-top: 5%;
+  }
+
+  .subtitle-index {
+    text-align: center !important;
+    max-width: none !important;
+    font-size: 18px !important;
+  }
+
+  .img-hero {
+    display: none !important;
+  }
+
+  .scango-stats-container {
+    display: none !important;
+  }
+}
