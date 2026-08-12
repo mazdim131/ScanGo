@@ -4,6 +4,12 @@ body {
   color: var(--color-teks) !important;
 }
 
+/* Top spacing utama (navbar fixed-top clearance) */
+.col.top,
+.gutter-index {
+  margin-top: 7%;
+}
+
 .card:hover {
   transform: translateY(-10px);
   transition: 0.3s ease-in-out;
@@ -219,19 +225,89 @@ body {
   background-size: 110% auto;
 }
 
-@media (max-width: 1183px) {
-  .title-index {
-    margin-top: 10% !important;
+@media (max-width: 1920px) {
+  .col.top,
+  .gutter-index {
+    margin-top: 130px;
   }
-  
+
   .img-hero {
+    margin-top: 130px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .col.top,
+  .gutter-index {
+    margin-top: 120px;
+  }
+
+  .title-index {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  body {
+    text-align: center !important;
+  }
+
+  .col.top {
+    margin-top: 110px;
+  }
+
+  .gutter-index {
     display: none !important;
+  }
+
+  .scango-stats-container {
+    display: none !important;
+  }
+
+  .profile-person img {
+    display: none !important;
+  }
+
+  .dev-text {
+    display: none !important;
+  }
+
+  .title-index {
+    font-size: 56px;
+  }
+
+  .subtitle-index {
+    text-align: center !important;
+    max-width: none !important;
+    font-size: 18px !important;
+  }
+
+  .btn-index {
+    justify-content: center !important;
+  }
+
+  .profile-person {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1183px) {
+  .col.top {
+    margin-top: 100px;
+  }
+
+  .title-index {
+    font-size: 3.2rem;
   }
 }
 
 @media (max-width: 768px) {
-  .img-hero {
-    display: none !important;
+  .col.top {
+    margin-top: 90px;
+  }
+
+  .title-index {
+    font-size: 3rem;
   }
 
   .logo-card {
@@ -244,17 +320,11 @@ body {
 
   .promote {
     background-size: cover !important;
-    background-repeat: none !important;
+    background-repeat: no-repeat !important;
   }
 
   body {
     text-align: center !important;
-  }
-
-  .title-index {
-    font-size: 3rem;
-    margin-top: 20% !important;
-    /* max-width: 350px; */
   }
 
   footer {
@@ -283,46 +353,45 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .img-profile-dev {
+    height: 44px;
+  }
 }
 
-@media (max-width: 1280px) {
-  body {
-    text-align: center !important;
-  }
-
-  .btn-index button {
-    width: 100% !important;
-    font-size: 18px; 
-  }
-
-  .gutter-index {
-    display: none !important;
-  }
-
-  .profile-person img {
-    display: none !important;
-    text-align: center !important;
-  }
-
-  .dev-text {
-    display: none !important;
+@media (max-width: 576px) {
+  .col.top {
+    margin-top: 84px;
   }
 
   .title-index {
-    font-size: 60px !important;
+    font-size: 2.4rem;
   }
 
   .subtitle-index {
-    text-align: center !important;
-    max-width: none !important;
-    font-size: 18px !important;
+    font-size: 1rem !important;
   }
 
-  .img-hero {
-    display: none !important;
+  .btn-index {
+    flex-direction: column;
+    width: 100%;
   }
 
-  .scango-stats-container {
-    display: none !important;
+  .btn-index .btn {
+    width: 100% !important;
+  }
+
+  .profile-person {
+    flex-wrap: wrap;
+  }
+
+  .promote {
+    padding: 60px 24px;
+  }
+}
+
+@media (max-width: 400px) {
+  .title-index {
+    font-size: 2rem;
   }
 }

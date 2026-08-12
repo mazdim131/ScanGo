@@ -50,6 +50,44 @@ nav {
   z-index: 1050;
 }
 
+@media (max-width: 1920px) {
+  .navbar-nav {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .navbar-brand {
+    font-size: 22px !important;
+  }
+
+  .nav-link {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  .navbar-brand {
+    font-size: 21px !important;
+  }
+}
+
+@media (max-width: 1183px) {
+  .navbar-brand {
+    font-size: 20px !important;
+  }
+
+  .style-brand img {
+    height: 34px !important;
+  }
+
+  .accessibility-dropdown {
+    right: 5px;
+    width: 300px;
+    padding: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .btn-theme {
     width: 100% !important;

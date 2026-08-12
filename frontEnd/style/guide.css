@@ -171,65 +171,107 @@ body {
 
 /* ===== RESPONSIVE ===== */
 
-/* Tablet */
-@media (max-width: 991px) {
-    .section-title {
-        font-size: 2.2rem;
-    }
+/* Jarak konten atas dari navbar fixed-top */
+main > section:first-of-type {
+  margin-top: 7%;
+}
 
-    .trail-thumb {
-        height: 200px;
-    }
+@media (max-width: 1920px) {
+  main > section:first-of-type {
+    margin-top: 130px;
+  }
+}
+
+@media (max-width: 1366px) {
+  main > section:first-of-type {
+    margin-top: 120px;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  main > section:first-of-type {
+    margin-top: 110px;
+  }
+
+  .section-title {
+    font-size: 2.3rem;
+  }
 }
 
 @media (max-width: 1183px) {
-    .section-title {
-        margin-top: 10% !important;
-    }
+  main > section:first-of-type {
+    margin-top: 100px;
+  }
+
+  .section-title {
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  .trail-thumb {
+    height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  main > section:first-of-type {
+    margin-top: 90px;
+  }
 }
 
 /* HP / Mobile */
 @media (max-width: 576px) {
-    .section-title {
-        font-size: 1.75rem;
-    }
+  main > section:first-of-type {
+    margin-top: 84px;
+  }
 
-    .section-subtitle {
-        font-size: 0.9rem;
-    }
+  .section-title {
+    font-size: 1.75rem;
+  }
 
-    .trail-thumb {
-        height: 180px;
-    }
+  .section-subtitle {
+    font-size: 0.9rem;
+  }
 
-    /* Di HP, play overlay selalu sedikit terlihat supaya user tahu bisa diklik */
-    .play-overlay {
-        opacity: 1;
-        background: rgba(0, 0, 0, 0.15);
-    }
+  .trail-thumb {
+    height: 180px;
+  }
 
-    .play-btn-circle {
-        width: 48px;
-        height: 48px;
-        font-size: 1.2rem;
-    }
+  /* Di HP, play overlay selalu sedikit terlihat supaya user tahu bisa diklik */
+  .play-overlay {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.15);
+  }
 
-    .trail-name {
-        font-size: 1.05rem;
-    }
+  .play-btn-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
 
-    .btn-adventure {
-        width: 100%;
-        text-align: center;
-    }
-}
+  .trail-name {
+    font-size: 1.05rem;
+  }
 
-@media (max-width: 576px) {
-    .partner {
-        margin-top: 0 !important;
-    }
+  .btn-adventure {
+    width: 100%;
+    text-align: center;
+  }
 
-    .partner #changeTheme {
-        margin-top: 150px !important;
-    }
+  .partner {
+    margin-top: 0 !important;
+  }
+
+  .partner #changeTheme {
+    margin-top: 150px !important;
+  }
 }

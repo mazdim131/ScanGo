@@ -67,31 +67,75 @@ body {
   max-width: 100%;
 }
 
+.hero-company {
+  margin-top: 7%;
+}
+
+@media (max-width: 1920px) {
+  .hero-company {
+    margin-top: 130px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .hero-company {
+    margin-top: 120px;
+  }
+
+  .title h1 {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .hero-company {
+    margin-top: 110px;
+  }
+
+  .title h1 {
+    font-size: 38px;
+  }
+
+  .text-top h1 {
+    font-size: 40px !important;
+  }
+}
+
 @media (max-width: 1183px) {
   .hero-company {
-    margin-top: 20% !important;
+    margin-top: 100px;
+  }
+
+  .title h1 {
+    font-size: 34px;
   }
 }
 
 @media (max-width: 768px) {
+  .hero-company {
+    margin-top: 90px;
+    padding: 30px 20px !important;
+  }
+
   .title {
     margin-top: 30% !important;
   }
 
   .text-top {
-    margin-top: 30% !important;
+    margin-top: 0 !important;
+    text-align: center;
   }
 
   .text-top span {
-    font-size: 20px !important;
+    font-size: 16px !important;
   }
 
   .text-top p {
-    font-size: 20px !important;
+    font-size: 16px !important;
   }
 
   .text-top h1 {
-    font-size: 50px !important;
+    font-size: 34px !important;
   }
 
   .logo-team {
@@ -99,16 +143,12 @@ body {
     margin-right: 0 !important;
   }
 
-  .hero-company {
-    margin-top: 30% !important; 
-  }
-
   .title h1 {
     font-size: 30px;
   }
 
   .qoute {
-    margin-top: 30% !important;
+    margin-top: 10% !important;
   }
 
   .title p {

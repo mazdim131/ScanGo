@@ -105,19 +105,62 @@ body {
   box-shadow: 0 6px 15px rgba(10, 102, 194, 0.4);
 }
 
+.section-top {
+  margin-top: 7%;
+}
+
+.section-top h1 {
+  font-size: 50px;
+}
+
+@media (max-width: 1920px) {
+  .section-top {
+    margin-top: 130px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .section-top {
+    margin-top: 120px;
+  }
+
+  .section-top h1 {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .section-top {
+    margin-top: 110px;
+  }
+
+  .section-top h1 {
+    font-size: 34px;
+  }
+}
+
 @media (max-width: 1183px) {
   .section-top {
-    margin-top: 15% !important;
+    margin-top: 100px;
   }
 }
 
 @media (max-width: 768px) {
+  .section-top {
+    margin-top: 90px;
+    padding: 16px !important;
+  }
+
+  .section-top h1 {
+    font-size: 28px;
+  }
+
   .title {
-    margin-top: 40% !important;
+    margin-top: 24px !important;
   }
 
   .about {
-    margin-top: 20% !important;
+    margin-top: 10% !important;
   }
 
   .title-dev {
@@ -125,11 +168,11 @@ body {
   }
 
   .badge-dev {
-    margin-top: 20% !important;
+    margin-top: 10% !important;
   }
 
   .hr-about {
-    margin-top: 50% !important;
+    margin-top: 20% !important;
     max-width: 300px;
   }
 }

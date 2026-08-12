@@ -482,6 +482,34 @@ select.form-control-modern {
 }
 
 /* ── Responsive ── */
+@media (max-width: 1920px) {
+  .form-input-container {
+    padding: 34px 38px 38px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .form-input-container {
+    padding: 28px 32px 32px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .form-input-container {
+    padding: 26px 28px 30px;
+  }
+
+  .form-grid {
+    gap: 16px 20px;
+  }
+}
+
+@media (max-width: 1183px) {
+  .form-input-container {
+    padding: 24px 24px 28px;
+  }
+}
+
 @media (max-width: 768px) {
   .form-input-container {
     padding: 24px 20px 28px;

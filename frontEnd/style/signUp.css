@@ -291,6 +291,47 @@ input:focus {
 }
 
 /* RESPONSIVE */
+@media (max-width: 1920px) {
+  .card {
+    height: 760px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .card {
+    height: 720px;
+  }
+
+  .left-panel {
+    padding: 40px 36px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .card {
+    height: 700px;
+  }
+
+  .left-panel {
+    padding: 36px 32px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 1183px) {
+  .card {
+    grid-template-columns: 400px 1fr;
+    height: 690px;
+  }
+
+  .left-panel {
+    padding: 30px 26px;
+  }
+}
+
 @media (max-width: 768px) {
   .card {
     grid-template-columns: 1fr;
@@ -303,5 +344,45 @@ input:focus {
 
   .left-panel {
     padding: 32px 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  main {
+    padding: 20px 14px;
+  }
+
+  .left-panel {
+    padding: 28px 20px;
+  }
+
+  .logo {
+    margin-bottom: 24px;
+  }
+
+  .logo svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+}
+
+/* Layar pendek (laptop/tablet landscape) agar kartu tidak terpotong */
+@media (max-height: 760px) and (min-width: 769px) {
+  .card {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+
+  .right-panel {
+    display: none;
+  }
+
+  .left-panel {
+    padding: 28px 24px;
   }
 }
