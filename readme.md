@@ -3,7 +3,7 @@
 => PERBAIKAN: akan disesuaikan kembali link untuk diarahkan ke setiap profile pengembang.
 
 2. Warna background di halaman dashboard masih perlu di fix karna terdapat 2 warna sekaligus yang berlawanan.
-=> bagian paling atas putih tapi di tengah dan bawah warna putih keunguan.
+=> bagian paling atas putih tapi di tengah dan bawah warna putih keunguan. (JOBDESK YAZID)
 
 3. Fix submit attendance.
 => Buka dashboard langsung bisa scan tanpa klik input terlebih dahulu.

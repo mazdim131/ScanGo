@@ -134,6 +134,7 @@ async function initDashboardListener() {
   clockInterval = setInterval(updateClock, 1000);
 
   initTabs();
+  initScanRfid();
 }
 
 async function fetchAttendanceData() {
@@ -284,7 +285,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 <div class="stat-card">
                     <div class="stat-label text-danger">
                         <i class="bi bi-person-x-fill"></i>
-                        <span>Total Siswa Tidak Hadir (Alfa)</span>
+                        <span>Total Siswa Tidak Hadir</span>
                     </div>
                     <div class="stat-value">${totalAlpa}</div>
                     <div class="stat-indicator">
@@ -517,44 +518,4 @@ async function deleteAttendanceLog(id) {
     console.error(error);
     alert("Terjadi kesalahan koneksi saat menghapus data");
   }
-}
-
-const profileInput = document.getElementById("profileInput");
-const previewImage = document.getElementById("previewImage");
-const profileImgElement = document.getElementById("profileImage");
-
-const savedImage = localStorage.getItem("profileImageBase64");
-if (savedImage) {
-  if (profileImgElement) profileImgElement.src = savedImage;
-  if (previewImage) previewImage.src = savedImage;
-}
-
-let selectedImageBase64 = null;
-
-if (profileInput) {
-  profileInput.addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      selectedImageBase64 = e.target.result;
-      if (previewImage) previewImage.src = selectedImageBase64;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-const saveBtn = document.getElementById("saveProfile");
-if (saveBtn) {
-  saveBtn.addEventListener("click", function () {
-    if (!selectedImageBase64) return;
-
-    localStorage.setItem("profileImageBase64", selectedImageBase64);
-    if (profileImgElement) profileImgElement.src = selectedImageBase64;
-
-    if (typeof showAlert === "function") {
-      showAlert("success", "Foto profil berhasil diperbarui!");
-    }
-  });
 }

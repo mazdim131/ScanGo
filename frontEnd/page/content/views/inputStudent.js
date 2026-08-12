@@ -16,7 +16,7 @@ function renderInputSiswa() {
         <label class="form-label" for="nis">
           <i class="bi bi-person-vcard"></i> NIS / NIP
         </label>
-        <input type="text" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa / NIP Guru">
+        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa / NIP Guru" required>
       </div>
 
       <div class="form-group">
@@ -34,7 +34,7 @@ function renderInputSiswa() {
         <label class="form-label" for="RFID">
           <i class="bi bi-rss"></i> UID RFID
         </label>
-        <input type="password" id="RFID" class="form-control-modern" placeholder="Tempelkan kartu ke reader atau ketik manual">
+        <input type="number" id="RFID" class="form-control-modern" placeholder="Tempelkan kartu ke reader atau ketik manual" required>
         <span class="form-hint">
           <i class="bi bi-info-circle"></i> Tempelkan kartu RFID ke reader saat kursor di sini &mdash; UID terisi otomatis.
         </span>
@@ -44,28 +44,28 @@ function renderInputSiswa() {
         <label class="form-label" for="username">
           <i class="bi bi-person"></i> Nama Lengkap
         </label>
-        <input type="text" id="username" class="form-control-modern" placeholder="Nama Lengkap">
+        <input type="text" id="username" class="form-control-modern" placeholder="Nama Lengkap" required>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="email">
           <i class="bi bi-envelope"></i> Email
         </label>
-        <input type="text" id="email" class="form-control-modern" placeholder="example@smkwikrama.sch.id">
+        <input type="email" id="email" class="form-control-modern" placeholder="example@smkwikrama.sch.id" required>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="password">
           <i class="bi bi-lock"></i> Password
         </label>
-        <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
+        <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
       </div>
 
       <div class="form-group full-width">
         <label class="form-label" for="call">
           <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
         </label>
-        <input type="text" id="whatsapp" class="form-control-modern" value="62">
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required>
       </div>
 
       <div class="form-group full-width">
@@ -454,15 +454,12 @@ function initImportExcelListener() {
           throw new Error("File excel kosong atau format tidak sesuai!");
         }
 
-        const response = await fetch(
-          `${API_BASE}/api/auth/register-bulk`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ users: jsonData }),
-          },
-        );
+        const response = await fetch(`${API_BASE}/api/auth/register-bulk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ users: jsonData }),
+        });
 
         if (!response.ok) {
           const errResult = await response.json().catch(() => ({}));
@@ -665,15 +662,12 @@ async function actionEditSiswa(nis, email) {
 
     if (!formValues) return;
 
-    const updateResponse = await fetch(
-      `${API_BASE}/api/users/${nis}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formValues),
-      },
-    );
+    const updateResponse = await fetch(`${API_BASE}/api/users/${nis}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(formValues),
+    });
 
     if (!updateResponse.ok) {
       const errResult = await updateResponse.json().catch(() => ({}));
