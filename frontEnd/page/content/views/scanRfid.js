@@ -106,16 +106,30 @@ function toggleAbsenMode(mode) {
   }
 }
 
+const scanBoundElements = new WeakSet();
+
 function initScanRfid() {
   const input = document.getElementById("card-id-input");
-  if (input) {
-    input.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        submitScan();
-      }
-    });
-    setTimeout(() => input.focus(), 100);
-  }
+  if (!input || scanBoundElements.has(input)) return;
+
+  scanBoundElements.add(input);
+
+  input.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      submitScan();
+    }
+  });
+
+  let autoSubmitTimer = null;
+  input.addEventListener("input", function () {
+    clearTimeout(autoSubmitTimer);
+    autoSubmitTimer = setTimeout(() => {
+      const val = this.value.trim();
+      if (val.length >= 8) submitScan();
+    }, 250);
+  });
+
+  setTimeout(() => input.focus(), 100);
 
   loadDaftarSiswa();
   initManualNamaListener();
@@ -237,7 +251,7 @@ async function submitScan() {
       if (dataHariIni.time_finish || dataHariIni.status_keluar) {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Anda sudah absen masuk & keluar hari ini!</div>`;
+        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa sudah absen masuk & keluar hari ini!</div>`;
         return;
       }
 

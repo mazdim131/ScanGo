@@ -4,9 +4,8 @@ function renderPrint() {
         <div class="print-container animate__animated animate__fadeIn mt-4" style="padding: 20px;">
         <div class="data-card p-4" style="max-width: 600px; margin: 0 auto; background: var(--bg-sidebar); color: var(--color-teks) !important; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div class="text-center mb-4">
-                <i class="bi bi-printer-fill text-primary" style="font-size: 2.5rem;"></i>
-                <h4 class="fw-bold mt-2" style="color: var(--color-teks);">Cetak Rekapitulasi Absensi</h4>
-                <p style="font-size: 0.9rem;">Unduh laporan absensi siswa dalam format Excel (.xlsx)</p>
+                <h3 class="fw-bold mt-2" style="color: var(--color-teks);">Cetak Rekapitulasi Absensi</h3>
+                <p style="font-size: 0.9rem;">Unduh laporan absensi siswa dalam format Excel/PDF</p>
             </div>
             
             <hr class="mb-4">
@@ -50,11 +49,11 @@ function renderPrint() {
                 <input type="month" id="printBulan" class="form-control bg-light border-0 rounded-3" style="height: 40px;" value="${currentMonth}">
             </div>
 
-            <button id="btnProsesCetakExcel" class="btn btn-success w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500;">
-                <i class="bi bi-file-earmark-excel-fill"></i> Generate & Unduh Excel
+            <button id="btnProsesCetakExcel" class="btn-exel w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500; background: linear-gradient(135deg, #4f46e5, #6366f1) !important; border: none; color: white;">
+              <i class="bi bi-cloud-arrow-down"></i> Unduh Excel
             </button>
-            <button id="btnProsesCetakPdf" class="btn btn-danger w-100 rounded-3 mt-2 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500;">
-                <i class="bi bi-file-earmark-excel-fill"></i> Generate & Unduh PDF
+            <button id="btnProsesCetakPdf" class="btn-pdf w-100 rounded-3 mt-2 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500; background: linear-gradient(135deg, #4f46e5, #6366f1) !important; border: none; color: white;">
+              <i class="bi bi-cloud-arrow-down"></i> Unduh PDF
             </button>
         </div>
     </div>
