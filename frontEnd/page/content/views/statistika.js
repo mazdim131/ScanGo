@@ -1049,12 +1049,12 @@ window.initGrafikListener = async function () {
 
     list.innerHTML = '';
     if (perhatianSiswa.length === 0) {
-      list.innerHTML = `<div style="padding:16px;text-align:center;color:#9CA3AF;font-size:13px;">Tidak ada siswa yang perlu perhatian khusus</div>`;
+      list.innerHTML = `<div style="padding:16px;text-align:center;color:var(--color-sub);font-size:13px;">Tidak ada siswa yang perlu perhatian khusus</div>`;
     } else {
       perhatianSiswa.forEach(s => {
         const row = document.createElement('div');
         row.className = 'rank-item';
-        const badgeColor = s.absentCount >= 8 ? '#DC2626' : s.absentCount >= 5 ? '#F0973C' : '#EAB308';
+        const badgeColor = s.absentCount >= 8 ? '#DC2626' : s.absentCount >= 5 ? '#F0973C' : '#D97706';
         row.innerHTML = `
           <div class="avatar"></div>
           <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>

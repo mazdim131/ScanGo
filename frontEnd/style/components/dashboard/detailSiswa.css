@@ -8,7 +8,7 @@
 
 /* === KARTU PROFIL KIRI === */
 .detail-profile-card {
-  background: #fff;
+  background: var(--color-card-bg);
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 28px 24px 20px;
@@ -19,6 +19,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
+  transition: background-color var(--transition-speed);
 }
 
 .detail-avatar-wrapper {
@@ -42,14 +43,14 @@
 .detail-name {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--color-teks);
   text-align: center;
   margin-bottom: 4px;
 }
 
 .detail-nis-code {
   font-size: 0.82rem;
-  color: #6c757d;
+  color: var(--color-teks-sub);
   text-align: center;
   margin-bottom: 10px;
 }
@@ -81,7 +82,7 @@
 
 .detail-info-grid {
   width: 100%;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-form);
   padding-top: 16px;
   margin-bottom: 16px;
 }
@@ -91,19 +92,19 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-bottom: 1px solid #f7f7f7;
+  border-bottom: 1px solid var(--border-form);
 }
 
 .detail-info-label {
   font-size: 0.82rem;
-  color: #8a94a6;
+  color: var(--color-teks-sub);
   font-weight: 500;
 }
 
 .detail-info-value {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--color-teks);
 }
 
 .detail-info-value.rfid-badge {
@@ -124,22 +125,23 @@
 
 .detail-stat-box {
   flex: 1;
-  background: #f8f9fc;
+  background: var(--bg-body);
   border-radius: 10px;
   padding: 12px 8px;
   text-align: center;
+  transition: background-color var(--transition-speed);
 }
 
 .detail-stat-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--color-teks);
   line-height: 1;
 }
 
 .detail-stat-label {
   font-size: 0.7rem;
-  color: #8a94a6;
+  color: var(--color-teks-sub);
   margin-top: 4px;
   font-weight: 500;
 }
@@ -171,34 +173,35 @@
 .btn-detail-back {
   width: 100%;
   padding: 10px;
-  background: #f0f2f5;
-  color: #555;
+  background: var(--bg-content);
+  color: var(--color-teks);
   border: none;
   border-radius: 10px;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color var(--transition-speed);
 }
 
 .btn-detail-back:hover {
-  background: #e2e6ea;
+  background: var(--bg-hover);
 }
 
 /* === PANEL RIWAYAT KANAN === */
 .detail-history-panel {
-  background: #fff;
+  background: var(--color-card-bg);
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 24px;
   flex: 1;
   min-width: 300px;
+  transition: background-color var(--transition-speed);
 }
 
 .detail-history-header {
   font-size: 1rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--color-teks);
   margin-bottom: 18px;
   display: flex;
   align-items: center;
@@ -213,19 +216,19 @@
 .detail-history-table thead th {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #8a94a6;
+  color: var(--color-teks-sub);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 8px 10px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--border-form);
   text-align: left;
 }
 
 .detail-history-table tbody td {
   font-size: 0.82rem;
-  color: #2c3e50;
+  color: var(--color-teks);
   padding: 10px 10px;
-  border-bottom: 1px solid #f7f7f7;
+  border-bottom: 1px solid var(--border-form);
   vertical-align: middle;
 }
 
@@ -267,8 +270,8 @@
 
 .status-badge-lainnya {
   display: inline-block;
-  background: #f0f2f5;
-  color: #6c757d;
+  background: var(--bg-content);
+  color: var(--color-teks-sub);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 3px 10px;
@@ -277,7 +280,7 @@
 
 .detail-empty-history {
   text-align: center;
-  color: #adb5bd;
+  color: var(--color-sub);
   padding: 40px 0;
   font-size: 0.88rem;
 }

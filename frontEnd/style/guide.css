@@ -20,11 +20,11 @@ body {
 
 /* ===== TRAIL CARD ===== */
 .trail-card {
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-form);
     border-radius: 20px;
     overflow: hidden;
     background: var(--bg-body);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color var(--transition-speed), border-color var(--transition-speed);
     cursor: pointer;
 }
 
@@ -86,12 +86,12 @@ body {
 
 .badge-level {
     display: inline-block;
-    color: white;
+    color: var(--teks-nav-btn);
     font-size: 0.78rem;
     font-weight: 500;
     padding: 4px 14px;
     border-radius: 999px;
-    background: #fff;
+    background: var(--color-teks);
     margin-bottom: 12px;
 }
 
@@ -104,7 +104,7 @@ body {
 
 .trail-desc {
     font-size: 0.88rem;
-    color: #6b7280;
+    color: var(--color-teks-sub);
     margin-bottom: 14px;
 }
 
@@ -113,13 +113,13 @@ body {
     align-items: center;
     gap: 8px;
     font-size: 0.85rem;
-    color: #374151;
+    color: var(--color-teks);
     margin-bottom: 6px;
 }
 
 .trail-stat i {
     font-size: 1rem;
-    color: #9ca3af;
+    color: var(--color-sub);
 }
 
 /* ===== CTA BUTTON ===== */

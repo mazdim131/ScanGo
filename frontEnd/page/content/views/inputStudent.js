@@ -375,7 +375,7 @@ async function loadTableSiswa() {
         <td>${index + 1}</td>
         <td>
           <strong>${user.username}</strong><br>
-          <small style="color:#6c757d;">${user.nis}</small> 
+          <small style="color:var(--color-teks-sub);">${user.nis}</small> 
           <span class="badge-${user.role === "teacher" ? "guru" : "siswa"}">${user.role === "teacher" ? "Guru" : "Siswa"}</span>
         </td>
         <td>${user.rombel || "-"}</td>
@@ -726,7 +726,7 @@ async function handleRombelFilterInput() {
   if (visibleCount === 0 && currentSelectedRombel) {
     const tr = document.createElement("tr");
     tr.className = "empty-filter-row";
-    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:#6c757d;">Data siswa belum tersedia!</td>`;
+    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Data siswa belum tersedia!</td>`;
     tableBody.appendChild(tr);
   }
 }

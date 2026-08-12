@@ -39,15 +39,17 @@ nav {
 .accessibility-dropdown {
   position: absolute;
   top: 90px;
-  color: black !important;
+  color: var(--color-teks) !important;
   right: 10px;
   width: 320px;
   min-height: 100px;
-  background-color: #ffffff;
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--border-sidebar);
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
   z-index: 1050;
+  transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
 }
 
 @media (max-width: 1920px) {

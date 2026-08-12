@@ -9,6 +9,7 @@ body {
 }
 
 :root {
+  color-scheme: light;
   --bg-body: #f8fafc;
   --bg-toggle: black;
   --toggle-circle: #ffffff;
@@ -42,9 +43,15 @@ body {
   --color-stat: #1e293b;
 
   --teks-nav-btn: white;
+
+  --color-danger: #dc2626;
+  --color-warning: #b45309;
+  --color-success: #15803d;
+  --color-primary: #1d4ed8;
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg-body: #0f172a;
   --bg-toggle: #ffffff;
   --toggle-circle: black;
@@ -83,6 +90,11 @@ body {
   --color-stat: #f1f5f9;
 
   --teks-nav-btn: black;
+
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
+  --color-success: #4ade80;
+  --color-primary: #93c5fd;
 }
 
 /* .card {
@@ -148,4 +160,75 @@ body {
   font-weight: bold;
   cursor: pointer;
   text-align: center;
+}
+
+/* =========================================
+   Kontras warna di mode gelap
+   ========================================= */
+
+/* Hamburger navbar tetap terlihat di latar gelap */
+[data-theme="dark"] .navbar-toggler-icon {
+  filter: invert(1) grayscale(1) brightness(1.2);
+}
+
+/* Tombol tutup di modal/offcanvas yang mengikuti tema gelap */
+[data-theme="dark"] #modalTheme .btn-close,
+[data-theme="dark"] #mobileMenu .btn-close,
+[data-theme="dark"] #modalProfile .btn-close {
+  filter: invert(1) grayscale(1) brightness(1.2);
+}
+
+/* Panah dropdown pada select mengikuti tema gelap */
+[data-theme="dark"] .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Utility teks Bootstrap: terang di mode gelap agar tetap kontras */
+[data-theme="dark"] .text-danger {
+  color: var(--color-danger) !important;
+}
+
+[data-theme="dark"] .text-warning {
+  color: var(--color-warning) !important;
+}
+
+[data-theme="dark"] .text-success {
+  color: var(--color-success) !important;
+}
+
+[data-theme="dark"] .text-primary {
+  color: var(--color-primary) !important;
+}
+
+/* Teks putih harus tetap putih (menang atas utility gelap di atas) */
+.text-white {
+  color: #ffffff !important;
+}
+
+/* Card Bootstrap default putih: ikut tema di mode gelap agar teks tetap terbaca */
+[data-theme="dark"] .card {
+  background-color: var(--color-card-bg);
+  color: var(--color-teks);
+  border-color: var(--border-sidebar);
+}
+
+/* Modal tema dashboard & statistika ikut warna tema */
+#modalTheme .modal-content,
+#modalProfile .modal-content {
+  background-color: var(--color-card-bg) !important;
+  color: var(--color-teks) !important;
+}
+
+#modalTheme .modal-header,
+#modalProfile .modal-header {
+  border-bottom: 1px solid var(--border-form) !important;
+}
+
+#modalTheme .modal-title,
+#modalProfile h5 {
+  color: var(--color-teks) !important;
+}
+
+#modalTheme .modal-body > span {
+  color: var(--color-teks-sub);
 }

@@ -160,7 +160,7 @@ body {
 .stat-number {
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--color-badge-primary);
+  color: var(--teks-badge-primary);
   margin: 0 0 4px 0;
   position: relative;
   z-index: 2;
@@ -169,7 +169,7 @@ body {
 .stat-label {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--color-badge-secondary);
+  color: var(--teks-badge-secondary);
   margin: 0;
 }
 

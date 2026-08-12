@@ -47,7 +47,7 @@ function renderDashboard() {
         </div>
 
         <div class="scan-card" id="container-input-manual" style="display: none; margin: 0; padding: 30px 24px; max-width: 100%;">
-          <div class="scan-header" style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+          <div class="scan-header" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-form); padding-bottom: 10px;">
             <h3>Input Manual</h3>
             <p>Pilih nama dan isi keterangan absensi siswa</p>
           </div>
@@ -55,13 +55,13 @@ function renderDashboard() {
           <div class="scan-input-group" style="text-align: left; gap: 15px;">
           
             <div>
-              <label style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Nama Siswa</label>
+              <label style="font-size: 0.85rem; font-weight: 600; color: var(--color-teks); display: block; margin-bottom: 5px;">Nama Siswa</label>
               <input type="text" id="manual-nama" class="form-control" placeholder="Ketik nama siswa..." list="daftar-siswa" style="width: 100%;">
             </div>
 
             <div>
-              <label style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Status Kehadiran</label>
-              <select id="manual-status" class="form-control" style="width: 100%; background-color: #fff;">
+              <label style="font-size: 0.85rem; font-weight: 600; color: var(--color-teks); display: block; margin-bottom: 5px;">Status Kehadiran</label>
+              <select id="manual-status" class="form-control" style="width: 100%; background-color: var(--color-card-bg); color: var(--color-teks);">
                 <option value="Hadir">Hadir</option>
                 <option value="Sakit">Sakit</option>
                 <option value="Izin">Izin</option>
@@ -70,7 +70,7 @@ function renderDashboard() {
             </div>
 
             <div>
-              <label style="font-size: 0.85rem; font-weight: 600; color: #444; display: block; margin-bottom: 5px;">Keterangan</label>
+              <label style="font-size: 0.85rem; font-weight: 600; color: var(--color-teks); display: block; margin-bottom: 5px;">Keterangan</label>
               <textarea id="manual-keterangan" class="form-control" rows="3" placeholder="Tulis alasan atau keterangan di sini..." style="width: 100%; height: auto; padding: 8px 12px;"></textarea>
               <datalist id="daftar-siswa"></datalist>
             </div>
@@ -294,7 +294,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
             </div>
             <div class="col-12 col-md-6 col-lg-3">
                 <div class="stat-card">
-                    <div class="stat-label text-warning" style="color: #ffc107 !important;">
+                    <div class="stat-label text-warning" style="color: var(--color-warning) !important;">
                         <i class="bi bi-stopwatch-fill"></i>
                         <span>Total Siswa Izin</span>
                     </div>
