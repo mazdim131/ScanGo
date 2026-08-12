@@ -65,7 +65,7 @@ function renderInputSiswa() {
         <label class="form-label" for="call">
           <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
         </label>
-        <input type="number" id="whatsapp" class="form-control-modern" value="62" required>
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required >
       </div>
 
       <div class="form-group full-width">
@@ -74,6 +74,9 @@ function renderInputSiswa() {
         </label>
         <select id="rombel" class="form-control-modern">
           <option value="">Pilih Rombel</option>
+          <optgroup label="TEACHER">
+            <option value="TEACHER">GURU</option>
+          </optgroup>
           <optgroup label="PPLG X">
             <option value="X_1">PPLG X-1</option>
             <option value="X_2">PPLG X-2</option>
@@ -119,6 +122,9 @@ function renderInputSiswa() {
         <div class="table-actions">
             <select id="pilihanRombel" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
               <option value="">Rombel</option>
+              <optgroup label="TEACHER">
+                <option value="teacher">Guru Produktif</option>
+              </optgroup>
               <optgroup label="PPLG X">
                 <option value="X_1">PPLG X-1</option>
                 <option value="X_2">PPLG X-2</option>
@@ -367,6 +373,12 @@ async function loadTableSiswa() {
     }
 
     tableBody.innerHTML = "";
+
+    result.data.sort((a, b) =>
+      String(a.username || "").localeCompare(String(b.username || ""), "id", {
+        sensitivity: "base",
+      }),
+    );
 
     result.data.forEach((user, index) => {
       const userEmail = user.email || user.Email || "";

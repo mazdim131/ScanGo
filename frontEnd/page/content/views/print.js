@@ -4,7 +4,7 @@ function renderPrint() {
         <div class="print-container animate__animated animate__fadeIn mt-4" style="padding: 20px;">
         <div class="data-card p-4" style="max-width: 600px; margin: 0 auto; background: var(--bg-sidebar); color: var(--color-teks) !important; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div class="text-center mb-4">
-                <h4 class="fw-bold mt-2" style="color: var(--color-teks);">Cetak Rekapitulasi Absensi</h4>
+                <h3 class="fw-bold mt-2" style="color: var(--color-teks);">Cetak Rekapitulasi Absensi</h3>
                 <p style="font-size: 0.9rem;">Unduh laporan absensi siswa dalam format Excel/PDF</p>
             </div>
             

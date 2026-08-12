@@ -49,23 +49,27 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 
-// CORS: izinkan origin eksplisit (dari env), request same-origin, dan request tanpa Origin header
+// CORS: izinkan origin eksplisit (dari env) dan request same-origin.
+// Request tanpa Origin header (curl, server-to-server) selalu diizinkan.
 app.use(
   cors((req, callback) => {
     const origin = req.get("Origin");
     let allow = false;
 
-    if (!origin || ORIGIN_FRONTEND.length === 0 || ORIGIN_FRONTEND.includes(origin)) {
+    if (!origin) {
       allow = true;
     } else {
-      const reqHost = req.get("host");
-      if (reqHost) {
+      const sameOrigin = (() => {
+        const reqHost = req.get("host");
+        if (!reqHost) return false;
         try {
-          if (new URL(origin).host === reqHost) allow = true;
+          return new URL(origin).host === reqHost;
         } catch (e) {
-          allow = false;
+          return false;
         }
-      }
+      })();
+
+      allow = ORIGIN_FRONTEND.includes(origin) || sameOrigin;
     }
 
     callback(null, {
@@ -140,6 +144,15 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
     }
 
     if (existing) {
+      if (existing.time_finish) {
+        return res.status(409).json({
+          success: false,
+          message: "Kartu ini sudah absen masuk & keluar hari ini.",
+          already_finished: true,
+          attendance_id: existing.id,
+        });
+      }
+
       return res.status(409).json({
         success: false,
         message: `Kartu ini sudah absen hari ini. Silahkan tap sekali lagi untuk absen keluar.`,
@@ -522,6 +535,19 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
       idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
       nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
     }));
+
+    const hasNonNumeric = users.some(
+      (u) =>
+        (u.idcard !== "" && u.idcard != null && !/^\d+$/.test(String(u.idcard))) ||
+        (u.nis !== "" && u.nis != null && !/^\d+$/.test(String(u.nis))),
+    );
+
+    if (hasNonNumeric) {
+      return res.status(400).json({
+        success: false,
+        message: "Terdapat data dengan ID kartu/NIS yang bukan angka!",
+      });
+    }
 
     const { data, error } = await supabase.from("users").insert(usersNormalized).select();
     if (error) throw error;
