@@ -69,6 +69,7 @@ body {
 
 .hero-company {
   margin-top: 7%;
+  background-color: var(--bg-sidebar);
 }
 
 @media (max-width: 1920px) {

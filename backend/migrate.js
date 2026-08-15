@@ -34,9 +34,11 @@ async function runMigration(client, label) {
 
 async function migrate() {
     let client = buildClient(6543);
+    let connected = false;
 
     try {
         await client.connect();
+        connected = true;
         console.log("Connected to database via pooler");
         await runMigration(client, "pooler");
     } catch (error) {
@@ -60,7 +62,7 @@ async function migrate() {
             console.error("Direct connection error:", directError.message);
         }
     } finally {
-        await client.end();
+        if (connected) await client.end();
     }
 }
 

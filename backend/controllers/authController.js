@@ -45,15 +45,20 @@ const register = async (req, res) => {
       });
     }
 
+    if (!/^\d+$/.test(String(idcard)) || !/^\d+$/.test(String(nis))) {
+      return res.status(400).json({
+        message: "ID kartu dan NIS harus berupa angka!",
+      });
+    }
+
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const idcardNum = idcard !== "" ? Number(idcard) : null;
-    const nisNum = nis !== "" ? Number(nis) : null;
+    const idcardNum = Number(idcard);
+    const nisNum = Number(nis);
 
     // Hanya role student/user yang boleh dibuat lewat registrasi publik.
-    // Role "teacher" hanya boleh dibuat setelah lolos verifikasi admin
-    // (dijaga oleh middleware ensureAdminIfTeacher di authRoutes.js).
+    // Role "teacher" tidak dapat dibuat lewat registrasi publik.
     const allowedRoles = ["student", "user"];
     const userRole = allowedRoles.includes(role) ? role : "student";
 

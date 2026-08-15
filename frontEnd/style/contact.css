@@ -70,13 +70,14 @@ body {
 }
 
 .contact-input-addon {
-  background-color: #f8f9fa;
-  color: #6c757d;
+  background-color: var(--bg-formContact);
+  color: var(--teks-form);
   border-right: none;
   padding-left: 1rem;
   padding-right: 1rem;
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 .contact-input:focus {
@@ -102,13 +103,17 @@ body {
 }
 
 .contact-terms-text {
-  color: #6c757d;
+  color: var(--color-teks-sub);
   font-size: 0.75rem;
 }
 
 .contact-terms-text a {
   color: #6366f1;
   font-weight: 500;
+}
+
+[data-theme="dark"] .contact-terms-text a {
+  color: #93c5fd;
 }
 
 /* ===== RESPONSIVE ===== */

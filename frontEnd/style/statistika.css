@@ -53,12 +53,13 @@
 .statistika-page .sidebar-logo {
   width: 42px;
   height: 42px;
-  background-color: #e0e7ff;
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--border-sidebar);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4f46e5;
+  color: var(--color-primary);
   font-size: 1.4rem;
   margin-bottom: 12px;
 }
@@ -86,7 +87,7 @@
 
 .statistika-page .menu-icon:hover,
 .statistika-page .menu-icon.active {
-  color: #4f46e5;
+  color: var(--color-primary);
   background-color: var(--bg-hover);
 }
 
@@ -132,7 +133,7 @@
 
 .statistika-page .nav-tab-item.active {
   background-color: var(--color-card-bg);
-  color: #4f46e5;
+  color: var(--color-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
@@ -183,7 +184,7 @@
 }
 
 .teacher-schedule-header i {
-  color: #4F46E5;
+  color: var(--color-primary);
   font-size: 18px;
 }
 
@@ -880,6 +881,11 @@
   background-color: var(--color-card-bg) !important;
   color: var(--color-teks) !important;
   border-top: 1px solid var(--border-sidebar);
+}
+
+/* Tile menu mobile ikut tema (hilangkan bg-light putih tulang) */
+.offcanvas-body .bg-light {
+  background-color: var(--bg-hover) !important;
 }
 
 .offcanvas-header {

@@ -16,7 +16,7 @@ function renderInputSiswa() {
         <label class="form-label" for="nis">
           <i class="bi bi-person-vcard"></i> NIS / NIP
         </label>
-        <input type="text" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa / NIP Guru">
+        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa / NIP Guru" required>
       </div>
 
       <div class="form-group">
@@ -34,7 +34,7 @@ function renderInputSiswa() {
         <label class="form-label" for="RFID">
           <i class="bi bi-rss"></i> UID RFID
         </label>
-        <input type="password" id="RFID" class="form-control-modern" placeholder="Tempelkan kartu ke reader atau ketik manual">
+        <input type="number" id="RFID" class="form-control-modern" placeholder="Tempelkan kartu ke reader atau ketik manual" required>
         <span class="form-hint">
           <i class="bi bi-info-circle"></i> Tempelkan kartu RFID ke reader saat kursor di sini &mdash; UID terisi otomatis.
         </span>
@@ -44,28 +44,28 @@ function renderInputSiswa() {
         <label class="form-label" for="username">
           <i class="bi bi-person"></i> Nama Lengkap
         </label>
-        <input type="text" id="username" class="form-control-modern" placeholder="Nama Lengkap">
+        <input type="text" id="username" class="form-control-modern" placeholder="Nama Lengkap" required>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="email">
           <i class="bi bi-envelope"></i> Email
         </label>
-        <input type="text" id="email" class="form-control-modern" placeholder="example@smkwikrama.sch.id">
+        <input type="email" id="email" class="form-control-modern" placeholder="example@smkwikrama.sch.id" required>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="password">
           <i class="bi bi-lock"></i> Password
         </label>
-        <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
+        <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
       </div>
 
       <div class="form-group full-width">
         <label class="form-label" for="call">
           <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
         </label>
-        <input type="text" id="whatsapp" class="form-control-modern" value="62">
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required >
       </div>
 
       <div class="form-group full-width">
@@ -74,6 +74,9 @@ function renderInputSiswa() {
         </label>
         <select id="rombel" class="form-control-modern">
           <option value="">Pilih Rombel</option>
+          <optgroup label="TEACHER">
+            <option value="TEACHER">GURU</option>
+          </optgroup>
           <optgroup label="PPLG X">
             <option value="X_1">PPLG X-1</option>
             <option value="X_2">PPLG X-2</option>
@@ -119,6 +122,9 @@ function renderInputSiswa() {
         <div class="table-actions">
             <select id="pilihanRombel" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
               <option value="">Rombel</option>
+              <optgroup label="TEACHER">
+                <option value="teacher">Guru Produktif</option>
+              </optgroup>
               <optgroup label="PPLG X">
                 <option value="X_1">PPLG X-1</option>
                 <option value="X_2">PPLG X-2</option>
@@ -368,6 +374,12 @@ async function loadTableSiswa() {
 
     tableBody.innerHTML = "";
 
+    result.data.sort((a, b) =>
+      String(a.username || "").localeCompare(String(b.username || ""), "id", {
+        sensitivity: "base",
+      }),
+    );
+
     result.data.forEach((user, index) => {
       const userEmail = user.email || user.Email || "";
       const row = document.createElement("tr");
@@ -375,7 +387,7 @@ async function loadTableSiswa() {
         <td>${index + 1}</td>
         <td>
           <strong>${user.username}</strong><br>
-          <small style="color:#6c757d;">${user.nis}</small> 
+          <small style="color:var(--color-teks-sub);">${user.nis}</small> 
           <span class="badge-${user.role === "teacher" ? "guru" : "siswa"}">${user.role === "teacher" ? "Guru" : "Siswa"}</span>
         </td>
         <td>${user.rombel || "-"}</td>
@@ -454,15 +466,12 @@ function initImportExcelListener() {
           throw new Error("File excel kosong atau format tidak sesuai!");
         }
 
-        const response = await fetch(
-          `${API_BASE}/api/auth/register-bulk`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ users: jsonData }),
-          },
-        );
+        const response = await fetch(`${API_BASE}/api/auth/register-bulk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ users: jsonData }),
+        });
 
         if (!response.ok) {
           const errResult = await response.json().catch(() => ({}));
@@ -665,15 +674,12 @@ async function actionEditSiswa(nis, email) {
 
     if (!formValues) return;
 
-    const updateResponse = await fetch(
-      `${API_BASE}/api/users/${nis}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formValues),
-      },
-    );
+    const updateResponse = await fetch(`${API_BASE}/api/users/${nis}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(formValues),
+    });
 
     if (!updateResponse.ok) {
       const errResult = await updateResponse.json().catch(() => ({}));
@@ -726,7 +732,7 @@ async function handleRombelFilterInput() {
   if (visibleCount === 0 && currentSelectedRombel) {
     const tr = document.createElement("tr");
     tr.className = "empty-filter-row";
-    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:#6c757d;">Data siswa belum tersedia!</td>`;
+    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Data siswa belum tersedia!</td>`;
     tableBody.appendChild(tr);
   }
 }
