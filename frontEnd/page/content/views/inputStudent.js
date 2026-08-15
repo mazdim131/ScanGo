@@ -1,4 +1,29 @@
+if (typeof window.tableAllData === "undefined") window.tableAllData = [];
+if (typeof window.tableSortKey === "undefined") window.tableSortKey = "nama";
+if (typeof window.tableSortDir === "undefined") window.tableSortDir = "asc";
+if (typeof window.tableSearchQuery === "undefined") window.tableSearchQuery = "";
+if (typeof window.tableRoleFilter === "undefined") window.tableRoleFilter = null;
+
 function renderInputSiswa() {
+  window.tableRoleFilter = null;
+  return renderInputFormHTML() + renderDataTableHTML("Daftar Siswa / Guru");
+}
+
+function renderDataSiswa() {
+  window.tableRoleFilter = "student";
+  return renderInputFormHTML() + renderDataTableHTML("Data Siswa");
+}
+
+function renderDataGuru() {
+  window.tableRoleFilter = "teacher";
+  return renderInputFormHTML() + renderDataTableHTML("Data Guru");
+}
+
+function initDataTableListener() {
+  initInputSiswaListener();
+}
+
+function renderInputFormHTML() {
   return `
   <div id="formInputContainer" class="form-input-container" style="display: none;">
 
@@ -75,7 +100,7 @@ function renderInputSiswa() {
         <select id="rombel" class="form-control-modern">
           <option value="">Pilih Rombel</option>
           <optgroup label="TEACHER">
-            <option value="TEACHER">GURU</option>
+            <option value="Guru Produktif">GURU</option>
           </optgroup>
           <optgroup label="PPLG X">
             <option value="X_1">PPLG X-1</option>
@@ -112,42 +137,19 @@ function renderInputSiswa() {
 
     </form>
   </div>
+`;
+}
 
+function renderDataTableHTML(tableTitle) {
+  return `
   <div id="dataContainer" class="data-container">
     <div class="data-card">
       <div class="table-header">
         <h5 class="table-title">
-          Daftar Siswa / Guru
+          ${tableTitle}
         </h5>
         <div class="table-actions">
-            <select id="pilihanRombel" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
-              <option value="">Rombel</option>
-              <optgroup label="TEACHER">
-                <option value="teacher">Guru Produktif</option>
-              </optgroup>
-              <optgroup label="PPLG X">
-                <option value="X_1">PPLG X-1</option>
-                <option value="X_2">PPLG X-2</option>
-                <option value="X_3">PPLG X-3</option>
-                <option value="X_4">PPLG X-4</option>
-                <option value="X_5">PPLG X-5</option>
-              </optgroup>
-              <optgroup label="PPLG XI">
-                <option value="XI_1">PPLG XI-1</option>
-                <option value="XI_2">PPLG XI-2</option>
-                <option value="XI_3">PPLG XI-3</option>
-                <option value="XI_4">PPLG XI-4</option>
-                <option value="XI_5">PPLG XI-5</option>
-              </optgroup>
-              <optgroup label="PPLG XII">
-                <option value="XII_1">PPLG XII-1</option>
-                <option value="XII_2">PPLG XII-2</option>
-                <option value="XII_3">PPLG XII-3</option>
-                <option value="XII_4">PPLG XII-4</option>
-                <option value="XII_5">PPLG XII-5</option>
-              </optgroup>
-            </select>
-
+          <input type="text" id="searchTable" class="form-control form-control-sm bg-light border-0 text-muted rounded-3" style="width: 220px; height: 34px; font-size: 0.85rem;" placeholder="Cari nama / NIS / RFID...">
           <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;">
           <button type="button" id="btnImportManual" class="btn-import btn-import-manual">
             <i class="bi bi-pencil-square"></i> Input Manual
@@ -162,9 +164,9 @@ function renderInputSiswa() {
           <thead>
             <tr>
               <th>#</th>
-              <th>Nama</th>
-              <th>Rombel</th>
-              <th>UID RFID</th>
+              <th data-sort="nama" class="sortable-th">Nama <span class="sort-indicator"></span></th>
+              <th data-sort="rombel" class="sortable-th">Rombel <span class="sort-indicator"></span></th>
+              <th data-sort="idcard" class="sortable-th">UID RFID <span class="sort-indicator"></span></th>
               <th>Status</th>
               <th>Whatsapp Orang Tua</th>
               <th>Aksi</th>
@@ -182,6 +184,7 @@ function initInputSiswaListener() {
   loadTableSiswa();
   initImportExcelListener();
   initImportManualListener();
+  attachTableListeners();
 
   const btnDaftar = document.querySelector(".btn-save");
   if (!btnDaftar) return;
@@ -368,22 +371,72 @@ async function loadTableSiswa() {
     }
 
     if (result.data.length === 0) {
+      window.tableAllData = [];
       tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada data siswa terdaftar.</td></tr>`;
       return;
     }
 
-    tableBody.innerHTML = "";
+    window.tableAllData = result.data;
+    renderTable();
+    attachRombelFilterInput();
+  } catch (error) {
+    console.error("Error loading table: ", error);
+    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Koneksi ke server terputus!</td></tr>`;
+  }
+}
 
-    result.data.sort((a, b) =>
-      String(a.username || "").localeCompare(String(b.username || ""), "id", {
-        sensitivity: "base",
-      }),
+function renderTable() {
+  const tableBody = document.querySelector("#tableSiswaBody");
+  if (!tableBody) return;
+
+  let rows = (window.tableAllData || []).slice();
+
+  if (currentSelectedRombel) {
+    rows = rows.filter((u) => String(u.rombel || "") === currentSelectedRombel);
+  }
+
+  if (window.tableRoleFilter) {
+    rows = rows.filter((u) => String(u.role || "") === window.tableRoleFilter);
+  }
+
+  if (tableSearchQuery) {
+    const q = tableSearchQuery.toLowerCase();
+    rows = rows.filter((u) =>
+      [
+        u.username,
+        u.nis,
+        u.idcard,
+        u.rombel,
+        u.whatsapp,
+        u.role === "teacher" ? "Guru" : "Siswa",
+      ].some((v) => String(v || "").toLowerCase().includes(q)),
     );
+  }
 
-    result.data.forEach((user, index) => {
-      const userEmail = user.email || user.Email || "";
-      const row = document.createElement("tr");
-      row.innerHTML = `
+  rows.sort((a, b) => {
+    const va = getSortValue(a);
+    const vb = getSortValue(b);
+    let cmp;
+    if (tableSortKey === "idcard") {
+      cmp = (parseInt(va, 10) || 0) - (parseInt(vb, 10) || 0);
+    } else {
+      cmp = String(va).localeCompare(String(vb), "id", { sensitivity: "base" });
+    }
+    return tableSortDir === "asc" ? cmp : -cmp;
+  });
+
+  tableBody.innerHTML = "";
+
+  if (rows.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Tidak ada data yang cocok.</td></tr>`;
+    updateSortIndicator();
+    return;
+  }
+
+  rows.forEach((user, index) => {
+    const userEmail = user.email || user.Email || "";
+    const row = document.createElement("tr");
+    row.innerHTML = `
         <td>${index + 1}</td>
         <td>
           <strong>${user.username}</strong><br>
@@ -399,17 +452,68 @@ async function loadTableSiswa() {
           <button class="btn-edit btn btn-primary btn-sm" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-pencil-square"></i></button>
           <button class="btn-delete btn btn-danger btn-sm" data-nis="${user.nis}"><i class="bi bi-trash"></i></button>
         </td>
-  
       `;
-      tableBody.appendChild(row);
-    });
+    tableBody.appendChild(row);
+  });
 
-    initActionButtonsListener();
-    attachRombelFilterInput();
-  } catch (error) {
-    console.error("Error loading table: ", error);
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Koneksi ke server terputus!</td></tr>`;
+  initActionButtonsListener();
+  updateSortIndicator();
+}
+
+function getSortValue(user) {
+  switch (tableSortKey) {
+    case "nama":
+      return String(user.username || "").toLowerCase();
+    case "rombel":
+      return String(user.rombel || "");
+    case "idcard":
+      return String(user.idcard || "");
+    default:
+      return "";
   }
+}
+
+function attachTableListeners() {
+  const searchInput = document.getElementById("searchTable");
+  if (searchInput) {
+    searchInput.removeEventListener("input", handleTableSearchInput);
+    searchInput.addEventListener("input", handleTableSearchInput);
+  }
+
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
+    th.removeEventListener("click", handleTableSortClick);
+    th.addEventListener("click", handleTableSortClick);
+  });
+}
+
+function handleTableSearchInput(e) {
+  tableSearchQuery = e.target.value.trim();
+  renderTable();
+}
+
+function handleTableSortClick(e) {
+  const key = e.currentTarget.getAttribute("data-sort");
+  if (tableSortKey === key) {
+    tableSortDir = tableSortDir === "asc" ? "desc" : "asc";
+  } else {
+    tableSortKey = key;
+    tableSortDir = "asc";
+  }
+  renderTable();
+}
+
+function updateSortIndicator() {
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
+    const indicator = th.querySelector(".sort-indicator");
+    if (!indicator) return;
+    const key = th.getAttribute("data-sort");
+    if (key === tableSortKey) {
+      indicator.textContent = tableSortDir === "asc" ? "\u25B2" : "\u25BC";
+      indicator.style.color = "var(--color-primary, #1d4ed8)";
+    } else {
+      indicator.textContent = "";
+    }
+  });
 }
 
 function showToast(message, type = "success") {
@@ -707,34 +811,7 @@ async function handleRombelFilterInput() {
   const selectElement = document.getElementById("pilihanRombel");
   if (!selectElement) return;
   currentSelectedRombel = selectElement.value || null;
-
-  const tableBody = document.querySelector("#tableSiswaBody");
-  if (!tableBody) return;
-
-  const rows = tableBody.querySelectorAll("tr");
-  let visibleCount = 0;
-
-  rows.forEach((row) => {
-    const rombelCell = row.querySelector("td:nth-child(3)");
-    if (!rombelCell) return;
-
-    const rombelText = rombelCell.textContent.trim();
-    const match =
-      !currentSelectedRombel || rombelText === currentSelectedRombel;
-
-    row.style.display = match ? "" : "none";
-    if (match) visibleCount++;
-  });
-
-  const emptyRow = tableBody.querySelector(".empty-filter-row");
-  if (emptyRow) emptyRow.remove();
-
-  if (visibleCount === 0 && currentSelectedRombel) {
-    const tr = document.createElement("tr");
-    tr.className = "empty-filter-row";
-    tr.innerHTML = `<td colspan="6" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Data siswa belum tersedia!</td>`;
-    tableBody.appendChild(tr);
-  }
+  renderTable();
 }
 
 //detailsiswa

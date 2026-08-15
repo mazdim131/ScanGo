@@ -28,6 +28,17 @@ function navigateTo(page) {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
       }
       break;
+    case "data-siswa":
+    case "data-guru":
+      if (typeof renderDataSiswa !== "undefined") {
+        content.innerHTML =
+          page === "data-siswa" ? renderDataSiswa() : renderDataGuru();
+        if (typeof initDataTableListener !== "undefined")
+          initDataTableListener();
+      } else {
+        window.location.href = "/frontEnd/page/structure/dashboard.html";
+      }
+      break;
     case "detail-siswa":
       if (typeof renderDetailSiswa !== "undefined") {
         content.innerHTML = renderDetailSiswa();

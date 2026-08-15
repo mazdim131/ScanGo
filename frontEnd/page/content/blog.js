@@ -50,7 +50,7 @@ const renderMainGrid = (data) =>
   data
     .map(
       (item) => `
-      <div class="col-12 col-md-6 mb-4 reveal">
+      <div class="col-12 col-md-6 mb-4">
         <div class="card main-grid-card animate__animated animate__fadeIn" style="border: none !important;">
             <img src="${item.documentation}" alt="${item.news}">
             <div class="card-overlay-content mt-3">

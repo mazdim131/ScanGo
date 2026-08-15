@@ -341,6 +341,23 @@ select.form-control-modern {
   background-color: var(--bg-hover);
 }
 
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sortable-th:hover {
+  color: var(--color-primary, #1d4ed8);
+}
+
+.sort-indicator {
+  display: inline-block;
+  width: 10px;
+  font-size: 0.7rem;
+  margin-left: 2px;
+}
+
 /* ── Student Info Cell ── */
 .student-info {
   display: flex;

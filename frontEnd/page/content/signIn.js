@@ -4,8 +4,9 @@ content.innerHTML = `
             <a href="/index.html" class="back-link"><i class="bi bi-house"></i> Kembali</a>
             <div class="left-panel">
                 <div class="logo">
-                    <a href="/index.html">
-                        <img src="/frontEnd/assets/logo/favicon.png" alt="ScanGo Logo" width="60px">
+                    <a href="/index.html" class="d-flex gap-2 justify-content-center">
+                        <img src="/frontEnd/assets/logo/partners/wikrama.png" alt="wikrama logo" width="60px">
+                        <img src="/frontEnd/assets/logo/partners/pplg.png" alt="pplg logo" width="60px">
                     </a>
                 </div>
 

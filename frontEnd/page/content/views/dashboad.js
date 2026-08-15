@@ -10,18 +10,26 @@ function renderDashboard() {
 
         <div class="scan-card" id="container-scan-rfid" style="margin: 0; padding: 30px 24px; max-width: 100%;">
           <div class="scan-header">
-            <h3>Scan RFID</h3>
-            <p>Tempelkan kartu RFID siswa untuk mencatat kehadiran</p>
+            <h3>Scan Kartu</h3>
+            <p class="mb-0">Pilih mode absen sebelum scan kartu</p>
+            <div class="d-flex gap-2 justify-content-center mt-3">
+              <button type="button" id="btn-absen-masuk" class="btn btn-success w-100 btn-sm" onclick="absenMasuk()">
+                <i class="bi bi-box-arrow-in-right"></i> Masuk
+              </button>
+              <button type="button" id="btn-absen-keluar" class="btn btn-outline-danger w-100 btn-sm" onclick="absenKeluar()">
+                <i class="bi bi-box-arrow-right"></i> Keluar
+              </button>
+            </div>
           </div>
 
-          <div class="scan-icon-wrapper">
+          <div class="scan-icon-wrapper mt-5">
             <i class="bi bi-upc-scan"></i>
           </div>
 
           <div id="scan-status">
-            <span class="scan-status-badge idle">
-              <i class="bi bi-radio"></i> Menunggu scan kartu...
-            </span>
+            <marquee class="scan-status-badge idle">
+              <i class="bi bi-radio"></i> Menunggu scan kartu (Absen Masuk)...
+            </marquee>
           </div>
 
           <div class="scan-input-group">
@@ -100,9 +108,58 @@ function renderDashboard() {
 }
 
 if (typeof window.clockInterval === "undefined") window.clockInterval = null;
-if (typeof window.currentSelectedClass === "undefined") window.currentSelectedClass = "X";
-if (typeof window.currentSelectedRombel === "undefined") window.currentSelectedRombel = null;
-if (typeof window.currentSelectedDate === "undefined") window.currentSelectedDate = new Date().toLocaleDateString("sv-SE");
+if (typeof window.currentSelectedClass === "undefined")
+  window.currentSelectedClass = "X";
+if (typeof window.currentSelectedRombel === "undefined")
+  window.currentSelectedRombel = null;
+if (typeof window.currentSelectedDate === "undefined")
+  window.currentSelectedDate = new Date().toLocaleDateString("sv-SE");
+if (typeof window.currentScanMode === "undefined")
+  window.currentScanMode = "masuk";
+
+function absenMasuk() {
+  setScanMode("masuk");
+}
+
+function absenKeluar() {
+  setScanMode("keluar");
+}
+
+function setScanMode(mode) {
+  if (mode !== "masuk" && mode !== "keluar") mode = "masuk";
+  window.currentScanMode = mode;
+
+  const btnMasuk = document.getElementById("btn-absen-masuk");
+  const btnKeluar = document.getElementById("btn-absen-keluar");
+
+  if (btnMasuk && btnKeluar) {
+    if (mode === "masuk") {
+      btnMasuk.className = "btn btn-success w-100 btn-sm";
+      btnKeluar.className = "btn btn-outline-danger w-100 btn-sm";
+    } else {
+      btnMasuk.className = "btn btn-outline-success w-100 btn-sm";
+      btnKeluar.className = "btn btn-danger w-100 btn-sm";
+    }
+  }
+
+  const label = mode === "masuk" ? "Absen Masuk" : "Absen Keluar";
+  const statusEl = document.getElementById("scan-status");
+  const input = document.getElementById("card-id-input");
+  const resultEl = document.getElementById("scan-result");
+
+  if (statusEl) {
+    statusEl.innerHTML = `<marquee class="scan-status-badge idle"><i class="bi bi-radio"></i> Menunggu scan kartu (${label})...</marquee>`;
+  }
+  if (input) {
+    input.placeholder =
+      mode === "masuk"
+        ? "Tempelkan kartu RFID (Absen Masuk)..."
+        : "Tempelkan kartu RFID (Absen Keluar)...";
+    input.value = "";
+    input.focus();
+  }
+  if (resultEl) resultEl.innerHTML = "";
+}
 
 async function initDashboardListener() {
   const timeElement = document.getElementById("time");
@@ -141,7 +198,7 @@ async function fetchAttendanceData() {
   try {
     const response = await fetch(`${API_BASE}/api/attendances`, {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
     const result = await response.json();
     return result.success ? result.data : [];
@@ -212,29 +269,29 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
     dataFiltered.length === 0
       ? `<tr><td colspan="7" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
       : dataFiltered
-        .map((row) => {
-          const jamAbsen = row.created_at
-            ? new Date(row.created_at).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-            : "-";
+          .map((row) => {
+            const jamAbsen = row.created_at
+              ? new Date(row.created_at).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-";
 
-          const jamKeluar = row.time_finish
-            ? new Date(row.time_finish).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-            : "-";
+            const jamKeluar = row.time_finish
+              ? new Date(row.time_finish).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-";
 
-          const namaSiswa = row.users
-            ? Array.isArray(row.users)
-              ? row.users[0]?.username
-              : row.users.username
-            : null;
-          const displayNama = namaSiswa || row.idcard || "Tidak Dikenal";
+            const namaSiswa = row.users
+              ? Array.isArray(row.users)
+                ? row.users[0]?.username
+                : row.users.username
+              : null;
+            const displayNama = namaSiswa || row.idcard || "Tidak Dikenal";
 
-          return `
+            return `
                 <tr>
                     <td class="text-muted d-none d-md-table-cell">${row.id}</td>
                     <td>
@@ -250,8 +307,8 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     <td><span class="status-badge ${getStatusClass(row.status)}">${row.status || "Hadir"}</span></td>
                 </tr>
             `;
-        })
-        .join("");
+          })
+          .join("");
 
   return {
     statsHtml: `
@@ -277,7 +334,8 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     </div>
                     <div class="stat-value">${totalSakit}</div>
                     <div class="stat-indicator">
-                        <span class="text-muted" style="color: var(--color-teks) !important;">Live rekap</span>
+                        <span class="text-success fw-semibold"><i class="bi bi-arrow-up-short"></i> Live</span>
+                        <span class="text-muted ms-1" style="color: var(--color-teks) !important;">dari database</span>
                     </div>
                 </div>
             </div>
@@ -289,7 +347,8 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     </div>
                     <div class="stat-value">${totalAlpa}</div>
                     <div class="stat-indicator">
-                        <span class="text-muted" style="color: var(--color-teks) !important;">Live rekap</span>
+                        <span class="text-success fw-semibold"><i class="bi bi-arrow-up-short"></i> Live</span>
+                        <span class="text-muted ms-1" style="color: var(--color-teks) !important;">dari database</span>
                     </div>
                 </div>
             </div>
@@ -301,7 +360,8 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     </div>
                     <div class="stat-value">${totalIzin}</div>
                     <div class="stat-indicator">
-                        <span class="text-muted" style="color: var(--color-teks) !important;">Live rekap</span>
+                        <span class="text-success fw-semibold"><i class="bi bi-arrow-up-short"></i> Live</span>
+                        <span class="text-muted ms-1" style="color: var(--color-teks) !important;">dari database</span>
                     </div>
                 </div>
             </div>
@@ -311,7 +371,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
         <div class="data-card" style="margin-top: 0;">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                 <div class="d-flex align-items-center gap-2">
-                    <h5 class="fw-bold m-0" style="color: var(--color-teks); font-size: 1.05rem;">Riwayat Absensi Kelas ${namaKelas}</h5>
+                    <h5 class="fw-bold m-0" style="color: var(--color-teks); font-size: 1.05rem;">Riwayat Absensi</h5>
                 </div>
                 <div class="d-flex gap-2 flex-wrap align-items-center">
                     <select id="pilihanRombel" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
@@ -365,7 +425,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 </table>
             </div>
         </div>
-    `
+    `,
   };
 }
 
@@ -377,7 +437,10 @@ async function initTabs() {
   if (tableContainer && statsContainer) {
     tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Memuat data absensi...</p></div>`;
     const dataTerbaru = await fetchAttendanceData();
-    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    const result = generateKontenKelasTemplate(
+      currentSelectedClass,
+      dataTerbaru,
+    );
     statsContainer.innerHTML = result.statsHtml;
     tableContainer.innerHTML = result.tableHtml;
   }
@@ -394,7 +457,10 @@ async function initTabs() {
       if (tableContainer && statsContainer) {
         tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Memeriksa database...</p></div>`;
         const dataTerbaru = await fetchAttendanceData();
-        const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+        const result = generateKontenKelasTemplate(
+          currentSelectedClass,
+          dataTerbaru,
+        );
         statsContainer.innerHTML = result.statsHtml;
         tableContainer.innerHTML = result.tableHtml;
         attachFilters();
@@ -430,7 +496,10 @@ async function handleRombelFilter() {
   if (tableContainer && statsContainer) {
     tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring rombel...</p></div>`;
     const dataTerbaru = await fetchAttendanceData();
-    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    const result = generateKontenKelasTemplate(
+      currentSelectedClass,
+      dataTerbaru,
+    );
     statsContainer.innerHTML = result.statsHtml;
     tableContainer.innerHTML = result.tableHtml;
     attachFilters();
@@ -448,7 +517,10 @@ async function handleTanggalFilter() {
   if (tableContainer && statsContainer) {
     tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring tanggal...</p></div>`;
     const dataTerbaru = await fetchAttendanceData();
-    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    const result = generateKontenKelasTemplate(
+      currentSelectedClass,
+      dataTerbaru,
+    );
     statsContainer.innerHTML = result.statsHtml;
     tableContainer.innerHTML = result.tableHtml;
     attachFilters();
@@ -469,17 +541,14 @@ async function editAttendancesStatus(id, currentStatus) {
   }
 
   try {
-    const response = await fetch(
-      `${API_BASE}/api/attendances/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ status: statusBaru.trim() }),
+    const response = await fetch(`${API_BASE}/api/attendances/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      credentials: "include",
+      body: JSON.stringify({ status: statusBaru.trim() }),
+    });
 
     const result = await response.json();
     if (response.ok && result.success) {
@@ -499,13 +568,10 @@ async function deleteAttendanceLog(id) {
     return;
 
   try {
-    const response = await fetch(
-      `${API_BASE}/api/attendances/${id}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      },
-    );
+    const response = await fetch(`${API_BASE}/api/attendances/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
 
     const result = await response.json();
     if (response.ok && result.success) {

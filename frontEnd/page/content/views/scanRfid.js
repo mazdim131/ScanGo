@@ -5,7 +5,15 @@ function renderScanRfid() {
       <div class="scan-card" id="container-scan-rfid">
         <div class="scan-header">
           <h3>Scan RFID</h3>
-          <p>Tempelkan kartu RFID siswa untuk mencatat kehadiran</p>
+          <p>Pilih mode absen sebelum scan kartu</p>
+          <div class="d-flex gap-2 justify-content-center mt-3">
+            <button type="button" id="btn-absen-masuk" class="btn btn-success w-100 btn-sm" onclick="absenMasuk()">
+              <i class="bi bi-box-arrow-in-right"></i> Masuk
+            </button>
+            <button type="button" id="btn-absen-keluar" class="btn btn-outline-danger w-100 btn-sm" onclick="absenKeluar()">
+              <i class="bi bi-box-arrow-right"></i> Keluar
+            </button>
+          </div>
         </div>
 
         <div class="scan-icon-wrapper">
@@ -14,7 +22,7 @@ function renderScanRfid() {
 
         <div id="scan-status">
           <span class="scan-status-badge idle">
-            <i class="bi bi-radio"></i> Menunggu scan kartu...
+            <i class="bi bi-radio"></i> Menunggu scan kartu (Absen Masuk)...
           </span>
         </div>
 
@@ -23,7 +31,7 @@ function renderScanRfid() {
             type="text"
             id="card-id-input"
             class="form-control"
-            placeholder="Tempelkan kartu RFID..."
+            placeholder="Tempelkan kartu RFID (Absen Masuk)..."
             autofocus
           >
           <button class="scan-btn" onclick="submitScan()">
@@ -246,8 +254,20 @@ async function submitScan() {
       }
     }
 
+    const mode =
+      (typeof window.currentScanMode !== "undefined" &&
+        window.currentScanMode) ||
+      "masuk";
+
     let response;
     if (dataHariIni) {
+      if (mode === "masuk") {
+        statusEl.innerHTML =
+          '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
+        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.</div>`;
+        return;
+      }
+
       if (dataHariIni.time_finish || dataHariIni.status_keluar) {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
@@ -271,6 +291,13 @@ async function submitScan() {
         },
       );
     } else {
+      if (mode === "keluar") {
+        statusEl.innerHTML =
+          '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
+        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.</div>`;
+        return;
+      }
+
       response = await fetch(
         `${API_BASE}/api/attendances/store?idcard=` +
         encodeURIComponent(cardId) +
@@ -288,9 +315,10 @@ async function submitScan() {
       statusEl.innerHTML =
         '<span class="scan-status-badge success"><i class="bi bi-check-circle-fill"></i> Berhasil!</span>';
 
-      const pesanSukses = dataHariIni
-        ? "Absen KELUAR berhasil dicatat!"
-        : "Absen MASUK berhasil dicatat!";
+      const pesanSukses =
+        mode === "keluar"
+          ? "Absen KELUAR berhasil dicatat!"
+          : "Absen MASUK berhasil dicatat!";
       resultEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${pesanSukses}</div>`;
       showToast(pesanSukses, "success");
 
@@ -368,8 +396,18 @@ async function submitManual() {
       }
     }
 
+    const mode =
+      (typeof window.currentScanMode !== "undefined" &&
+        window.currentScanMode) ||
+      "masuk";
+
     let response;
     if (dataHariIni) {
+      if (mode === "masuk") {
+        resultManualEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> ${nama} sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.</div>`;
+        return;
+      }
+
       if (dataHariIni.time_finish) {
         resultManualEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini sudah absen masuk & keluar hari ini!</div>`;
         showToast("Kuota absensi siswa ini sudah penuh", "warning");
@@ -392,6 +430,11 @@ async function submitManual() {
         },
       );
     } else {
+      if (mode === "keluar") {
+        resultManualEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> ${nama} belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.</div>`;
+        return;
+      }
+
       response = await fetch(`${API_BASE}/api/attendances/manual`, {
         method: "POST",
         headers: {
@@ -409,9 +452,10 @@ async function submitManual() {
     const data = await response.json();
 
     if (response.ok && data.success) {
-      const pesanSukses = dataHariIni
-        ? `Absen keluar untuk ${nama} berhasil diupdate!`
-        : `Absensi manual ${nama} berhasil disimpan!`;
+      const pesanSukses =
+        mode === "keluar"
+          ? `Absen keluar untuk ${nama} berhasil diupdate!`
+          : `Absensi manual ${nama} berhasil disimpan!`;
       resultManualEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${data.message || pesanSukses}</div>`;
 
       document.getElementById("manual-nama").value = "";
