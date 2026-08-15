@@ -1,9 +1,10 @@
 const navbar = document.getElementById("navbar");
 navbar.innerHTML = `
 <nav class="navbar navbar-expand-lg mt-4 animate__animated animate__fadeIn mt-3">
-  <div class="container-fluid d-flex align-items-center"> <div class="d-flex align-items-center style-brand">
-      <img src="/frontEnd/assets/logo/favicon.png" style="height: 40px;" class="ms-4">
-      <a class="navbar-brand ms-3" href="/index.html" style="font-weight: bold; font-size: 25px; color: var(--color-teks) !important;">ScanGo</a>
+  <div class="container-fluid d-flex align-items-center"> 
+    <div class="d-flex align-items-center style-brand gap-1">
+      <img src="/frontEnd/assets/logo/partners/wikrama.png" style="height: 40px;">
+      <img src="/frontEnd/assets/logo/partners/pplg.png" style="height: 40px;">
     </div>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">

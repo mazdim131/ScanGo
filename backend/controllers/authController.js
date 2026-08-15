@@ -2,6 +2,42 @@ const supabase = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const resolveUserRole = (role, req) => {
+  const requested = String(role || "").trim().toLowerCase();
+
+  const publicRoles = ["student", "user"];
+  if (publicRoles.includes(requested)) {
+    return requested;
+  }
+
+  // Role "teacher" hanya boleh dibuat oleh admin/guru yang sudah login.
+  if (requested === "teacher") {
+    let token = req.cookies?.token;
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+      }
+    }
+
+    if (token) {
+      try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET, {
+          algorithms: ["HS256"],
+        });
+        const callerRole = (verified.role || "").trim().toLowerCase();
+        if (callerRole === "teacher" || callerRole === "admin") {
+          return "teacher";
+        }
+      } catch (error) {
+        // token tidak valid → perlakukan sebagai registrasi publik
+      }
+    }
+  }
+
+  return "student";
+};
+
 const register = async (req, res) => {
   try {
     const { email, password, role, username, idcard, rombel, nis, whatsapp } = req.body;
@@ -57,10 +93,9 @@ const register = async (req, res) => {
     const idcardNum = Number(idcard);
     const nisNum = Number(nis);
 
-    // Hanya role student/user yang boleh dibuat lewat registrasi publik.
-    // Role "teacher" tidak dapat dibuat lewat registrasi publik.
-    const allowedRoles = ["student", "user"];
-    const userRole = allowedRoles.includes(role) ? role : "student";
+    // Registrasi publik dibatasi ke role student/user.
+    // Role "teacher" diizinkan bila request berasal dari admin/guru yang login.
+    const userRole = resolveUserRole(role, req);
 
     const { data, error } = await supabase
       .from("users")
