@@ -49,96 +49,210 @@ function renderPrint() {
                 <input type="month" id="printBulan" class="form-control bg-light border-0 rounded-3" style="height: 40px;" value="${currentMonth}">
             </div>
 
-            <button id="btnProsesCetakExcel" class="btn-exel w-100 rounded-3 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500; background: linear-gradient(135deg, #4f46e5, #6366f1) !important; border: none; color: white;">
-              <i class="bi bi-cloud-arrow-down"></i> Unduh Excel
-            </button>
-            <button id="btnProsesCetakPdf" class="btn-pdf w-100 rounded-3 mt-2 d-flex align-items-center justify-content-center gap-2" style="height: 42px; font-weight: 500; background: linear-gradient(135deg, #4f46e5, #6366f1) !important; border: none; color: white;">
-              <i class="bi bi-cloud-arrow-down"></i> Unduh PDF
-            </button>
+            <div class="mb-3">
+  <label class="form-label fw-semibold">
+    Format Laporan
+  </label>
+
+  <select
+    id="printFormat"
+    class="form-select bg-light border-0 rounded-3"
+    style="height: 40px;"
+  >
+    <option value="">-- Pilih Format --</option>
+    <option value="pdf">📄 PDF</option>
+    <option value="excel">📊 Excel</option>
+  </select>
+</div>
+
+<button
+  id="btnPreviewCetak"
+  class="btn w-100 rounded-3"
+  style="
+    height: 42px;
+    font-weight: 500;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    border: none;
+    color: white;
+  "
+>
+  <i class="bi bi-eye"></i>
+  Tampilkan Preview
+</button>
         </div>
     </div>
-    `;
+    
+    
+    <div
+  id="previewRekap"
+  style="
+    display: none;
+    max-width: 1100px;
+    margin: 20px auto 0;
+  "></div>
+`;
 }
-
 function initPrint() {
   const radioMingguan = document.getElementById("rekapMingguan");
   const radioBulanan = document.getElementById("rekapBulanan");
   const boxPilihanBulan = document.getElementById("boxPilihanBulan");
-  const btnCetakExcel = document.getElementById("btnProsesCetakExcel");
-  const btnCetakPdf = document.getElementById("btnProsesCetakPdf");
+
   const printKelas = document.getElementById("printKelas");
   const printRombel = document.getElementById("printRombel");
 
-  if (!btnCetakExcel || !btnCetakPdf) return;
+  const printFormat = document.getElementById("printFormat");
+  const btnPreviewCetak = document.getElementById("btnPreviewCetak");
+  const previewRekap = document.getElementById("previewRekap");
+
+  if (
+    !radioMingguan ||
+    !radioBulanan ||
+    !boxPilihanBulan ||
+    !printKelas ||
+    !printRombel ||
+    !printFormat ||
+    !btnPreviewCetak ||
+    !previewRekap
+  ) {
+    return;
+  }
+
+  // ================================
+  // PILIH JENIS REKAP
+  // ================================
 
   radioMingguan.addEventListener("change", () => {
     boxPilihanBulan.style.display = "none";
   });
+
   radioBulanan.addEventListener("change", () => {
     boxPilihanBulan.style.display = "block";
   });
 
+
+  // ================================
+  // PILIH KELAS → ROMBEL
+  // ================================
+
   printKelas.addEventListener("change", function () {
     const kelas = this.value;
     const options = [];
+
     for (let i = 1; i <= 5; i++) {
-      options.push(`<option value="${kelas}_${i}">PPLG ${kelas}-${i}</option>`);
+      options.push(
+        `<option value="${kelas}_${i}">PPLG ${kelas}-${i}</option>`
+      );
     }
+
     printRombel.innerHTML = options.join("");
   });
 
+
+  // ================================
+  // AMBIL DATA SISWA
+  // ================================
+
   async function prosesDataSiswa() {
-    const rombelTerpilih = printRombel.value.replace("_", "-").toUpperCase();
+    const rombelTerpilih = printRombel.value
+      .replace("_", "-")
+      .toUpperCase();
+
     const jenisLaporan = document.querySelector(
-      'input[name="jenisRekap"]:checked',
+      'input[name="jenisRekap"]:checked'
     ).value;
 
     const semuaData = await fetchAttendanceData();
 
     let dataRombel = semuaData.filter((row) => {
       const r = String(row.rombel || "").toUpperCase();
+
       const rombelDbBersih = r.replace(/[-_]/g, "");
       const rombelTargetBersih = rombelTerpilih.replace(/[-_]/g, "");
+
       return rombelDbBersih.includes(rombelTargetBersih);
     });
 
     const hariIni = new Date();
+
+    // ================================
+    // MINGGUAN
+    // ================================
+
     if (jenisLaporan === "mingguan") {
-      const jarakKeSenin = hariIni.getDay() === 0 ? 6 : hariIni.getDay() - 1;
+      const jarakKeSenin =
+        hariIni.getDay() === 0
+          ? 6
+          : hariIni.getDay() - 1;
+
       const senin = new Date(hariIni);
-      senin.setDate(hariIni.getDate() - jarakKeSenin);
+
+      senin.setDate(
+        hariIni.getDate() - jarakKeSenin
+      );
 
       const jumat = new Date(senin);
-      jumat.setDate(senin.getDate() + 4);
 
-      const startStr = senin.toLocaleDateString("sv-SE");
-      const endStr = jumat.toLocaleDateString("sv-SE");
+      jumat.setDate(
+        senin.getDate() + 4
+      );
+
+      const startStr =
+        senin.toLocaleDateString("sv-SE");
+
+      const endStr =
+        jumat.toLocaleDateString("sv-SE");
 
       dataRombel = dataRombel.filter((row) => {
         if (!row.created_at) return false;
+
         const tgl = row.created_at.split("T")[0];
+
         return tgl >= startStr && tgl <= endStr;
       });
+
     } else {
-      const bulanTerpilih = document.getElementById("printBulan").value;
+
+      // ================================
+      // BULANAN
+      // ================================
+
+      const bulanTerpilih =
+        document.getElementById("printBulan").value;
+
       dataRombel = dataRombel.filter(
-        (row) => row.created_at && row.created_at.startsWith(bulanTerpilih),
+        (row) =>
+          row.created_at &&
+          row.created_at.startsWith(bulanTerpilih)
       );
     }
 
     if (dataRombel.length === 0) {
       throw new Error(
-        "Tidak ada data riwayat absensi ditemukan untuk rombel dan periode tersebut!",
+        "Tidak ada data riwayat absensi ditemukan untuk rombel dan periode tersebut!"
       );
     }
 
+    // ================================
+    // DAFTAR TANGGAL
+    // ================================
+
     const daftarTanggal = [
-      ...new Set(dataRombel.map((row) => row.created_at.split("T")[0])),
+      ...new Set(
+        dataRombel.map(
+          (row) => row.created_at.split("T")[0]
+        )
+      ),
     ].sort();
+
+    // ================================
+    // DAFTAR SISWA
+    // ================================
+
     const daftarSiswa = {};
 
     dataRombel.forEach((row) => {
       const rfid = row.idcard;
+
       const nama = row.users
         ? Array.isArray(row.users)
           ? row.users[0]?.username
@@ -153,148 +267,1037 @@ function initPrint() {
           LogTanggal: {},
         };
       }
-      daftarSiswa[rfid].LogTanggal[row.created_at.split("T")[0]] =
-        row.status || "Hadir";
+
+      daftarSiswa[rfid].LogTanggal[
+        row.created_at.split("T")[0]
+      ] = row.status || "Hadir";
     });
 
-    return { daftarTanggal, daftarSiswa, rombelTerpilih, jenisLaporan };
+    return {
+      daftarTanggal,
+      daftarSiswa,
+      rombelTerpilih,
+      jenisLaporan,
+    };
   }
 
-  btnCetakExcel.addEventListener("click", async () => {
-    btnCetakExcel.disabled = true;
-    btnCetakExcel.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Memproses Data...`;
 
-    try {
-      const { daftarTanggal, daftarSiswa, rombelTerpilih, jenisLaporan } =
-        await prosesDataSiswa();
-      const rowsExcel = [];
-      let nomor = 1;
+  // ==================================================
+  // BUAT DATA TABEL
+  // ==================================================
 
-      for (const rfid in daftarSiswa) {
-        const siswa = daftarSiswa[rfid];
-        const rowData = {
-          No: nomor++,
-          "Nama Siswa": siswa.Nama,
-          RFID: siswa.RFID,
-          Rombel: siswa.Rombel,
-        };
-        let totalHadir = 0;
+  function buatDataTabel(
+    daftarTanggal,
+    daftarSiswa
+  ) {
+    let headerTanggalHtml = "";
 
-        daftarTanggal.forEach((tgl) => {
-          const status = siswa.LogTanggal[tgl] || "Alfa";
-          rowData[tgl] =
-            status === "Hadir" ? "H" : status.substring(0, 1).toUpperCase();
-          if (status === "Hadir") totalHadir++;
-        });
+    daftarTanggal.forEach((tgl) => {
+      const s = tgl.split("-");
 
-        rowData["Total Hadir"] = `${totalHadir} Hari`;
-        rowsExcel.push(rowData);
-      }
+      headerTanggalHtml += `
+        <th style="
+          text-align:center;
+          font-size:11px;
+          white-space:nowrap;
+        ">
+          ${s[2]}/${s[1]}
+        </th>
+      `;
+    });
 
-      const workSheet = XLSX.utils.json_to_sheet(rowsExcel);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, workSheet, "Rekap Absensi");
-      XLSX.writeFile(
-        workbook,
-        `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}.xlsx`,
-      );
-    } catch (error) {
-      alert(error.message || "Terjadi Kesalahan");
-    } finally {
-      btnCetakExcel.disabled = false;
-      btnCetakExcel.innerHTML = `<i class="bi bi-file-earmark-excel-fill"></i> Generate & Unduh Excel`;
-    }
-  });
+    let barisSiswaHtml = "";
 
-  btnCetakPdf.addEventListener("click", async () => {
-    btnCetakPdf.disabled = true;
-    btnCetakPdf.innerHTML = `<span class="spinner-border spinner-border-sm"></span>...`;
-    try {
-      const { daftarTanggal, daftarSiswa, rombelTerpilih, jenisLaporan } =
-        await prosesDataSiswa();
+    let nomor = 1;
 
-      let headerTanggalHtml = "";
+    for (const rfid in daftarSiswa) {
+      const siswa = daftarSiswa[rfid];
+
+      let kolomStatusHtml = "";
+
+      let totalHadir = 0;
+
       daftarTanggal.forEach((tgl) => {
-        const s = tgl.split("-");
-        headerTanggalHtml += `<th style="text-align:center; font-size:11px;">${s[2]}/${s[1]}</th>`;
+        const status =
+          siswa.LogTanggal[tgl] || "Alfa";
+
+        const huruf =
+          status === "Hadir"
+            ? "H"
+            : status
+                .substring(0, 1)
+                .toUpperCase();
+
+        let color = "#dc3545";
+
+        if (huruf === "H") {
+          color = "#198754";
+          totalHadir++;
+        } else if (
+          huruf === "I" ||
+          huruf === "S"
+        ) {
+          color = "#fd7e14";
+        }
+
+        kolomStatusHtml += `
+          <td style="
+            text-align:center;
+            font-weight:bold;
+            color:${color};
+          ">
+            ${huruf}
+          </td>
+        `;
       });
 
-      let barisSiswaHtml = "";
-      let nomor = 1;
-      for (const rfid in daftarSiswa) {
-        const siswa = daftarSiswa[rfid];
-        let kolomStatusHtml = "";
-        let totalHadir = 0;
+      barisSiswaHtml += `
+        <tr>
+          <td style="text-align:center;">
+            ${nomor++}
+          </td>
 
-        daftarTanggal.forEach((tgl) => {
-          const status = siswa.LogTanggal[tgl] || "Alfa";
-          const huruf =
-            status === "Hadir" ? "H" : status.substring(0, 1).toUpperCase();
-          let color = "red";
-          if (huruf === "H") {
-            color = "green";
-            totalHadir++;
-          } else if (huruf === "I" || huruf === "S") color = "orange";
+          <td>
+            ${siswa.Nama}
+          </td>
 
-          kolomStatusHtml += `<td style="text-align:center; font-weight:bold; color:${color};">${huruf}</td>`;
-        });
+          <td style="text-align:center;">
+            ${siswa.Rombel}
+          </td>
 
-        barisSiswaHtml += `
-          <tr>
-              <td style="text-align:center;">${nomor++}</td>
-              <td>${siswa.Nama}</td>
-              <td style="text-align:center;">${siswa.Rombel}</td>
-              ${kolomStatusHtml}
-              <td style="text-align:center; font-weight:bold;">${totalHadir} Hari</td>
-          </tr>
-        `;
-      }
+          ${kolomStatusHtml}
 
-      const elementPdf = document.createElement("div");
-      elementPdf.style.padding = "20px";
-      elementPdf.style.background = "white";
-      elementPdf.innerHTML = `
-        <div style="font-family: Arial, sans-serif; color: #333;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h2 style="margin: 0; padding-bottom: 5px; text-transform: uppercase; font-size: 18px;">REKAPITULASI ABSENSI SISWA</h2>
-                <h3 style="margin:5px 0; font-size: 14px;">KOMPETENSI KEAHLIAN: PPLG (Rombel ${rombelTerpilih})</h3>
-                <p style="margin: 5px 0; color: #666; font-size: 11px;">Periode Laporan: Laporan ${jenisLaporan.toUpperCase()} | Tanggal Unduh: ${new Date().toLocaleDateString("id-ID")}</p>
+          <td style="
+            text-align:center;
+            font-weight:bold;
+          ">
+            ${totalHadir} Hari
+          </td>
+        </tr>
+      `;
+    }
+
+    return {
+      headerTanggalHtml,
+      barisSiswaHtml,
+    };
+  }
+
+
+  // ==================================================
+  // BUAT PREVIEW
+  // ==================================================
+
+  async function tampilkanPreview(format) {
+
+    btnPreviewCetak.disabled = true;
+
+    btnPreviewCetak.innerHTML = `
+      <span
+        class="spinner-border spinner-border-sm"
+      ></span>
+      Membuat Preview...
+    `;
+
+    try {
+
+      const {
+        daftarTanggal,
+        daftarSiswa,
+        rombelTerpilih,
+        jenisLaporan,
+      } = await prosesDataSiswa();
+
+      const {
+        headerTanggalHtml,
+        barisSiswaHtml,
+      } = buatDataTabel(
+        daftarTanggal,
+        daftarSiswa
+      );
+
+      previewRekap.style.display = "block";
+
+      previewRekap.innerHTML = `
+        <div
+          class="data-card p-4"
+          style="
+            background:white;
+            color:#333;
+            border-radius:12px;
+            box-shadow:0 4px 15px rgba(0,0,0,.08);
+          "
+        >
+
+          <div
+            style="
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+              margin-bottom:20px;
+              gap:15px;
+            "
+          >
+
+            <div>
+              <h4 style="margin:0;font-weight:700;">
+                Preview Rekapitulasi
+              </h4>
+
+              <small style="color:#666;">
+                PPLG ${rombelTerpilih}
+                •
+                ${jenisLaporan.toUpperCase()}
+                •
+                ${format.toUpperCase()}
+              </small>
             </div>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" border="1" cellspacing="0" cellpadding="5">
-                <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="width: 4%; font-size: 11px;">No</th>
-                        <th style="width: 25%; text-align:left; padding-left:10px; font-size:11px;">Nama Siswa</th>
-                        <th style="width: 10%; font-size: 11px;">Rombel</th>
-                        ${headerTanggalHtml}
-                        <th style="width: 12%; font-size: 11px;">Total Hadir</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${barisSiswaHtml}
-                </tbody>
+
+            <span
+              style="
+                padding:6px 12px;
+                border-radius:20px;
+                background:#eef2ff;
+                color:#4f46e5;
+                font-size:12px;
+                font-weight:600;
+              "
+            >
+              ${format === "pdf" ? "PDF" : "EXCEL"}
+            </span>
+
+          </div>
+
+
+          <div
+            style="
+              overflow-x:auto;
+              max-height:500px;
+              overflow-y:auto;
+              border:1px solid #ddd;
+              border-radius:8px;
+            "
+          >
+
+            <table
+              style="
+                width:100%;
+                border-collapse:collapse;
+                min-width:900px;
+                font-size:12px;
+              "
+              border="1"
+              cellspacing="0"
+              cellpadding="7"
+            >
+
+              <thead>
+
+                <tr
+                  style="
+                    background:#f3f4f6;
+                  "
+                >
+
+                  <th style="width:4%;">
+                    No
+                  </th>
+
+                  <th
+                    style="
+                      width:25%;
+                      text-align:left;
+                    "
+                  >
+                    Nama Siswa
+                  </th>
+
+                  <th style="width:10%;">
+                    Rombel
+                  </th>
+
+                  ${headerTanggalHtml}
+
+                  <th>
+                    Total Hadir
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+                ${barisSiswaHtml}
+              </tbody>
+
             </table>
-            <div style="margin-top: 15px; font-size: 10px; color: #555;">
-                * Keterangan Huruf: <span style="color:green; font-weight:bold;">H</span> = Hadir, <span style="color:red; font-weight:bold;">A</span> = Alfa, <span style="color:orange; font-weight:bold;">I</span> = Izin, <span style="color:orange; font-weight:bold;">S</span> = Sakit
-            </div>
+
+          </div>
+
+
+          <div
+            style="
+              margin-top:15px;
+              font-size:11px;
+              color:#666;
+            "
+          >
+            <b>Keterangan:</b>
+
+            <span style="color:#198754;">
+              H = Hadir
+            </span>
+
+            &nbsp; | &nbsp;
+
+            <span style="color:#dc3545;">
+              A = Alfa
+            </span>
+
+            &nbsp; | &nbsp;
+
+            <span style="color:#fd7e14;">
+              I = Izin
+            </span>
+
+            &nbsp; | &nbsp;
+
+            <span style="color:#fd7e14;">
+              S = Sakit
+            </span>
+          </div>
+
+
+          <div
+            style="
+              display:flex;
+              justify-content:flex-end;
+              gap:10px;
+              margin-top:20px;
+            "
+          >
+
+            <button
+              id="btnBatalPreview"
+              class="btn btn-light"
+            >
+              <i class="bi bi-x-lg"></i>
+              Batal
+            </button>
+
+            <button
+              id="btnDownloadPreview"
+              class="btn btn-primary"
+            >
+              <i class="bi bi-download"></i>
+              Unduh ${format === "pdf" ? "PDF" : "Excel"}
+            </button>
+
+          </div>
+
         </div>
       `;
 
-      const opsiNamaFile = `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}_${new Date().toISOString().substring(0, 10)}.pdf`;
-      const opsiPdf = {
-        margin: 10,
-        fileName: opsiNamaFile,
-        Image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+
+      // ================================
+      // BATAL PREVIEW
+      // ================================
+
+      document
+        .getElementById("btnBatalPreview")
+        .addEventListener("click", () => {
+
+          previewRekap.innerHTML = "";
+
+          previewRekap.style.display = "none";
+
+          printFormat.value = "";
+
+        });
+
+
+      // ================================
+      // DOWNLOAD
+      // ================================
+
+      document
+        .getElementById("btnDownloadPreview")
+        .addEventListener("click", async () => {
+
+          if (format === "excel") {
+
+            await downloadExcel(
+              daftarTanggal,
+              daftarSiswa,
+              rombelTerpilih,
+              jenisLaporan
+            );
+
+          } else {
+
+            await downloadPDF(
+              daftarTanggal,
+              daftarSiswa,
+              rombelTerpilih,
+              jenisLaporan
+            );
+
+          }
+
+        });
+
+    } catch (error) {
+
+      previewRekap.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          ${error.message}
+        </div>
+      `;
+
+      previewRekap.style.display = "block";
+
+    } finally {
+
+      btnPreviewCetak.disabled = false;
+
+      btnPreviewCetak.innerHTML = `
+        <i class="bi bi-eye"></i>
+        Tampilkan Preview
+      `;
+
+    }
+  }
+
+
+  // ==================================================
+  // DOWNLOAD EXCEL
+  // ==================================================
+
+  async function downloadExcel(
+    daftarTanggal,
+    daftarSiswa,
+    rombelTerpilih,
+    jenisLaporan
+  ) {
+
+    const rowsExcel = [];
+
+    let nomor = 1;
+
+    for (const rfid in daftarSiswa) {
+
+      const siswa = daftarSiswa[rfid];
+
+      const rowData = {
+        No: nomor++,
+        "Nama Siswa": siswa.Nama,
+        RFID: siswa.RFID,
+        Rombel: siswa.Rombel,
       };
 
-      await html2pdf().set(opsiPdf).from(elementPdf).save();
-    } catch (error) {
-      alert(error.message || "Terjadi Kesalahan saat mengunduh PDF");
-    } finally {
-      btnCetakPdf.disabled = false;
-      btnCetakPdf.innerHTML = `<i class="bi bi-file-earmark-pdf-fill"></i> Generate & Unduh PDF`;
+      let totalHadir = 0;
+
+      daftarTanggal.forEach((tgl) => {
+
+        const status =
+          siswa.LogTanggal[tgl] || "Alfa";
+
+        rowData[tgl] =
+          status === "Hadir"
+            ? "H"
+            : status
+                .substring(0, 1)
+                .toUpperCase();
+
+        if (status === "Hadir") {
+          totalHadir++;
+        }
+
+      });
+
+      rowData["Total Hadir"] =
+        `${totalHadir} Hari`;
+
+      rowsExcel.push(rowData);
     }
-  });
+
+    const workSheet =
+      XLSX.utils.json_to_sheet(rowsExcel);
+
+    const workbook =
+      XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      workSheet,
+      "Rekap Absensi"
+    );
+
+    XLSX.writeFile(
+      workbook,
+      `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}.xlsx`
+    );
+  }
+
+
+  // ==================================================
+  // DOWNLOAD PDF
+  // ==================================================
+
+  async function downloadPDF(
+  daftarTanggal,
+  daftarSiswa,
+  rombelTerpilih,
+  jenisLaporan
+) {
+  const {
+    headerTanggalHtml,
+    barisSiswaHtml,
+  } = buatDataTabel(
+    daftarTanggal,
+    daftarSiswa
+  );
+
+  // ==========================================
+  // BUAT CONTAINER KHUSUS UNTUK PDF
+  // ==========================================
+
+  const elementPdf = document.createElement("div");
+
+  elementPdf.style.position = "fixed";
+  elementPdf.style.left = "0";
+  elementPdf.style.top = "0";
+  elementPdf.style.width = "1200px";
+  elementPdf.style.padding = "30px";
+  elementPdf.style.background = "#ffffff";
+  elementPdf.style.color = "#333333";
+  elementPdf.style.zIndex = "-9999";
+
+  elementPdf.innerHTML = `
+    <div
+      style="
+        font-family: Arial, sans-serif;
+        background: white;
+        color: #333;
+      "
+    >
+
+      <!-- HEADER -->
+      <div
+        style="
+          text-align: center;
+          margin-bottom: 20px;
+        "
+      >
+
+        <h2
+          style="
+            margin: 0;
+            padding-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 20px;
+          "
+        >
+          REKAPITULASI ABSENSI SISWA
+        </h2>
+
+        <h3
+          style="
+            margin: 5px 0;
+            font-size: 14px;
+          "
+        >
+          KOMPETENSI KEAHLIAN:
+          PPLG
+          (Rombel ${rombelTerpilih})
+        </h3>
+
+        <p
+          style="
+            margin: 5px 0;
+            color: #666;
+            font-size: 11px;
+          "
+        >
+          Periode Laporan:
+          ${jenisLaporan.toUpperCase()}
+          |
+          Tanggal Unduh:
+          ${new Date().toLocaleDateString("id-ID")}
+        </p>
+
+      </div>
+
+
+      <!-- TABEL -->
+      <table
+        style="
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+          background: white;
+        "
+        border="1"
+        cellspacing="0"
+        cellpadding="5"
+      >
+
+        <thead>
+
+          <tr
+            style="
+              background-color: #f2f2f2;
+            "
+          >
+
+            <th
+              style="
+                width: 4%;
+                font-size: 11px;
+              "
+            >
+              No
+            </th>
+
+            <th
+              style="
+                width: 25%;
+                text-align: left;
+                padding-left: 10px;
+                font-size: 11px;
+              "
+            >
+              Nama Siswa
+            </th>
+
+            <th
+              style="
+                width: 10%;
+                font-size: 11px;
+              "
+            >
+              Rombel
+            </th>
+
+            ${headerTanggalHtml}
+
+            <th
+              style="
+                width: 12%;
+                font-size: 11px;
+              "
+            >
+              Total Hadir
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+          ${barisSiswaHtml}
+        </tbody>
+
+      </table>
+
+
+      <!-- KETERANGAN -->
+
+      <div
+        style="
+          margin-top: 15px;
+          font-size: 10px;
+          color: #555;
+        "
+      >
+
+        <b>Keterangan Huruf:</b>
+
+        <span
+          style="
+            color: green;
+            font-weight: bold;
+          "
+        >
+          H
+        </span>
+        = Hadir,
+
+        <span
+          style="
+            color: red;
+            font-weight: bold;
+          "
+        >
+          A
+        </span>
+        = Alfa,
+
+        <span
+          style="
+            color: orange;
+            font-weight: bold;
+          "
+        >
+          I
+        </span>
+        = Izin,
+
+        <span
+          style="
+            color: orange;
+            font-weight: bold;
+          "
+        >
+          S
+        </span>
+        = Sakit
+
+      </div>
+
+    </div>
+  `;
+
+
+  // ==========================================
+  // MASUKKAN KE DOM
+  // ==========================================
+
+  document.body.appendChild(elementPdf);
+
+
+  // ==========================================
+  // NAMA FILE
+  // ==========================================
+
+  const opsiNamaFile =
+    `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}_${new Date()
+      .toISOString()
+      .substring(0, 10)}.pdf`;
+
+
+  // ==========================================
+  // CONFIG HTML2PDF
+  // ==========================================
+
+  const opsiPdf = {
+
+    margin: 10,
+
+    filename: opsiNamaFile,
+
+    image: {
+      type: "jpeg",
+      quality: 0.98,
+    },
+
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+
+      width: elementPdf.scrollWidth,
+      height: elementPdf.scrollHeight,
+    },
+
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "landscape",
+    },
+
+    pagebreak: {
+      mode: [
+        "avoid-all",
+        "css",
+        "legacy",
+      ],
+    },
+  };
+
+
+  // ==========================================
+  // GENERATE PDF
+  // ==========================================
+
+  try {
+
+    await html2pdf()
+      .set(opsiPdf)
+      .from(elementPdf)
+      .save();
+
+  } finally {
+
+    // Hapus element setelah PDF selesai
+    elementPdf.remove();
+
+  }
 }
+
+
+  // ==================================================
+  // TOMBOL PREVIEW
+  // ==================================================
+
+  btnPreviewCetak.addEventListener(
+    "click",
+    async () => {
+
+      const format = printFormat.value;
+
+      if (!format) {
+
+        alert(
+          "Silakan pilih format laporan terlebih dahulu!"
+        );
+
+        printFormat.focus();
+
+        return;
+      }
+
+      await tampilkanPreview(format);
+    }
+  );
+}
+
+// function initPrint() {
+//   const radioMingguan = document.getElementById("rekapMingguan");
+//   const radioBulanan = document.getElementById("rekapBulanan");
+//   const boxPilihanBulan = document.getElementById("boxPilihanBulan");
+//   const btnCetakExcel = document.getElementById("btnProsesCetakExcel");
+//   const btnCetakPdf = document.getElementById("btnProsesCetakPdf");
+//   const printKelas = document.getElementById("printKelas");
+//   const printRombel = document.getElementById("printRombel");
+
+//   if (!btnCetakExcel || !btnCetakPdf) return;
+
+//   radioMingguan.addEventListener("change", () => {
+//     boxPilihanBulan.style.display = "none";
+//   });
+//   radioBulanan.addEventListener("change", () => {
+//     boxPilihanBulan.style.display = "block";
+//   });
+
+//   printKelas.addEventListener("change", function () {
+//     const kelas = this.value;
+//     const options = [];
+//     for (let i = 1; i <= 5; i++) {
+//       options.push(`<option value="${kelas}_${i}">PPLG ${kelas}-${i}</option>`);
+//     }
+//     printRombel.innerHTML = options.join("");
+//   });
+
+//   async function prosesDataSiswa() {
+//     const rombelTerpilih = printRombel.value.replace("_", "-").toUpperCase();
+//     const jenisLaporan = document.querySelector(
+//       'input[name="jenisRekap"]:checked',
+//     ).value;
+
+//     const semuaData = await fetchAttendanceData();
+
+//     let dataRombel = semuaData.filter((row) => {
+//       const r = String(row.rombel || "").toUpperCase();
+//       const rombelDbBersih = r.replace(/[-_]/g, "");
+//       const rombelTargetBersih = rombelTerpilih.replace(/[-_]/g, "");
+//       return rombelDbBersih.includes(rombelTargetBersih);
+//     });
+
+//     const hariIni = new Date();
+//     if (jenisLaporan === "mingguan") {
+//       const jarakKeSenin = hariIni.getDay() === 0 ? 6 : hariIni.getDay() - 1;
+//       const senin = new Date(hariIni);
+//       senin.setDate(hariIni.getDate() - jarakKeSenin);
+
+//       const jumat = new Date(senin);
+//       jumat.setDate(senin.getDate() + 4);
+
+//       const startStr = senin.toLocaleDateString("sv-SE");
+//       const endStr = jumat.toLocaleDateString("sv-SE");
+
+//       dataRombel = dataRombel.filter((row) => {
+//         if (!row.created_at) return false;
+//         const tgl = row.created_at.split("T")[0];
+//         return tgl >= startStr && tgl <= endStr;
+//       });
+//     } else {
+//       const bulanTerpilih = document.getElementById("printBulan").value;
+//       dataRombel = dataRombel.filter(
+//         (row) => row.created_at && row.created_at.startsWith(bulanTerpilih),
+//       );
+//     }
+
+//     if (dataRombel.length === 0) {
+//       throw new Error(
+//         "Tidak ada data riwayat absensi ditemukan untuk rombel dan periode tersebut!",
+//       );
+//     }
+
+//     const daftarTanggal = [
+//       ...new Set(dataRombel.map((row) => row.created_at.split("T")[0])),
+//     ].sort();
+//     const daftarSiswa = {};
+
+//     dataRombel.forEach((row) => {
+//       const rfid = row.idcard;
+//       const nama = row.users
+//         ? Array.isArray(row.users)
+//           ? row.users[0]?.username
+//           : row.users.username
+//         : "Tidak Dikenal";
+
+//       if (!daftarSiswa[rfid]) {
+//         daftarSiswa[rfid] = {
+//           Nama: nama,
+//           RFID: rfid,
+//           Rombel: row.rombel,
+//           LogTanggal: {},
+//         };
+//       }
+//       daftarSiswa[rfid].LogTanggal[row.created_at.split("T")[0]] =
+//         row.status || "Hadir";
+//     });
+
+//     return { daftarTanggal, daftarSiswa, rombelTerpilih, jenisLaporan };
+//   }
+
+//   btnCetakExcel.addEventListener("click", async () => {
+//     btnCetakExcel.disabled = true;
+//     btnCetakExcel.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Memproses Data...`;
+
+//     try {
+//       const { daftarTanggal, daftarSiswa, rombelTerpilih, jenisLaporan } =
+//         await prosesDataSiswa();
+//       const rowsExcel = [];
+//       let nomor = 1;
+
+//       for (const rfid in daftarSiswa) {
+//         const siswa = daftarSiswa[rfid];
+//         const rowData = {
+//           No: nomor++,
+//           "Nama Siswa": siswa.Nama,
+//           RFID: siswa.RFID,
+//           Rombel: siswa.Rombel,
+//         };
+//         let totalHadir = 0;
+
+//         daftarTanggal.forEach((tgl) => {
+//           const status = siswa.LogTanggal[tgl] || "Alfa";
+//           rowData[tgl] =
+//             status === "Hadir" ? "H" : status.substring(0, 1).toUpperCase();
+//           if (status === "Hadir") totalHadir++;
+//         });
+
+//         rowData["Total Hadir"] = `${totalHadir} Hari`;
+//         rowsExcel.push(rowData);
+//       }
+
+//       const workSheet = XLSX.utils.json_to_sheet(rowsExcel);
+//       const workbook = XLSX.utils.book_new();
+//       XLSX.utils.book_append_sheet(workbook, workSheet, "Rekap Absensi");
+//       XLSX.writeFile(
+//         workbook,
+//         `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}.xlsx`,
+//       );
+//     } catch (error) {
+//       alert(error.message || "Terjadi Kesalahan");
+//     } finally {
+//       btnCetakExcel.disabled = false;
+//       btnCetakExcel.innerHTML = `<i class="bi bi-file-earmark-excel-fill"></i> Generate & Unduh Excel`;
+//     }
+//   });
+
+//   btnCetakPdf.addEventListener("click", async () => {
+//     btnCetakPdf.disabled = true;
+//     btnCetakPdf.innerHTML = `<span class="spinner-border spinner-border-sm"></span>...`;
+//     try {
+//       const { daftarTanggal, daftarSiswa, rombelTerpilih, jenisLaporan } =
+//         await prosesDataSiswa();
+
+//       let headerTanggalHtml = "";
+//       daftarTanggal.forEach((tgl) => {
+//         const s = tgl.split("-");
+//         headerTanggalHtml += `<th style="text-align:center; font-size:11px;">${s[2]}/${s[1]}</th>`;
+//       });
+
+//       let barisSiswaHtml = "";
+//       let nomor = 1;
+//       for (const rfid in daftarSiswa) {
+//         const siswa = daftarSiswa[rfid];
+//         let kolomStatusHtml = "";
+//         let totalHadir = 0;
+
+//         daftarTanggal.forEach((tgl) => {
+//           const status = siswa.LogTanggal[tgl] || "Alfa";
+//           const huruf =
+//             status === "Hadir" ? "H" : status.substring(0, 1).toUpperCase();
+//           let color = "red";
+//           if (huruf === "H") {
+//             color = "green";
+//             totalHadir++;
+//           } else if (huruf === "I" || huruf === "S") color = "orange";
+
+//           kolomStatusHtml += `<td style="text-align:center; font-weight:bold; color:${color};">${huruf}</td>`;
+//         });
+
+//         barisSiswaHtml += `
+//           <tr>
+//               <td style="text-align:center;">${nomor++}</td>
+//               <td>${siswa.Nama}</td>
+//               <td style="text-align:center;">${siswa.Rombel}</td>
+//               ${kolomStatusHtml}
+//               <td style="text-align:center; font-weight:bold;">${totalHadir} Hari</td>
+//           </tr>
+//         `;
+//       }
+
+//       const elementPdf = document.createElement("div");
+//       elementPdf.style.padding = "20px";
+//       elementPdf.style.background = "white";
+//       elementPdf.innerHTML = `
+//         <div style="font-family: Arial, sans-serif; color: #333;">
+//             <div style="text-align: center; margin-bottom: 20px;">
+//                 <h2 style="margin: 0; padding-bottom: 5px; text-transform: uppercase; font-size: 18px;">REKAPITULASI ABSENSI SISWA</h2>
+//                 <h3 style="margin:5px 0; font-size: 14px;">KOMPETENSI KEAHLIAN: PPLG (Rombel ${rombelTerpilih})</h3>
+//                 <p style="margin: 5px 0; color: #666; font-size: 11px;">Periode Laporan: Laporan ${jenisLaporan.toUpperCase()} | Tanggal Unduh: ${new Date().toLocaleDateString("id-ID")}</p>
+//             </div>
+//             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;" border="1" cellspacing="0" cellpadding="5">
+//                 <thead>
+//                     <tr style="background-color: #f2f2f2;">
+//                         <th style="width: 4%; font-size: 11px;">No</th>
+//                         <th style="width: 25%; text-align:left; padding-left:10px; font-size:11px;">Nama Siswa</th>
+//                         <th style="width: 10%; font-size: 11px;">Rombel</th>
+//                         ${headerTanggalHtml}
+//                         <th style="width: 12%; font-size: 11px;">Total Hadir</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody>
+//                     ${barisSiswaHtml}
+//                 </tbody>
+//             </table>
+//             <div style="margin-top: 15px; font-size: 10px; color: #555;">
+//                 * Keterangan Huruf: <span style="color:green; font-weight:bold;">H</span> = Hadir, <span style="color:red; font-weight:bold;">A</span> = Alfa, <span style="color:orange; font-weight:bold;">I</span> = Izin, <span style="color:orange; font-weight:bold;">S</span> = Sakit
+//             </div>
+//         </div>
+//       `;
+
+//       const opsiNamaFile = `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}_${new Date().toISOString().substring(0, 10)}.pdf`;
+//       const opsiPdf = {
+//         margin: 10,
+//         fileName: opsiNamaFile,
+//         Image: { type: "jpeg", quality: 0.98 },
+//         html2canvas: { scale: 2, useCORS: true },
+//         jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+//       };
+
+//       await html2pdf().set(opsiPdf).from(elementPdf).save();
+//     } catch (error) {
+//       alert(error.message || "Terjadi Kesalahan saat mengunduh PDF");
+//     } finally {
+//       btnCetakPdf.disabled = false;
+//       btnCetakPdf.innerHTML = `<i class="bi bi-file-earmark-pdf-fill"></i> Generate & Unduh PDF`;
+//     }
+//   });
+// }

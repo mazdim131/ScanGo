@@ -207,6 +207,25 @@ async function cariNamaSiswa(nama) {
   }
 }
 
+//text to speach untuk suara
+function speakAbsensi(pesan) {
+  if (!("speechSynthesis" in window)) {
+    console.warn("Browser tidak mendukung Text-to-Speech");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const suara = new SpeechSynthesisUtterance(pesan);
+
+  suara.lang = "id-ID";
+  suara.rate = 0.9;
+  suara.pitch = 1;
+  suara.volume = 1;
+
+  window.speechSynthesis.speak(suara);
+}
+
 let lastCardId = null;
 
 async function submitScan() {
@@ -251,6 +270,7 @@ async function submitScan() {
       if (dataHariIni.time_finish || dataHariIni.status_keluar) {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
+        speakAbsensi("Absensi gagal. Siswa sudah melakukan absensi masuk dan keluar hari ini.");
         resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa sudah absen masuk & keluar hari ini!</div>`;
         return;
       }
@@ -294,23 +314,29 @@ async function submitScan() {
       resultEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${pesanSukses}</div>`;
       showToast(pesanSukses, "success");
 
+      speakAbsensi("Absensi berhasil");
+      
+
       setTimeout(() => {
         if (typeof navigateTo === "function") {
           window.location.href = "/frontEnd/page/structure/dashboard.html";
         } else {
           window.location.href = "/frontEnd/page/structure/dashboard.html";
         }
-      }, 1500);
+      }, 2100);
     } else {
       statusEl.innerHTML =
         '<span class="scan-status-badge error"><i class="bi bi-x-circle-fill"></i> Gagal</span>';
+      speakAbsensi("Absensi gagal");
       resultEl.innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> ${data.error || data.message || "Gagal memproses absensi"}</div>`;
     }
   } catch (error) {
     statusEl.innerHTML =
       '<span class="scan-status-badge error"><i class="bi bi-wifi-off"></i> Error</span>';
+    speakAbsensi("Absensi gagal. Terjadi kesalahan koneksi.");
     resultEl.innerHTML =
       '<div class="alert alert-danger">Terjadi kesalahan koneksi ke server</div>';
+        return;
   } finally {
     document.getElementById("card-id-input").value = "";
     document.getElementById("card-id-input").focus();
@@ -422,6 +448,8 @@ async function submitManual() {
       if (feedback) feedback.remove();
 
       showToast(pesanSukses, "success");
+      speakAbsensi("Absensi berhasil");
+
 
       setTimeout(() => {
         resultManualEl.innerHTML = "";
@@ -430,10 +458,12 @@ async function submitManual() {
     } else {
       resultManualEl.innerHTML = `<div class="alert alert-danger">Gagal: ${data.error || data.message || "Terjadi kesalahan"}</div>`;
       showToast(data.error || "Gagal memproses absensi", "danger");
+      speakAbsensi("Absensi gagal");
     }
   } catch (error) {
     resultManualEl.innerHTML = `<div class="alert alert-danger">Terjadi kesalahan koneksi ke server</div>`;
     showToast("Koneksi ke server gagal", "danger");
+      speakAbsensi("Absensi gagal, terjadi kesalahan di koneksi server");
   } finally {
     lastCardId = null;
   }
