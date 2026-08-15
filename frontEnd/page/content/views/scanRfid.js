@@ -240,6 +240,7 @@ async function submitScan() {
   const cardId = document.getElementById("card-id-input").value.trim();
   if (!cardId) {
     showToast("Masukkan ID kartu RFID terlebih dahulu", "warning");
+    speakAbsensi("Masukkan ID kartu RFID terlebih dahulu");
     return;
   }
   if (lastCardId === cardId) return;
@@ -284,6 +285,7 @@ async function submitScan() {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
         resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.</div>`;
+        speakAbsensi("Absensi gagal. Siswa sudah absen masuk hari ini. Gunakan mode Keluar untuk absen keluar.");
         return;
       }
 
@@ -315,6 +317,7 @@ async function submitScan() {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
         resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.</div>`;
+        speakAbsensi("Absensi gagal. Siswa ini belum absen masuk hari ini. Gunakan mode Masuk terlebih dahulu.");
         return;
       }
 
@@ -342,29 +345,29 @@ async function submitScan() {
       resultEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${pesanSukses}</div>`;
       showToast(pesanSukses, "success");
 
-      speakAbsensi("Absensi berhasil");
-      
+      speakAbsensi(
+        mode === "keluar"
+          ? "Absen keluar berhasil dicatat"
+          : "Absen masuk berhasil dicatat"
+      );
 
       setTimeout(() => {
-        if (typeof navigateTo === "function") {
-          window.location.href = "/frontEnd/page/structure/dashboard.html";
-        } else {
-          window.location.href = "/frontEnd/page/structure/dashboard.html";
-        }
-      }, 2100);
+        window.location.href = "/frontEnd/page/structure/dashboard.html";
+      }, 2900);
     } else {
+      const pesanError = data.error || data.message || "Gagal memproses absensi";
       statusEl.innerHTML =
         '<span class="scan-status-badge error"><i class="bi bi-x-circle-fill"></i> Gagal</span>';
-      speakAbsensi("Absensi gagal");
-      resultEl.innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> ${data.error || data.message || "Gagal memproses absensi"}</div>`;
+      speakAbsensi(`Absensi gagal. ${pesanError}`);
+      resultEl.innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> ${pesanError}</div>`;
     }
   } catch (error) {
     statusEl.innerHTML =
       '<span class="scan-status-badge error"><i class="bi bi-wifi-off"></i> Error</span>';
-    speakAbsensi("Absensi gagal. Terjadi kesalahan koneksi.");
+    speakAbsensi("Absensi gagal. Terjadi kesalahan koneksi ke server");
     resultEl.innerHTML =
       '<div class="alert alert-danger">Terjadi kesalahan koneksi ke server</div>';
-        return;
+    return;
   } finally {
     document.getElementById("card-id-input").value = "";
     document.getElementById("card-id-input").focus();
@@ -492,8 +495,6 @@ async function submitManual() {
       if (feedback) feedback.remove();
 
       showToast(pesanSukses, "success");
-      speakAbsensi("Absensi berhasil");
-
 
       setTimeout(() => {
         resultManualEl.innerHTML = "";
@@ -502,12 +503,10 @@ async function submitManual() {
     } else {
       resultManualEl.innerHTML = `<div class="alert alert-danger">Gagal: ${data.error || data.message || "Terjadi kesalahan"}</div>`;
       showToast(data.error || "Gagal memproses absensi", "danger");
-      speakAbsensi("Absensi gagal");
     }
   } catch (error) {
     resultManualEl.innerHTML = `<div class="alert alert-danger">Terjadi kesalahan koneksi ke server</div>`;
     showToast("Koneksi ke server gagal", "danger");
-      speakAbsensi("Absensi gagal, terjadi kesalahan di koneksi server");
   } finally {
     lastCardId = null;
   }

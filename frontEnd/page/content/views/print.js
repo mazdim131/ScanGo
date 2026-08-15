@@ -287,101 +287,188 @@ function initPrint() {
   // ==================================================
 
   function buatDataTabel(
-    daftarTanggal,
-    daftarSiswa
-  ) {
-    let headerTanggalHtml = "";
+  daftarTanggal,
+  daftarSiswa
+) {
+  const jumlahTanggal = daftarTanggal.length;
+
+  const fontTanggal =
+    jumlahTanggal > 24
+      ? 7
+      : jumlahTanggal > 16
+        ? 8
+        : 10;
+
+  const padTanggal =
+    jumlahTanggal > 24
+      ? "1px 1px"
+      : "4px 2px";
+
+
+  // ==========================================
+  // HEADER TANGGAL
+  // ==========================================
+
+  let headerTanggalHtml = "";
+
+  daftarTanggal.forEach((tgl) => {
+
+    const s = tgl.split("-");
+
+    headerTanggalHtml += `
+      <th style="
+        text-align: center;
+        font-size: ${fontTanggal}px;
+        white-space: nowrap;
+        border: 1px solid #ccc;
+        padding: ${padTanggal};
+        width: 24px;
+        min-width: 24px;
+        max-width: 24px;
+        vertical-align: middle;
+      ">
+        ${s[2]}/${s[1]}
+      </th>
+    `;
+  });
+
+
+  // ==========================================
+  // BARIS SISWA
+  // ==========================================
+
+  let barisSiswaHtml = "";
+
+  let nomor = 1;
+
+
+  for (const rfid in daftarSiswa) {
+
+    const siswa = daftarSiswa[rfid];
+
+    let kolomStatusHtml = "";
+
+    let totalHadir = 0;
+
+
+    // ========================================
+    // STATUS SETIAP TANGGAL
+    // ========================================
 
     daftarTanggal.forEach((tgl) => {
-      const s = tgl.split("-");
 
-      headerTanggalHtml += `
-        <th style="
-          text-align:center;
-          font-size:11px;
-          white-space:nowrap;
+      const status =
+        siswa.LogTanggal[tgl] || "Alfa";
+
+
+      const huruf =
+        status === "Hadir"
+          ? "H"
+          : status
+              .substring(0, 1)
+              .toUpperCase();
+
+
+      let color = "#dc2626";
+
+
+      if (huruf === "H") {
+
+        color = "#16a34a";
+
+        totalHadir++;
+
+      } else if (
+        huruf === "I" ||
+        huruf === "S"
+      ) {
+
+        color = "#ea580c";
+
+      }
+
+
+      kolomStatusHtml += `
+        <td style="
+          text-align: center;
+          font-weight: bold;
+          color: ${color};
+          border: 1px solid #ccc;
+          padding: ${padTanggal};
+          width: 24px;
+          min-width: 24px;
+          max-width: 24px;
+          vertical-align: middle;
         ">
-          ${s[2]}/${s[1]}
-        </th>
+          ${huruf}
+        </td>
       `;
     });
 
-    let barisSiswaHtml = "";
 
-    let nomor = 1;
+    // ========================================
+    // BARIS SISWA
+    // ========================================
 
-    for (const rfid in daftarSiswa) {
-      const siswa = daftarSiswa[rfid];
+    barisSiswaHtml += `
+      <tr style="
+        background: #ffffff;
+        color: #111827;
+      ">
 
-      let kolomStatusHtml = "";
+        <td style="
+          text-align: center;
+          border: 1px solid #ccc;
+          padding: 5px;
+        ">
+          ${nomor++}
+        </td>
 
-      let totalHadir = 0;
 
-      daftarTanggal.forEach((tgl) => {
-        const status =
-          siswa.LogTanggal[tgl] || "Alfa";
+        <td style="
+          border: 1px solid #ccc;
+          padding: 5px 8px;
+          text-align: left;
+        ">
+          ${siswa.Nama}
+        </td>
 
-        const huruf =
-          status === "Hadir"
-            ? "H"
-            : status
-                .substring(0, 1)
-                .toUpperCase();
 
-        let color = "#dc3545";
+        <td style="
+          text-align: center;
+          border: 1px solid #ccc;
+          padding: 5px;
+        ">
+          ${siswa.Rombel}
+        </td>
 
-        if (huruf === "H") {
-          color = "#198754";
-          totalHadir++;
-        } else if (
-          huruf === "I" ||
-          huruf === "S"
-        ) {
-          color = "#fd7e14";
-        }
 
-        kolomStatusHtml += `
-          <td style="
-            text-align:center;
-            font-weight:bold;
-            color:${color};
-          ">
-            ${huruf}
-          </td>
-        `;
-      });
+        ${kolomStatusHtml}
 
-      barisSiswaHtml += `
-        <tr>
-          <td style="text-align:center;">
-            ${nomor++}
-          </td>
 
-          <td>
-            ${siswa.Nama}
-          </td>
+        <td style="
+          text-align: center;
+          font-weight: bold;
+          border: 1px solid #ccc;
+          padding: 5px;
+        ">
+          ${totalHadir} Hari
+        </td>
 
-          <td style="text-align:center;">
-            ${siswa.Rombel}
-          </td>
-
-          ${kolomStatusHtml}
-
-          <td style="
-            text-align:center;
-            font-weight:bold;
-          ">
-            ${totalHadir} Hari
-          </td>
-        </tr>
-      `;
-    }
-
-    return {
-      headerTanggalHtml,
-      barisSiswaHtml,
-    };
+      </tr>
+    `;
   }
+
+
+  // ==========================================
+  // RETURN
+  // ==========================================
+
+  return {
+    headerTanggalHtml,
+    barisSiswaHtml,
+  };
+}
 
 
   // ==================================================
@@ -620,31 +707,41 @@ function initPrint() {
       // DOWNLOAD
       // ================================
 
-      document
-        .getElementById("btnDownloadPreview")
-        .addEventListener("click", async () => {
+      const btnDownload = document.getElementById("btnDownloadPreview");
+      btnDownload.addEventListener("click", async () => {
+        btnDownload.disabled = true;
+        btnDownload.innerHTML = `
+          <span class="spinner-border spinner-border-sm"></span>
+          Menyiapkan ${format === "excel" ? "Excel" : "PDF"}...
+        `;
 
+        try {
           if (format === "excel") {
-
             await downloadExcel(
               daftarTanggal,
               daftarSiswa,
               rombelTerpilih,
               jenisLaporan
             );
-
           } else {
-
             await downloadPDF(
               daftarTanggal,
               daftarSiswa,
               rombelTerpilih,
               jenisLaporan
             );
-
           }
-
-        });
+        } catch (err) {
+          console.error("Gagal mengunduh berkas:", err);
+          alert("Gagal mengunduh: " + (err.message || err));
+        } finally {
+          btnDownload.disabled = false;
+          btnDownload.innerHTML = `
+            <i class="bi bi-download"></i>
+            Unduh ${format === "pdf" ? "PDF" : "Excel"}
+          `;
+        }
+      });
 
     } catch (error) {
 
@@ -759,69 +856,97 @@ function initPrint() {
     daftarSiswa
   );
 
+  const opsiNamaFile =
+    `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}_${new Date()
+      .toISOString()
+      .substring(0, 10)}.pdf`;
+
   // ==========================================
-  // BUAT CONTAINER KHUSUS UNTUK PDF
+  // CONTAINER PDF
   // ==========================================
 
   const elementPdf = document.createElement("div");
 
-  elementPdf.style.position = "fixed";
+  elementPdf.id = "pdf-export-container";
+
+  elementPdf.style.position = "absolute";
   elementPdf.style.left = "0";
   elementPdf.style.top = "0";
-  elementPdf.style.width = "1200px";
-  elementPdf.style.padding = "30px";
-  elementPdf.style.background = "#ffffff";
-  elementPdf.style.color = "#333333";
-  elementPdf.style.zIndex = "-9999";
+
+  // A4 Landscape dalam pixel
+  elementPdf.style.width = "1123px";
+  elementPdf.style.minHeight = "794px";
+
+  elementPdf.style.margin = "0";
+  elementPdf.style.padding = "35px 45px";
+
+  elementPdf.style.backgroundColor = "#ffffff";
+  elementPdf.style.color = "#111827";
+
+  elementPdf.style.boxSizing = "border-box";
+
+  // PENTING
+  elementPdf.style.display = "block";
+  elementPdf.style.overflow = "visible";
+
+  elementPdf.style.zIndex = "9999";
+  elementPdf.style.pointerEvents = "none";
+
+
+  // ==========================================
+  // ISI PDF
+  // ==========================================
 
   elementPdf.innerHTML = `
-    <div
-      style="
-        font-family: Arial, sans-serif;
-        background: white;
-        color: #333;
-      "
-    >
+
+    <div style="
+      font-family: Arial, sans-serif;
+      width: 100%;
+      background: #ffffff;
+      color: #111827;
+      box-sizing: border-box;
+    ">
 
       <!-- HEADER -->
-      <div
-        style="
-          text-align: center;
-          margin-bottom: 20px;
-        "
-      >
 
-        <h2
-          style="
-            margin: 0;
-            padding-bottom: 5px;
-            text-transform: uppercase;
-            font-size: 20px;
-          "
-        >
+      <div style="
+        text-align: center;
+        margin-bottom: 20px;
+      ">
+
+        <h2 style="
+          margin: 0;
+          padding: 0;
+          font-size: 18px;
+          line-height: 1.3;
+          font-weight: bold;
+          color: #111827;
+          text-transform: uppercase;
+        ">
           REKAPITULASI ABSENSI SISWA
         </h2>
 
-        <h3
-          style="
-            margin: 5px 0;
-            font-size: 14px;
-          "
-        >
-          KOMPETENSI KEAHLIAN:
-          PPLG
+        <h3 style="
+          margin: 6px 0;
+          padding: 0;
+          font-size: 13px;
+          line-height: 1.3;
+          font-weight: 600;
+          color: #374151;
+        ">
+          KOMPETENSI KEAHLIAN: PPLG
           (Rombel ${rombelTerpilih})
         </h3>
 
-        <p
-          style="
-            margin: 5px 0;
-            color: #666;
-            font-size: 11px;
-          "
-        >
+        <p style="
+          margin: 5px 0 0 0;
+          padding: 0;
+          font-size: 11px;
+          line-height: 1.3;
+          color: #6b7280;
+        ">
           Periode Laporan:
-          ${jenisLaporan.toUpperCase()}
+          <b>${jenisLaporan.toUpperCase()}</b>
           |
           Tanggal Unduh:
           ${new Date().toLocaleDateString("id-ID")}
@@ -830,64 +955,71 @@ function initPrint() {
       </div>
 
 
-      <!-- TABEL -->
-      <table
-        style="
+      <!-- TABLE -->
+
+      <table style="
           width: 100%;
-          border-collapse: collapse;
-          margin-top: 10px;
-          background: white;
-        "
-        border="1"
-        cellspacing="0"
-        cellpadding="5"
-      >
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #111827;
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  border: 1px solid #9ca3af;
+      border="1"
+      cellspacing="0"
+      cellpadding="5">
 
         <thead>
 
-          <tr
-            style="
-              background-color: #f2f2f2;
-            "
-          >
+          <tr style="
+            background-color: #f3f4f6;
+            color: #111827;
+            font-weight: bold;
+          ">
 
-            <th
-              style="
-                width: 4%;
-                font-size: 11px;
-              "
-            >
+            <th style="
+              width: 35px;
+              border: 1px solid #9ca3af;
+              padding: 6px 3px;
+              text-align: center;
+              vertical-align: middle;
+            ">
               No
             </th>
 
-            <th
-              style="
-                width: 25%;
-                text-align: left;
-                padding-left: 10px;
-                font-size: 11px;
-              "
-            >
+            <th style="
+              width: 180px;
+              border: 1px solid #9ca3af;
+              padding: 6px;
+              text-align: left;
+              vertical-align: middle;
+            ">
               Nama Siswa
             </th>
 
-            <th
-              style="
-                width: 10%;
-                font-size: 11px;
-              "
-            >
+            <th style="
+              width: 70px;
+              border: 1px solid #9ca3af;
+              padding: 6px 3px;
+              text-align: center;
+              vertical-align: middle;
+            ">
               Rombel
             </th>
 
             ${headerTanggalHtml}
 
-            <th
-              style="
-                width: 12%;
-                font-size: 11px;
-              "
-            >
+            <th style="
+              width: 80px;
+              border: 1px solid #9ca3af;
+              padding: 6px 3px;
+              text-align: center;
+              vertical-align: middle;
+            ">
               Total Hadir
             </th>
 
@@ -896,7 +1028,9 @@ function initPrint() {
         </thead>
 
         <tbody>
+
           ${barisSiswaHtml}
+
         </tbody>
 
       </table>
@@ -904,52 +1038,48 @@ function initPrint() {
 
       <!-- KETERANGAN -->
 
-      <div
-        style="
-          margin-top: 15px;
-          font-size: 10px;
-          color: #555;
-        "
-      >
+      <div style="
+        margin-top: 15px;
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        line-height: 1.5;
+        color: #4b5563;
+      ">
 
         <b>Keterangan Huruf:</b>
 
-        <span
-          style="
-            color: green;
-            font-weight: bold;
-          "
-        >
+        <span style="
+          color:#16a34a;
+          font-weight:bold;
+          margin-left:6px;
+        ">
           H
         </span>
         = Hadir,
 
-        <span
-          style="
-            color: red;
-            font-weight: bold;
-          "
-        >
+        <span style="
+          color:#dc2626;
+          font-weight:bold;
+          margin-left:6px;
+        ">
           A
         </span>
         = Alfa,
 
-        <span
-          style="
-            color: orange;
-            font-weight: bold;
-          "
-        >
+        <span style="
+          color:#ea580c;
+          font-weight:bold;
+          margin-left:6px;
+        ">
           I
         </span>
         = Izin,
 
-        <span
-          style="
-            color: orange;
-            font-weight: bold;
-          "
-        >
+        <span style="
+          color:#ea580c;
+          font-weight:bold;
+          margin-left:6px;
+        ">
           S
         </span>
         = Sakit
@@ -967,70 +1097,107 @@ function initPrint() {
   document.body.appendChild(elementPdf);
 
 
-  // ==========================================
-  // NAMA FILE
-  // ==========================================
-
-  const opsiNamaFile =
-    `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}_${new Date()
-      .toISOString()
-      .substring(0, 10)}.pdf`;
-
-
-  // ==========================================
-  // CONFIG HTML2PDF
-  // ==========================================
-
-  const opsiPdf = {
-
-    margin: 10,
-
-    filename: opsiNamaFile,
-
-    image: {
-      type: "jpeg",
-      quality: 0.98,
-    },
-
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-
-      width: elementPdf.scrollWidth,
-      height: elementPdf.scrollHeight,
-    },
-
-    jsPDF: {
-      unit: "mm",
-      format: "a4",
-      orientation: "landscape",
-    },
-
-    pagebreak: {
-      mode: [
-        "avoid-all",
-        "css",
-        "legacy",
-      ],
-    },
-  };
-
-
-  // ==========================================
-  // GENERATE PDF
-  // ==========================================
-
   try {
+
+    // Tunggu browser menyelesaikan layout
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(resolve);
+      });
+    });
+
+
+    // ==========================================
+    // UKUR UKURAN ELEMENT
+    // ==========================================
+
+    const lebarCanvas = elementPdf.offsetWidth;
+    const tinggiCanvas = elementPdf.scrollHeight;
+
+
+    console.log("PDF WIDTH :", lebarCanvas);
+    console.log("PDF HEIGHT:", tinggiCanvas);
+
+
+    // ==========================================
+    // KONFIGURASI PDF
+    // ==========================================
+
+    const opsiPdf = {
+
+      margin: 0,
+
+      filename: opsiNamaFile,
+
+      image: {
+        type: "jpeg",
+        quality: 0.98,
+      },
+
+      html2canvas: {
+
+        scale: 2,
+
+        useCORS: true,
+
+        backgroundColor: "#ffffff",
+
+        logging: false,
+
+        width: lebarCanvas,
+
+        height: tinggiCanvas,
+
+        scrollX: 0,
+
+        scrollY: 0,
+
+      },
+
+      jsPDF: {
+
+        unit: "mm",
+
+        format: "a4",
+
+        orientation: "landscape",
+
+      },
+
+      pagebreak: {
+
+        mode: [
+          "css",
+          "legacy"
+        ],
+
+      },
+
+    };
+
+
+    // ==========================================
+    // GENERATE PDF
+    // ==========================================
 
     await html2pdf()
       .set(opsiPdf)
       .from(elementPdf)
       .save();
 
+
+  } catch (err) {
+
+    console.error(
+      "Gagal generate PDF:",
+      err
+    );
+
+    throw err;
+
   } finally {
 
-    // Hapus element setelah PDF selesai
+    // Baru hapus setelah selesai
     elementPdf.remove();
 
   }
