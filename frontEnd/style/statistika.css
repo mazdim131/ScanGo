@@ -94,7 +94,7 @@
 .statistika-page .main-content {
   flex: 1;
   padding: 24px 32px;
-  background-color: var(--bg-content);
+  background-color: transparent;
   transition: background-color var(--transition-speed);
 }
 

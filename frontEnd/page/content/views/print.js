@@ -5,13 +5,13 @@ function renderPrint() {
         <div class="data-card p-4" style="max-width: 600px; margin: 0 auto; background: var(--bg-sidebar); color: var(--color-teks) !important; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div class="text-center mb-4">
                 <h3 class="fw-bold mt-2" style="color: var(--color-teks);">Cetak Rekapitulasi Absensi</h3>
-                <p style="font-size: 0.9rem;">Unduh laporan absensi siswa dalam format Excel/PDF</p>
+                <p style="font-size: 0.9rem; color: var(--color-teks);">Unduh laporan absensi siswa dalam format Excel/PDF</p>
             </div>
             
             <hr class="mb-4">
 
             <div class="mb-3">
-                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Pilih Kelas</label>
+                <label class="form-label fw-semibold" style="font-size: 0.85rem; color: var(--color-teks);">Pilih Kelas</label>
                 <select id="printKelas" class="form-select bg-light border-0 rounded-3" style="height: 40px; font-size: 0.9rem;">
                     <option value="X">Kelas X</option>
                     <option value="XI">Kelas XI</option>
@@ -20,7 +20,7 @@ function renderPrint() {
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Pilih Rombel</label>
+                <label class="form-label fw-semibold" style="font-size: 0.85rem; color: var(--color-teks);">Pilih Rombel</label>
                 <select id="printRombel" class="form-select bg-light border-0 rounded-3" style="height: 40px; font-size: 0.9rem;">
                     <option value="X_1">PPLG X-1</option>
                     <option value="X_2">PPLG X-2</option>
@@ -31,26 +31,26 @@ function renderPrint() {
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Jenis Rekapitulasi</label>
+                <label class="form-label fw-semibold" style="font-size: 0.85rem; color: var(--color-teks);">Jenis Rekapitulasi</label>
                 <div class="d-flex gap-4 mt-1">
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="jenisRekap" id="rekapMingguan" value="mingguan" checked>
-                        <label class="form-check-label" for="rekapMingguan">Minggu Ini</label>
+                        <label class="form-check-label" for="rekapMingguan" style="color: var(--color-teks);">Minggu Ini</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="jenisRekap" id="rekapBulanan" value="bulanan">
-                        <label class="form-check-label" for="rekapBulanan">Bulan Ini</label>
+                        <label class="form-check-label" for="rekapBulanan" style="color: var(--color-teks);">Bulan Ini</label>
                     </div>
                 </div>
             </div>
 
             <div class="mb-4" id="boxPilihanBulan" style="display: none;">
-                <label class="form-label fw-semibold" style="font-size: 0.85rem;">Pilih Bulan & Tahun</label>
+                <label class="form-label fw-semibold" style="font-size: 0.85rem; color: var(--color-teks);">Pilih Bulan & Tahun</label>
                 <input type="month" id="printBulan" class="form-control bg-light border-0 rounded-3" style="height: 40px;" value="${currentMonth}">
             </div>
 
             <div class="mb-3">
-  <label class="form-label fw-semibold">
+  <label class="form-label fw-semibold" style="color: var(--color-teks);">
     Format Laporan
   </label>
 
@@ -412,8 +412,8 @@ function initPrint() {
 
     barisSiswaHtml += `
       <tr style="
-        background: #ffffff;
-        color: #111827;
+        background: var(--color-card-bg);
+        color: var(--color-teks);
       ">
 
         <td style="
@@ -509,8 +509,8 @@ function initPrint() {
         <div
           class="data-card p-4"
           style="
-            background:white;
-            color:#333;
+            background: var(--color-card-bg);
+            color: var(--color-teks);
             border-radius:12px;
             box-shadow:0 4px 15px rgba(0,0,0,.08);
           "
@@ -531,7 +531,7 @@ function initPrint() {
                 Preview Rekapitulasi
               </h4>
 
-              <small style="color:#666;">
+              <small style="color: var(--color-teks-sub);">
                 PPLG ${rombelTerpilih}
                 •
                 ${jenisLaporan.toUpperCase()}
@@ -561,7 +561,7 @@ function initPrint() {
               overflow-x:auto;
               max-height:500px;
               overflow-y:auto;
-              border:1px solid #ddd;
+              border:1px solid var(--border-sidebar);
               border-radius:8px;
             "
           >
@@ -582,7 +582,7 @@ function initPrint() {
 
                 <tr
                   style="
-                    background:#f3f4f6;
+                    background: var(--bg-tab);
                   "
                 >
 
@@ -626,7 +626,7 @@ function initPrint() {
             style="
               margin-top:15px;
               font-size:11px;
-              color:#666;
+              color: var(--color-teks-sub);
             "
           >
             <b>Keterangan:</b>
