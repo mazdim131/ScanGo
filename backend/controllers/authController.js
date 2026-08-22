@@ -40,7 +40,7 @@ const resolveUserRole = (role, req) => {
 
 const register = async (req, res) => {
   try {
-    const { email, password, role, username, idcard, rombel, nis, whatsapp } = req.body;
+    const { email, password, role, username, idcard, rombel, nis, whatsapp, rayon, kelas } = req.body;
 
     if (
       !email ||
@@ -50,7 +50,9 @@ const register = async (req, res) => {
       !role ||
       !rombel ||
       !nis ||
-      !whatsapp
+      !whatsapp || 
+      !rayon ||
+      !kelas
     ) {
       return res.status(400).json({
         message: "Semua kolom input wajib diisi!",
@@ -108,7 +110,9 @@ const register = async (req, res) => {
           idcard: idcardNum,
           rombel: rombel,
           nis: nisNum,
-          whatsapp: whatsapp
+          whatsapp: whatsapp,
+          rayon: rayon,
+          kelas: kelas
         },
       ])
       .select();
@@ -125,7 +129,9 @@ const register = async (req, res) => {
         idcard: data[0].idcard,
         rombel: data[0].rombel,
         nis: data[0].nis,
-        whatsapp: data[0].whatsapp
+        whatsapp: data[0].whatsapp,
+        rayon: data[0].rayon,
+        kelas: data[0].kelas
       },
     });
   } catch (error) {
@@ -174,7 +180,9 @@ const login = async (req, res) => {
         idcard: user.idcard,
         rombel: user.rombel,
         nis: user.nis,
-        whatsapp: user.whatsapp
+        whatsapp: user.whatsapp,
+        rayon: user.rayon,
+        kelas: user.kelas
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" },
@@ -198,7 +206,9 @@ const login = async (req, res) => {
         idcard: user.idcard,
         rombel: user.rombel,
         nis: user.nis,
-        whatsapp: user.whatsapp
+        whatsapp: user.whatsapp,
+        rayon: user.rayon,
+        kelas: user.kelas
       },
     });
   } catch (error) {

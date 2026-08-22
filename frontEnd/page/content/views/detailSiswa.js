@@ -50,10 +50,12 @@ function initDetailSiswaListener(routerState) {
   }
 
   Promise.all([
-    fetch(`${API_BASE}/api/users/${nis}`, { credentials: "include" }).then((r) => r.json()),
-    fetch(`${API_BASE}/api/users/${nis}/attendances`, { credentials: "include" }).then((r) =>
-      r.json(),
+    fetch(`${API_BASE}/api/users/${nis}`, { credentials: "include" }).then(
+      (r) => r.json(),
     ),
+    fetch(`${API_BASE}/api/users/${nis}/attendances`, {
+      credentials: "include",
+    }).then((r) => r.json()),
   ])
     .then(([userData, historyData]) => {
       if (!userData.success || !userData.user) {
@@ -96,7 +98,15 @@ function initDetailSiswaListener(routerState) {
             <div class="detail-info-grid">
                 <div class="detail-info-row">
                     <span class="detail-info-label">Kelas</span>
+                    <span class="detail-info-value">${user.kelas ? user.kelas.replace("_", " - ") : "-"}</span>
+                </div>
+                <div class="detail-info-row">
+                    <span class="detail-info-label">Rombel</span>
                     <span class="detail-info-value">${user.rombel ? user.rombel.replace("_", " PPLG ") : "-"}</span>
+                </div>
+                <div class="detail-info-row">
+                    <span class="detail-info-label">Rayon</span>
+                    <span class="detail-info-value">${user.rayon ? user.rayon.replace("_", " - ") : "-"}</span>
                 </div>
                 <div class="detail-info-row">
                     <span class="detail-info-label">Email</span>

@@ -1,3 +1,35 @@
+// Daftar rombel disamakan dengan pilihan di inputStudent.js
+const ROMBEL_GROUPS_PRINT = [
+  ["TEACHER", ["Guru Produktif"]],
+  ["PPLG", ["PPLG 1", "PPLG 2", "PPLG 3", "PPLG 4", "PPLG 5"]],
+  ["TJKT", ["TJKT 1", "TJKT 2", "TJKT 3", "TJKT 4", "TJKT 5"]],
+  ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
+  ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
+  ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
+  ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+];
+
+function normalizeRombelPrint(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function buildRombelOptionsPrint() {
+  return ROMBEL_GROUPS_PRINT.map(([label, items]) => {
+    const options = items
+      .map((val) => `<option value="${val}">${val}</option>`)
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+}
+
+// Konversi timestamp ke tanggal lokal format YYYY-MM-DD
+function toLocalDateStr(timestamp) {
+  if (!timestamp) return "";
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("sv-SE");
+}
+
 function renderPrint() {
   const currentMonth = new Date().toISOString().substring(0, 7);
   return `
@@ -13,6 +45,7 @@ function renderPrint() {
             <div class="mb-3">
                 <label class="form-label fw-semibold" style="font-size: 0.85rem; color: var(--color-teks);">Pilih Kelas</label>
                 <select id="printKelas" class="form-select bg-light border-0 rounded-3" style="height: 40px; font-size: 0.9rem;">
+                    <option value="">Semua Kelas</option>
                     <option value="X">Kelas X</option>
                     <option value="XI">Kelas XI</option>
                     <option value="XII">Kelas XII</option>
@@ -22,11 +55,7 @@ function renderPrint() {
             <div class="mb-3">
                 <label class="form-label fw-semibold" style="font-size: 0.85rem; color: var(--color-teks);">Pilih Rombel</label>
                 <select id="printRombel" class="form-select bg-light border-0 rounded-3" style="height: 40px; font-size: 0.9rem;">
-                    <option value="X_1">PPLG X-1</option>
-                    <option value="X_2">PPLG X-2</option>
-                    <option value="X_3">PPLG X-3</option>
-                    <option value="X_4">PPLG X-4</option>
-                    <option value="X_5">PPLG X-5</option>
+                    ${buildRombelOptionsPrint()}
                 </select>
             </div>
 
@@ -131,31 +160,14 @@ function initPrint() {
 
 
   // ================================
-  // PILIH KELAS → ROMBEL
-  // ================================
-
-  printKelas.addEventListener("change", function () {
-    const kelas = this.value;
-    const options = [];
-
-    for (let i = 1; i <= 5; i++) {
-      options.push(
-        `<option value="${kelas}_${i}">PPLG ${kelas}-${i}</option>`
-      );
-    }
-
-    printRombel.innerHTML = options.join("");
-  });
-
-
-  // ================================
   // AMBIL DATA SISWA
   // ================================
 
   async function prosesDataSiswa() {
-    const rombelTerpilih = printRombel.value
-      .replace("_", "-")
-      .toUpperCase();
+    const rombelTerpilih = printRombel.value;
+    const rombelLabel =
+      printRombel.options[printRombel.selectedIndex]?.text || rombelTerpilih;
+    const kelasTerpilih = printKelas.value;
 
     const jenisLaporan = document.querySelector(
       'input[name="jenisRekap"]:checked'
@@ -164,12 +176,16 @@ function initPrint() {
     const semuaData = await fetchAttendanceData();
 
     let dataRombel = semuaData.filter((row) => {
-      const r = String(row.rombel || "").toUpperCase();
+      if (!row.created_at) return false;
 
-      const rombelDbBersih = r.replace(/[-_]/g, "");
-      const rombelTargetBersih = rombelTerpilih.replace(/[-_]/g, "");
+      if (kelasTerpilih &&
+        String(row.kelas || "").trim().toUpperCase() !==
+          String(kelasTerpilih).toUpperCase()) {
+        return false;
+      }
 
-      return rombelDbBersih.includes(rombelTargetBersih);
+      return normalizeRombelPrint(row.rombel) ===
+        normalizeRombelPrint(rombelTerpilih);
     });
 
     const hariIni = new Date();
@@ -190,23 +206,21 @@ function initPrint() {
         hariIni.getDate() - jarakKeSenin
       );
 
-      const jumat = new Date(senin);
+      // Akhir pekan: Minggu (senin + 6) agar absen Sabtu/Minggu tetap terhitung
+      const akhirPekan = new Date(senin);
 
-      jumat.setDate(
-        senin.getDate() + 4
+      akhirPekan.setDate(
+        senin.getDate() + 6
       );
 
       const startStr =
         senin.toLocaleDateString("sv-SE");
 
       const endStr =
-        jumat.toLocaleDateString("sv-SE");
+        akhirPekan.toLocaleDateString("sv-SE");
 
       dataRombel = dataRombel.filter((row) => {
-        if (!row.created_at) return false;
-
-        const tgl = row.created_at.split("T")[0];
-
+        const tgl = toLocalDateStr(row.created_at);
         return tgl >= startStr && tgl <= endStr;
       });
 
@@ -219,16 +233,32 @@ function initPrint() {
       const bulanTerpilih =
         document.getElementById("printBulan").value;
 
-      dataRombel = dataRombel.filter(
-        (row) =>
-          row.created_at &&
-          row.created_at.startsWith(bulanTerpilih)
-      );
+      if (!bulanTerpilih) {
+        throw new Error("Pilih bulan dan tahun terlebih dahulu!");
+      }
+
+      dataRombel = dataRombel.filter((row) => {
+        const tgl = toLocalDateStr(row.created_at);
+        return tgl.startsWith(bulanTerpilih);
+      });
     }
 
     if (dataRombel.length === 0) {
+      const rombelTersedia = [
+        ...new Set(
+          semuaData
+            .filter((row) => row.rombel)
+            .map((row) => String(row.rombel).trim())
+        ),
+      ];
+
+      const hint = rombelTersedia.length
+        ? ` Rombel yang tersedia di database: ${rombelTersedia.slice(0, 10).join(", ")}${rombelTersedia.length > 10 ? ", ..." : ""}.`
+        : "";
+
       throw new Error(
-        "Tidak ada data riwayat absensi ditemukan untuk rombel dan periode tersebut!"
+        "Tidak ada data riwayat absensi ditemukan untuk rombel dan periode tersebut!" +
+          hint
       );
     }
 
@@ -239,7 +269,7 @@ function initPrint() {
     const daftarTanggal = [
       ...new Set(
         dataRombel.map(
-          (row) => row.created_at.split("T")[0]
+          (row) => toLocalDateStr(row.created_at)
         )
       ),
     ].sort();
@@ -269,14 +299,14 @@ function initPrint() {
       }
 
       daftarSiswa[rfid].LogTanggal[
-        row.created_at.split("T")[0]
+        toLocalDateStr(row.created_at)
       ] = row.status || "Hadir";
     });
 
     return {
       daftarTanggal,
       daftarSiswa,
-      rombelTerpilih,
+      rombelLabel,
       jenisLaporan,
     };
   }
@@ -491,7 +521,7 @@ function initPrint() {
       const {
         daftarTanggal,
         daftarSiswa,
-        rombelTerpilih,
+        rombelLabel,
         jenisLaporan,
       } = await prosesDataSiswa();
 
@@ -532,7 +562,7 @@ function initPrint() {
               </h4>
 
               <small style="color: var(--color-teks-sub);">
-                PPLG ${rombelTerpilih}
+                ${rombelLabel}
                 •
                 ${jenisLaporan.toUpperCase()}
                 •
@@ -720,14 +750,14 @@ function initPrint() {
             await downloadExcel(
               daftarTanggal,
               daftarSiswa,
-              rombelTerpilih,
+              rombelLabel,
               jenisLaporan
             );
           } else {
             await downloadPDF(
               daftarTanggal,
               daftarSiswa,
-              rombelTerpilih,
+              rombelLabel,
               jenisLaporan
             );
           }
@@ -833,7 +863,7 @@ function initPrint() {
 
     XLSX.writeFile(
       workbook,
-      `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}.xlsx`
+      `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}.xlsx`
     );
   }
 
@@ -857,7 +887,7 @@ function initPrint() {
   );
 
   const opsiNamaFile =
-    `Rekap_${jenisLaporan.toUpperCase()}_PPLG_${rombelTerpilih}_${new Date()
+    `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}_${new Date()
       .toISOString()
       .substring(0, 10)}.pdf`;
 
@@ -934,8 +964,8 @@ function initPrint() {
           font-weight: 600;
           color: #374151;
         ">
-          KOMPETENSI KEAHLIAN: PPLG
-          (Rombel ${rombelTerpilih})
+          KOMPETENSI KEAHLIAN:
+          ${rombelTerpilih}
         </h3>
 
         <p style="

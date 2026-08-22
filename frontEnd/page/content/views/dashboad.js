@@ -114,8 +114,63 @@ if (typeof window.currentSelectedRombel === "undefined")
   window.currentSelectedRombel = null;
 if (typeof window.currentSelectedDate === "undefined")
   window.currentSelectedDate = new Date().toLocaleDateString("sv-SE");
+if (typeof window.currentSelectedKelas === "undefined")
+  window.currentSelectedKelas = "";
+if (typeof window.currentSearchQuery === "undefined")
+  window.currentSearchQuery = "";
 if (typeof window.currentScanMode === "undefined")
   window.currentScanMode = "masuk";
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// Daftar rombel disamakan dengan pilihan di inputStudent.js
+const ROMBEL_GROUPS = [
+  ["TEACHER", ["Guru Produktif"]],
+  ["PPLG", ["PPLG 1", "PPLG 2", "PPLG 3", "PPLG 4", "PPLG 5"]],
+  ["TJKT", ["TJKT 1", "TJKT 2", "TJKT 3", "TJKT 4", "TJKT 5"]],
+  ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
+  ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
+  ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
+  ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+];
+
+function normRombel(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+const KELAS_OPTIONS = ["X", "XI", "XII"];
+
+function renderKelasOptions() {
+  const selected = String(currentSelectedKelas || "");
+  const allOption = `<option value=""${selected === "" ? " selected" : ""}>Semua Kelas</option>`;
+  const kelasOptions = KELAS_OPTIONS.map(
+    (k) =>
+      `<option value="${k}"${normRombel(k) === normRombel(selected) ? " selected" : ""}>Kelas ${k}</option>`,
+  ).join("");
+  return allOption + kelasOptions;
+}
+
+function renderRombelOptions() {
+  const selected = String(currentSelectedRombel || "");
+  const allOption = `<option value=""${selected === "" ? " selected" : ""}>Semua Rombel</option>`;
+  const groups = ROMBEL_GROUPS.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${normRombel(val) === normRombel(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+  return allOption + groups;
+}
 
 function absenMasuk() {
   setScanMode("masuk");
@@ -200,8 +255,17 @@ async function fetchAttendanceData() {
       method: "GET",
       credentials: "include",
     });
+
+    if (!response.ok) {
+      console.error(
+        "Gagal mengambil data absensi. Status HTTP:",
+        response.status,
+      );
+      return [];
+    }
+
     const result = await response.json();
-    return result.success ? result.data : [];
+    return result.success ? result.data || [] : [];
   } catch (error) {
     console.error(error);
     return [];
@@ -230,18 +294,38 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
     if (!row.created_at) return false;
 
     const tanggalAbsen = new Date(row.created_at).toLocaleDateString("sv-SE");
-    const rombel = String(row.rombel || "").toUpperCase();
-    const cocokKelas = rombel.includes(namaKelas.toUpperCase());
     const cocokTanggal = tanggalAbsen === currentSelectedDate;
+    if (!cocokTanggal) return false;
 
-    return cocokKelas && cocokTanggal;
+    if (currentSelectedKelas && currentSelectedKelas !== "all") {
+      if (normRombel(row.kelas) !== normRombel(currentSelectedKelas)) {
+        return false;
+      }
+    }
+
+    if (currentSelectedRombel && currentSelectedRombel !== "all") {
+      return normRombel(row.rombel) === normRombel(currentSelectedRombel);
+    }
+
+    return true;
   });
 
-  if (currentSelectedRombel && currentSelectedRombel !== "all") {
+  const query = String(currentSearchQuery || "").trim().toLowerCase();
+  if (query) {
     dataFiltered = dataFiltered.filter((row) => {
-      const rombelText = String(row.rombel || "").toUpperCase();
-      const rombelKey = currentSelectedRombel.toUpperCase();
-      return rombelText === rombelKey;
+      const nama = row.users
+        ? Array.isArray(row.users)
+          ? row.users[0]?.username
+          : row.users.username
+        : "";
+      const haystack = [
+        nama,
+        row.nis,
+        row.idcard,
+      ]
+        .map((v) => String(v ?? "").toLowerCase())
+        .join(" ");
+      return haystack.includes(query);
     });
   }
 
@@ -261,26 +345,33 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
       (r.status || "").toLowerCase() === "alfa" ||
       (r.status || "").toLowerCase() === "alpa",
   ).length;
-  const emptyMessage = currentSelectedRombel
-    ? "Siswa belum absen"
-    : "Belum ada riwayat tap kartu pada tanggal ini";
+  const emptyMessage = (() => {
+    if (String(currentSearchQuery || "").trim()) {
+      return `Tidak ada hasil untuk pencarian "${currentSearchQuery.trim()}"`;
+    }
+    return currentSelectedRombel || currentSelectedKelas
+      ? "Siswa belum absen"
+      : "Belum ada riwayat tap kartu pada tanggal ini";
+  })();
 
   const tableRowsHtml =
     dataFiltered.length === 0
-      ? `<tr><td colspan="7" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
+      ?       `<tr><td colspan="9" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
       : dataFiltered
           .map((row) => {
             const jamAbsen = row.created_at
-              ? new Date(row.created_at).toLocaleTimeString("en-US", {
+              ? new Date(row.created_at).toLocaleTimeString("id-ID", {
                   hour: "2-digit",
                   minute: "2-digit",
+                  hour12: false,
                 })
               : "-";
 
             const jamKeluar = row.time_finish
-              ? new Date(row.time_finish).toLocaleTimeString("en-US", {
+              ? new Date(row.time_finish).toLocaleTimeString("id-ID", {
                   hour: "2-digit",
                   minute: "2-digit",
+                  hour12: false,
                 })
               : "-";
 
@@ -293,18 +384,19 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
 
             return `
                 <tr>
-                    <td class="text-muted d-none d-md-table-cell">${row.id}</td>
+                    <td class="text-muted d-none d-md-table-cell">${escapeHtml(row.id)}</td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="fw-semibold" style="color: var(--color-teks);">${displayNama}</span>
+                            <span class="fw-semibold" style="color: var(--color-teks);">${escapeHtml(displayNama)}</span>
                         </div>
                     </td>
-                    <td class="text-muted">${row.idcard || "-"}</td>
-                    <td class="fw-semibold">${row.rombel || "-"}</td>
+                    <td class="text-muted">${escapeHtml(row.nis ?? "-")}</td>
+                    <td class="text-muted">${escapeHtml(row.idcard || "-")}</td>
+                    <td class="fw-semibold">${escapeHtml(row.rombel || "-")}</td>
                     <td class="fw-semibold">${jamAbsen || "-"}</td>
                     <td class="fw-semibold">${jamKeluar || "-"}</td>
-                    <td class="text-muted">${row.note || "-"}</td>
-                    <td><span class="status-badge ${getStatusClass(row.status)}">${row.status || "Hadir"}</span></td>
+                    <td class="text-muted">${escapeHtml(row.note || "-")}</td>
+                    <td><span class="status-badge ${getStatusClass(row.status)}">${escapeHtml(row.status || "Hadir")}</span></td>
                 </tr>
             `;
           })
@@ -374,29 +466,15 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     <h5 class="fw-bold m-0" style="color: var(--color-teks); font-size: 1.05rem;">Riwayat Absensi</h5>
                 </div>
                 <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <div class="d-flex align-items-center bg-light rounded-3 px-2 border-0" style="height: 34px;">
+                        <i class="bi bi-search text-muted me-2" style="font-size: 0.85rem;"></i>
+                        <input type="text" id="pencarianTabel" class="form-control form-control-sm bg-transparent border-0 text-muted p-0" placeholder="Cari nama / NIS / RFID..." style="font-size: 0.85rem; width: 160px; outline: none; box-shadow: none;" value="${escapeHtml(currentSearchQuery)}">
+                    </div>
+                    <select id="pilihanKelas" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
+                      ${renderKelasOptions()}
+                    </select>
                     <select id="pilihanRombel" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
-                      <option value="">Rombel</option>
-                      <optgroup label="PPLG X">
-                        <option value="X_1">PPLG X-1</option>
-                        <option value="X_2">PPLG X-2</option>
-                        <option value="X_3">PPLG X-3</option>
-                        <option value="X_4">PPLG X-4</option>
-                        <option value="X_5">PPLG X-5</option>
-                      </optgroup>
-                      <optgroup label="PPLG XI">
-                        <option value="XI_1">PPLG XI-1</option>
-                        <option value="XI_2">PPLG XI-2</option>
-                        <option value="XI_3">PPLG XI-3</option>
-                        <option value="XI_4">PPLG XI-4</option>
-                        <option value="XI_5">PPLG XI-5</option>
-                      </optgroup>
-                      <optgroup label="PPLG XII">
-                        <option value="XII_1">PPLG XII-1</option>
-                        <option value="XII_2">PPLG XII-2</option>
-                        <option value="XII_3">PPLG XII-3</option>
-                        <option value="XII_4">PPLG XII-4</option>
-                        <option value="XII_5">PPLG XII-5</option>
-                      </optgroup>
+                      ${renderRombelOptions()}
                     </select>
                     <div class="d-flex align-items-center bg-light rounded-3 px-2 border-0" style="height: 34px;">
                         <i class="bi bi-calendar3 text-muted me-2" style="font-size: 0.85rem;"></i>
@@ -409,14 +487,15 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 <table class="table align-middle custom-table mb-0 w-100">
                     <thead>
                         <tr>
-                            <th class="d-none d-md-table-cell" style="width: 10%;">ID Log</th>
+                            <th class="d-none d-md-table-cell" style="width: 8%;">ID Log</th>
                             <th style="width: 15%;">Nama Lengkap</th>
-                            <th class="d-none d-md-table-cell" style="width: 15%;">Id RFID</th>
-                            <th style="width: 15%;">Rombel</th>
-                            <th style="width: 12%;">Absen Masuk</th>
-                            <th style="width: 12%;">Absen Keluar</th>
-                            <th style="width: 12%;">Keterangan</th>
-                            <th style="width: 12%;">Status</th>
+                            <th class="d-none d-md-table-cell" style="width: 10%;">NIS</th>
+                            <th class="d-none d-md-table-cell" style="width: 13%;">Id RFID</th>
+                            <th style="width: 13%;">Rombel</th>
+                            <th style="width: 10%;">Absen Masuk</th>
+                            <th style="width: 10%;">Absen Keluar</th>
+                            <th style="width: 11%;">Keterangan</th>
+                            <th style="width: 10%;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -478,6 +557,18 @@ function attachFilters() {
     select.addEventListener("change", handleRombelFilter);
   }
 
+  const kelasSelect = document.getElementById("pilihanKelas");
+  if (kelasSelect) {
+    kelasSelect.removeEventListener("change", handleKelasFilter);
+    kelasSelect.addEventListener("change", handleKelasFilter);
+  }
+
+  const searchInput = document.getElementById("pencarianTabel");
+  if (searchInput) {
+    searchInput.removeEventListener("input", handleSearchInput);
+    searchInput.addEventListener("input", handleSearchInput);
+  }
+
   const dateInput = document.getElementById("filterTanggal");
   if (dateInput) {
     dateInput.removeEventListener("change", handleTanggalFilter);
@@ -485,25 +576,57 @@ function attachFilters() {
   }
 }
 
+let searchDebounceTimer = null;
+
+function handleSearchInput(e) {
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    currentSearchQuery = e.target.value;
+    refreshDashboardTable("Mencari data...", "pencarianTabel");
+  }, 300);
+}
+
+function refreshDashboardTable(loadingText, focusId) {
+  const tableContainer = document.getElementById("absensi-table-content");
+  const statsContainer = document.getElementById("top-stats-container");
+
+  if (tableContainer && statsContainer) {
+    tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">${loadingText}</p></div>`;
+    const dataTerbaru = fetchAttendanceData();
+    dataTerbaru.then((data) => {
+      const result = generateKontenKelasTemplate(
+        currentSelectedClass,
+        data,
+      );
+      statsContainer.innerHTML = result.statsHtml;
+      tableContainer.innerHTML = result.tableHtml;
+      attachFilters();
+
+      if (focusId) {
+        const focusEl = document.getElementById(focusId);
+        if (focusEl) {
+          focusEl.focus();
+          const len = focusEl.value.length;
+          try { focusEl.setSelectionRange(len, len); } catch (e) {}
+        }
+      }
+    });
+  }
+}
+
+async function handleKelasFilter() {
+  const kelasSelect = document.getElementById("pilihanKelas");
+  if (!kelasSelect) return;
+  currentSelectedKelas = kelasSelect.value || "";
+  refreshDashboardTable("Menyaring kelas...");
+}
+
 async function handleRombelFilter() {
   const selectElement = document.getElementById("pilihanRombel");
   if (!selectElement) return;
   const val = selectElement.value;
   currentSelectedRombel = val || null;
-  const tableContainer = document.getElementById("absensi-table-content");
-  const statsContainer = document.getElementById("top-stats-container");
-
-  if (tableContainer && statsContainer) {
-    tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring rombel...</p></div>`;
-    const dataTerbaru = await fetchAttendanceData();
-    const result = generateKontenKelasTemplate(
-      currentSelectedClass,
-      dataTerbaru,
-    );
-    statsContainer.innerHTML = result.statsHtml;
-    tableContainer.innerHTML = result.tableHtml;
-    attachFilters();
-  }
+  refreshDashboardTable("Menyaring rombel...");
 }
 
 async function handleTanggalFilter() {
@@ -511,20 +634,7 @@ async function handleTanggalFilter() {
   if (!dateInputElement) return;
 
   currentSelectedDate = dateInputElement.value;
-  const tableContainer = document.getElementById("absensi-table-content");
-  const statsContainer = document.getElementById("top-stats-container");
-
-  if (tableContainer && statsContainer) {
-    tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">Menyaring tanggal...</p></div>`;
-    const dataTerbaru = await fetchAttendanceData();
-    const result = generateKontenKelasTemplate(
-      currentSelectedClass,
-      dataTerbaru,
-    );
-    statsContainer.innerHTML = result.statsHtml;
-    tableContainer.innerHTML = result.tableHtml;
-    attachFilters();
-  }
+  refreshDashboardTable("Menyaring tanggal...");
 }
 
 async function editAttendancesStatus(id, currentStatus) {

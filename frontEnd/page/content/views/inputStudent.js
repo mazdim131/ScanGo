@@ -1,8 +1,10 @@
 if (typeof window.tableAllData === "undefined") window.tableAllData = [];
 if (typeof window.tableSortKey === "undefined") window.tableSortKey = "nama";
 if (typeof window.tableSortDir === "undefined") window.tableSortDir = "asc";
-if (typeof window.tableSearchQuery === "undefined") window.tableSearchQuery = "";
-if (typeof window.tableRoleFilter === "undefined") window.tableRoleFilter = null;
+if (typeof window.tableSearchQuery === "undefined")
+  window.tableSearchQuery = "";
+if (typeof window.tableRoleFilter === "undefined")
+  window.tableRoleFilter = null;
 
 function renderInputSiswa() {
   window.tableRoleFilter = null;
@@ -45,14 +47,10 @@ function renderInputFormHTML() {
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="selectRole">
-          <i class="bi bi-shield-check"></i> Peran
+        <label class="form-label" for="call">
+          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
         </label>
-        <select id="selectRole" class="form-control-modern">
-          <option value="">Pilih Peran</option>
-          <option value="student">Siswa</option>
-          <option value="teacher">Guru</option>
-        </select>
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required >
       </div>
 
       <div class="form-group rfid-field">
@@ -86,14 +84,19 @@ function renderInputFormHTML() {
         <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
       </div>
 
-      <div class="form-group full-width">
-        <label class="form-label" for="call">
-          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
+      <div class="form-group">
+        <label class="form-label" for="kelas">
+          <i class="bi bi-people"></i> Kelas
         </label>
-        <input type="number" id="whatsapp" class="form-control-modern" value="62" required >
+        <select id="kelas" class="form-control-modern">
+          <option value="">Pilih Kelas</option>
+          <option value="X">Kelas X</option>
+          <option value="XI">Kelas XI</option>
+          <option value="XII">Kelas XII</option>
+        </select>
       </div>
 
-      <div class="form-group full-width">
+      <div class="form-group">
         <label class="form-label" for="rombel">
           <i class="bi bi-people"></i> Rombel
         </label>
@@ -102,26 +105,122 @@ function renderInputFormHTML() {
           <optgroup label="TEACHER">
             <option value="Guru Produktif">GURU</option>
           </optgroup>
-          <optgroup label="PPLG X">
-            <option value="X_1">PPLG X-1</option>
-            <option value="X_2">PPLG X-2</option>
-            <option value="X_3">PPLG X-3</option>
-            <option value="X_4">PPLG X-4</option>
-            <option value="X_5">PPLG X-5</option>
+          <optgroup label="PPLG">
+            <option value="PPLG 1">PPLG 1</option>
+            <option value="PPLG 2">PPLG 2</option>
+            <option value="PPLG 3">PPLG 3</option>
+            <option value="PPLG 4">PPLG 4</option>
+            <option value="PPLG 5">PPLG 5</option>
           </optgroup>
-          <optgroup label="PPLG XI">
-            <option value="XI_1">PPLG XI-1</option>
-            <option value="XI_2">PPLG XI-2</option>
-            <option value="XI_3">PPLG XI-3</option>
-            <option value="XI_4">PPLG XI-4</option>
-            <option value="XI_5">PPLG XI-5</option>
+          <optgroup label="TJKT">
+            <option value="TJKT 1">TJKT 1</option>
+            <option value="TJKT 2">TJKT 2</option>
+            <option value="TJKT 3">TJKT 3</option>
+            <option value="TJKT 4">TJKT 4</option>
+            <option value="TJKT 5">TJKT 5</option>
           </optgroup>
-          <optgroup label="PPLG XII">
-            <option value="XII_1">PPLG XII-1</option>
-            <option value="XII_2">PPLG XII-2</option>
-            <option value="XII_3">PPLG XII-3</option>
-            <option value="XII_4">PPLG XII-4</option>
-            <option value="XII_5">PPLG XII-5</option>
+          <optgroup label="DKV">
+            <option value="DKV 1">DKV 1</option>
+            <option value="DKV 2">DKV 2</option>
+            <option value="DKV 3">DKV 3</option>
+            <option value="DKV 4">DKV 4</option>
+            <option value="DKV 5">DKV 5</option>
+          </optgroup>
+          <optgroup label="KLN">
+            <option value="Kuliner 1">Kuliner 1</option>
+            <option value="Kuliner 2">Kuliner 2</option>
+            <option value="Kuliner 3">Kuliner 3</option>
+            <option value="Kuliner 4">Kuliner 4</option>
+            <option value="Kuliner 5">Kuliner 5</option>
+          </optgroup>
+          <optgroup label="HTL">
+            <option value="Hotel 1">Hotel 1</option>
+            <option value="Hotel 2">Hotel 2</option>
+            <option value="Hotel 3">Hotel 3</option>
+            <option value="Hotel 4">Hotel 4</option>
+            <option value="Hotel 5">Hotel 5</option>
+          </optgroup>
+          <optgroup label="PMN">
+            <option value="Pemasaran 1">Pemasaran 1</option>
+            <option value="Pemasaran 2">Pemasaran 2</option>
+            <option value="Pemasaran 3">Pemasaran 3</option>
+            <option value="Pemasaran 4">Pemasaran 4</option>
+            <option value="Pemasaran 5">Pemasaran 5</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="selectRole">
+          <i class="bi bi-shield-check"></i> Peran
+        </label>
+        <select id="selectRole" class="form-control-modern">
+          <option value="">Pilih Peran</option>
+          <option value="student">Siswa</option>
+          <option value="teacher">Guru</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="rayon">
+          <i class="bi bi-people"></i> Rayon
+        </label>
+        <select id="rayon" class="form-control-modern">
+          <option value="">Pilih Rayon</option>
+          <optgroup label="TEACHER">
+            <option value="Guru Produktif">GURU</option>
+          </optgroup>
+          <optgroup label="Cicurug">
+            <option value="cic1">Cicurug 1</option>
+            <option value="cic2">Cicurug 2</option>
+            <option value="cic3">Cicurug 3</option>
+            <option value="cic4">Cicurug 4</option>
+            <option value="cic5">Cicurug 5</option>
+            <option value="cic6">Cicurug 6</option>
+            <option value="cic7">Cicurug 7</option>
+            <option value="cic8">Cicurug 8</option>
+            <option value="cic9">Cicurug 9</option>
+            <option value="cic10">Cicurug 10</option>
+          </optgroup>
+          <optgroup label="Cisarua">
+            <option value="cis1">Cisarua 1</option>
+            <option value="cis2">Cisarua 2</option>
+            <option value="cis3">Cisarua 3</option>
+            <option value="cis4">Cisarua 4</option>
+            <option value="cis5">Cisarua 5</option>
+            <option value="cis6">Cisarua 6</option>
+            <option value="cis7">Cisarua 7</option>
+          </optgroup>
+          <optgroup label="Cibedug">
+            <option value="cib1">Cibedug 1</option>
+            <option value="cib2">Cibedug 2</option>
+          </optgroup>
+          <optgroup label="Sukasari">
+            <option value="suk1">Sukasari 1</option>
+            <option value="suk2">Sukasari 2</option>
+          </optgroup>
+          <optgroup label="Ciawi">
+            <option value="cia1">Ciawi 1</option>
+            <option value="cia2">Ciawi 2</option>
+            <option value="cia3">Ciawi 3</option>
+            <option value="cia4">Ciawi 4</option>
+            <option value="cia5">Ciawi 5</option>
+            <option value="cia6">Ciawi 6</option>
+          </optgroup>
+          <optgroup label="Tajur">
+            <option value="taj1">Tajur 1</option>
+            <option value="taj2">Tajur 2</option>
+            <option value="taj3">Tajur 3</option>
+            <option value="taj4">Tajur 4</option>
+            <option value="taj5">Tajur 5</option>
+            <option value="taj6">Tajur 6</option>
+          </optgroup>
+          <optgroup label="Wikrama">
+            <option value="wik1">Wikrama 1</option>
+            <option value="wik2">Wikrama 2</option>
+            <option value="wik3">Wikrama 3</option>
+            <option value="wik4">Wikrama 4</option>
+            <option value="wik5">Wikrama 5</option>
           </optgroup>
         </select>
       </div>
@@ -200,6 +299,8 @@ function initInputSiswaListener() {
     const passwordInput = document.getElementById("password");
     const roleInput = document.getElementById("selectRole");
     const whatsappInput = document.getElementById("whatsapp");
+    const rayonInput = document.getElementById("rayon");
+    const kelasInput = document.getElementById("kelas");
 
     if (
       !IdRfidInput ||
@@ -209,7 +310,9 @@ function initInputSiswaListener() {
       !emailInput ||
       !passwordInput ||
       !roleInput ||
-      !whatsappInput
+      !whatsappInput ||
+      !rayonInput ||
+      !kelasInput
     ) {
       console.error("Ada elemen HTML yang gagal dimuat!");
       return;
@@ -223,6 +326,8 @@ function initInputSiswaListener() {
     const password = passwordInput.value.trim();
     const role = roleInput.value.trim();
     const whatsapp = whatsappInput.value.trim();
+    const rayon = rayonInput.value.trim();
+    const kelas = kelasInput.value.trim();
 
     if (
       !username ||
@@ -232,7 +337,9 @@ function initInputSiswaListener() {
       !idcard ||
       !nis ||
       !role ||
-      !whatsapp
+      !whatsapp ||
+      !rayon ||
+      !kelas
     ) {
       showToast("Wajib mengisi semua kolom input!", "danger");
       Swal.fire({
@@ -281,6 +388,8 @@ function initInputSiswaListener() {
           rombel,
           nis,
           whatsapp,
+          rayon,
+          kelas,
         }),
       });
 
@@ -321,6 +430,8 @@ function initInputSiswaListener() {
       IdRfidInput.value = "";
       roleInput.value = "";
       whatsappInput.value = "";
+      rayonInput.value = "";
+      kelasInput.value = "";
 
       document.getElementById("formInputContainer").style.display = "none";
       document.getElementById("dataContainer").style.display = "block";
@@ -409,7 +520,13 @@ function renderTable() {
         u.rombel,
         u.whatsapp,
         u.role === "teacher" ? "Guru" : "Siswa",
-      ].some((v) => String(v || "").toLowerCase().includes(q)),
+        u.rayon,
+        u.kelas,
+      ].some((v) =>
+        String(v || "")
+          .toLowerCase()
+          .includes(q),
+      ),
     );
   }
 
@@ -440,10 +557,11 @@ function renderTable() {
         <td>${index + 1}</td>
         <td>
           <strong>${user.username}</strong><br>
-          <small style="color:var(--color-teks-sub);">${user.nis}</small> 
+          <small style="color:var(--color-teks-sub);">${user.nis}</small>
+          <small style="color:var(--color-teks-sub);">${user.rayon}</small> 
           <span class="badge-${user.role === "teacher" ? "guru" : "siswa"}">${user.role === "teacher" ? "Guru" : "Siswa"}</span>
         </td>
-        <td>${user.rombel || "-"}</td>
+        <td>${user.kelas}, ${user.rombel || "-"}</td>
         <td><code>${user.idcard}</code></td>
         <td><span class="status-aktif">Aktif</span></td>
         <td>${user.whatsapp}</td>
@@ -468,6 +586,10 @@ function getSortValue(user) {
       return String(user.rombel || "");
     case "idcard":
       return String(user.idcard || "");
+    case "rayon":
+      return String(user.rayon || "");
+    case "kelas":
+      return String(user.kelas || "");
     default:
       return "";
   }
@@ -649,7 +771,7 @@ function initActionButtonsListener() {
 
       const confirm = await Swal.fire({
         title: "Yakin mau dihapus?",
-        text: `Data dengan NIS ${nis} akan hilang permanen dari database.`,
+        text: `Data ${nis} akan hilang permanen dari database.`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
@@ -727,6 +849,10 @@ async function actionEditSiswa(nis, email) {
       row.cells[2].innerText.trim() === "-"
         ? ""
         : row.cells[2].innerText.trim();
+    const rayon =
+      row.cells[2].innerText.trim() === "-"
+        ? ""
+        : row.cells[2].innerText.trim();
     const idcard = row.cells[3].querySelector("code").innerText.trim();
     const whatsapp = row.cells[5].innerText.trim();
 
@@ -757,8 +883,128 @@ async function actionEditSiswa(nis, email) {
           <option value="teacher" ${role === "teacher" ? "selected" : ""}>Guru</option>
         </select>
 
-        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rombel (Contoh: X_3)</label></div>
-        <input id="swal-rombel" class="swal2-input" style="margin-top:0;" value="${rombel}">
+      <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Kelas</label></div>
+        <div class="form-group">
+        <select id="swal-kelas" class="form-control-modern" value="${kelas}">
+          <option value="">Pilih Kelas</option>
+          <option value="X">Kelas X</option>
+          <option value="XI">Kelas XI</option>
+          <option value="XII">Kelas XII</option>
+        </select>
+      </div>
+
+      <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rombel</label></div>
+      <div class="form-group">
+        <select id="swal-rombel" class="form-control-modern" value="${rombel}">
+          <option value="">Pilih Rombel</option>
+          <optgroup label="TEACHER">
+            <option value="Guru Produktif">GURU</option>
+          </optgroup>
+          <optgroup label="PPLG">
+            <option value="PPLG 1">PPLG 1</option>
+            <option value="PPLG 2">PPLG 2</option>
+            <option value="PPLG 3">PPLG 3</option>
+            <option value="PPLG 4">PPLG 4</option>
+            <option value="PPLG 5">PPLG 5</option>
+          </optgroup>
+          <optgroup label="TJKT">
+            <option value="TJKT 1">TJKT 1</option>
+            <option value="TJKT 2">TJKT 2</option>
+            <option value="TJKT 3">TJKT 3</option>
+            <option value="TJKT 4">TJKT 4</option>
+            <option value="TJKT 5">TJKT 5</option>
+          </optgroup>
+          <optgroup label="DKV">
+            <option value="DKV 1">DKV 1</option>
+            <option value="DKV 2">DKV 2</option>
+            <option value="DKV 3">DKV 3</option>
+            <option value="DKV 4">DKV 4</option>
+            <option value="DKV 5">DKV 5</option>
+          </optgroup>
+          <optgroup label="KLN">
+            <option value="Kuliner 1">Kuliner 1</option>
+            <option value="Kuliner 2">Kuliner 2</option>
+            <option value="Kuliner 3">Kuliner 3</option>
+            <option value="Kuliner 4">Kuliner 4</option>
+            <option value="Kuliner 5">Kuliner 5</option>
+          </optgroup>
+          <optgroup label="HTL">
+            <option value="Hotel 1">Hotel 1</option>
+            <option value="Hotel 2">Hotel 2</option>
+            <option value="Hotel 3">Hotel 3</option>
+            <option value="Hotel 4">Hotel 4</option>
+            <option value="Hotel 5">Hotel 5</option>
+          </optgroup>
+          <optgroup label="PMN">
+            <option value="Pemasaran 1">Pemasaran 1</option>
+            <option value="Pemasaran 2">Pemasaran 2</option>
+            <option value="Pemasaran 3">Pemasaran 3</option>
+            <option value="Pemasaran 4">Pemasaran 4</option>
+            <option value="Pemasaran 5">Pemasaran 5</option>
+          </optgroup>
+        </select>
+      </div>
+
+
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rayon</label></div>
+        <select id="swal-rayon" class="form-control-modern" value="${rayon}">
+          <option value="">Pilih Rayon</option>
+          <optgroup label="TEACHER">
+            <option value="Guru Produktif">GURU</option>
+          </optgroup>
+          <optgroup label="Cicurug">
+            <option value="Cicurug 1">Cicurug 1</option>
+            <option value="Cicurug 2">Cicurug 2</option>
+            <option value="Cicurug 3">Cicurug 3</option>
+            <option value="Cicurug 4">Cicurug 4</option>
+            <option value="Cicurug 5">Cicurug 5</option>
+            <option value="Cicurug 6">Cicurug 6</option>
+            <option value="Cicurug 7">Cicurug 7</option>
+            <option value="Cicurug 8">Cicurug 8</option>
+            <option value="Cicurug 9">Cicurug 9</option>
+            <option value="Cicurug 10">Cicurug 10</option>
+          </optgroup>
+          <optgroup label="Cisarua">
+            <option value="Cisarua 1">Cisarua 1</option>
+            <option value="Cisarua 2">Cisarua 2</option>
+            <option value="Cisarua 3">Cisarua 3</option>
+            <option value="Cisarua 4">Cisarua 4</option>
+            <option value="Cisarua 5">Cisarua 5</option>
+            <option value="Cisarua 6">Cisarua 6</option>
+            <option value="Cisarua 7">Cisarua 7</option>
+          </optgroup>
+          <optgroup label="Cibedug">
+            <option value="Cibedug 1">Cibedug 1</option>
+            <option value="Cibedug 2">Cibedug 2</option>
+          </optgroup>
+          <optgroup label="Sukasari">
+            <option value="Sukasari 1">Sukasari 1</option>
+            <option value="Sukasari 2">Sukasari 2</option>
+          </optgroup>
+          <optgroup label="Ciawi">
+            <option value="Ciawi 1">Ciawi 1</option>
+            <option value="Ciawi 2">Ciawi 2</option>
+            <option value="Ciawi 3">Ciawi 3</option>
+            <option value="Ciawi 4">Ciawi 4</option>
+            <option value="Ciawi 5">Ciawi 5</option>
+            <option value="Ciawi 6">Ciawi 6</option>
+          </optgroup>
+          <optgroup label="Tajur">
+            <option value="Tajur 1">Tajur 1</option>
+            <option value="Tajur 2">Tajur 2</option>
+            <option value="Tajur 3">Tajur 3</option>
+            <option value="Tajur 4">Tajur 4</option>
+            <option value="Tajur 5">Tajur 5</option>
+            <option value="Tajur 6">Tajur 6</option>
+          </optgroup>
+          <optgroup label="Wikrama">
+            <option value="Wikrama 1">Wikrama 1</option>
+            <option value="Wikrama 2">Wikrama 2</option>
+            <option value="Wikrama 3">Wikrama 3</option>
+            <option value="Wikrama 4">Wikrama 4</option>
+            <option value="Wikrama 5">Wikrama 5</option>
+          </optgroup>
+        </select>
       `,
       focusConfirm: false,
       showCancelButton: true,
@@ -772,6 +1018,8 @@ async function actionEditSiswa(nis, email) {
           role: document.getElementById("swal-role").value,
           rombel: document.getElementById("swal-rombel").value.trim(),
           whatsapp: document.getElementById("swal-whatsapp").value.trim(),
+          rayon: document.getElementById("swal-rayon").value.trim(),
+          kelas: document.getElementById("swal-kelas").value.trim()
         };
       },
     });

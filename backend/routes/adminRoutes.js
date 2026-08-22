@@ -5,7 +5,7 @@ const verifyAdmin = require("../middlewares/adminMiddleware");
 
 router.get("/dashboard-data", verifyToken, verifyAdmin, (req, res) => {
   res.status(200).json({
-    message: "Selamat data di API Dashboard Admin!",
+    message: "API Dashboard Admin",
     stats: {
       totalUsers: 125,
       totalScans: 450,

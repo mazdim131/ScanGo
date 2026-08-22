@@ -352,7 +352,11 @@ async function submitScan() {
       );
 
       setTimeout(() => {
-        window.location.href = "/frontEnd/page/structure/dashboard.html";
+        if (typeof navigateTo === "function") {
+          navigateTo("dashboard");
+        } else {
+          window.location.href = "/frontEnd/page/structure/dashboard.html";
+        }
       }, 2900);
     } else {
       const pesanError = data.error || data.message || "Gagal memproses absensi";
@@ -369,8 +373,11 @@ async function submitScan() {
       '<div class="alert alert-danger">Terjadi kesalahan koneksi ke server</div>';
     return;
   } finally {
-    document.getElementById("card-id-input").value = "";
-    document.getElementById("card-id-input").focus();
+    const inputEl = document.getElementById("card-id-input");
+    if (inputEl) {
+      inputEl.value = "";
+      inputEl.focus();
+    }
     if (lastCardId === cardId) lastCardId = null;
   }
 }
@@ -387,7 +394,6 @@ async function submitManual() {
     document.getElementById("manual-nama").focus();
     return;
   }
-  scanLock = true;
 
   resultManualEl.innerHTML =
     '<div class="alert alert-warning">Menyimpan data...</div>';

@@ -62,6 +62,7 @@ function renderGrafik() {
                         <div class="filter-group">
                             <label class="filter-label" for="filterKelas"><i class="bi bi-collection"></i> Kelas</label>
                             <select id="filterKelas" class="form-select">
+                                <option value="">Semua Kelas</option>
                                 <option value="X">Kelas X</option>
                                 <option value="XI">Kelas XI</option>
                                 <option value="XII">Kelas XII</option>
@@ -83,9 +84,9 @@ function renderGrafik() {
                                     <p>Jumlah siswa hadir per hari</p>
                                 </div>
                                 <div style="display:flex;gap:8px;align-items:center;">
-                                    <span class="filterpill"
+                                    <span class="filterpill" id="hadirTodayPill"
                                         style="background:var(--green-soft);color:var(--green);border-color:transparent;">Hari
-                                        Ini · 87.4%</span>
+                                        Ini · -</span>
                                     <span class="filterpill">7 Hari</span>
                                 </div>
                             </div>
@@ -227,63 +228,36 @@ function renderGuru(rombel) {
 
   container.innerHTML = "";
 
-  const guru = guruMap[rombel] || [];
-
-  guru.forEach(g => {
-
-    container.innerHTML += `
-        <div class="teacher-item">
-
-            <div class="teacher-avatar">
-                <i class="bi bi-person-fill"></i>
-            </div>
-
-            <div class="teacher-info">
-
-                <div class="teacher-name">
-                    ${g.nama}
-                </div>
-
-                <div class="teacher-subject">
-                    ${g.mapel} • ${g.jam}
-                </div>
-
-            </div>
-
-        </div>
-        `;
-
-  });
-
 }
 
-let selectedRombel = "PPLG X-1";
-let selectedKelas = "X";
-const rombelMap = {
-  X: [
-    "PPLG X-1",
-    "PPLG X-2",
-    "PPLG X-3",
-    "PPLG X-4",
-    "PPLG X-5",
-  ],
+let selectedRombel = "";
+let selectedKelas = "";
 
-  XI: [
-    "PPLG XI-1",
-    "PPLG XI-2",
-    "PPLG XI-3",
-    "PPLG XI-4",
-    "PPLG XI-5",
-  ],
+// Daftar rombel disamakan dengan pilihan di inputStudent.js
+const ROMBEL_GROUPS_STAT = [
+  ["TEACHER", ["Guru Produktif"]],
+  ["PPLG", ["PPLG 1", "PPLG 2", "PPLG 3", "PPLG 4", "PPLG 5"]],
+  ["TJKT", ["TJKT 1", "TJKT 2", "TJKT 3", "TJKT 4", "TJKT 5"]],
+  ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
+  ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
+  ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
+  ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+];
 
-  XII: [
-    "PPLG XII-1",
-    "PPLG XII-2",
-    "PPLG XII-3",
-    "PPLG XII-4",
-    "PPLG XII-5",
-  ]
-};
+function renderRombelOptionsStat() {
+  const selected = String(selectedRombel || "");
+  const allOption = `<option value=""${selected === "" ? " selected" : ""}>Semua Rombel</option>`;
+  const groups = ROMBEL_GROUPS_STAT.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${normalizeRombel(val) === normalizeRombel(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+  return allOption + groups;
+}
 
 function renderRombel(kelas) {
   const rombelSelect = document.getElementById("filterRombel");
@@ -296,18 +270,15 @@ function renderRombel(kelas) {
   const kelasSelect = document.getElementById("filterKelas");
   if (kelasSelect) kelasSelect.value = kelas;
 
-  // Isi dropdown rombel sesuai kelas yang dipilih
-  const rombels = rombelMap[kelas] || [];
-  rombelSelect.innerHTML = rombels.map(
-    rombel => `<option value="${rombel}">${rombel}</option>`
-  ).join('');
+  rombelSelect.innerHTML = renderRombelOptionsStat();
 
-  // Set rombel default (pertama)
-  selectedRombel = rombels[0] || "";
-  rombelSelect.value = selectedRombel;
-  renderGuru(selectedRombel);
+  // Reset pilihan rombel jika tidak ada lagi di daftar
+  if (selectedRombel && !rombelSelect.value) {
+    selectedRombel = "";
+  }
+  rombelSelect.value = selectedRombel || "";
 
-  // Muat data untuk rombel yang aktif
+  // Muat data untuk filter yang aktif
   initGrafikListener();
 }
 
@@ -360,26 +331,26 @@ function initStatistikaListener() {
   updateClock();
   clockInterval = setInterval(updateClock, 1000);
 
-  // ── Dropdown Kelas (X / XI / XII) ──
+  // ── Dropdown Kelas (Semua / X / XI / XII) ──
   const kelasSelect = document.getElementById("filterKelas");
   if (kelasSelect) {
     kelasSelect.value = selectedKelas;
     kelasSelect.addEventListener("change", function () {
-      renderRombel(this.value);
+      selectedKelas = this.value;
+      renderRombel(selectedKelas);
     });
   }
 
-  // ── Dropdown Rombel (PPLG 1-5) ──
+  // ── Dropdown Rombel (Sesuai daftar inputStudent.js) ──
   const rombelSelect = document.getElementById("filterRombel");
   if (rombelSelect) {
     rombelSelect.addEventListener("change", function () {
       selectedRombel = this.value;
-      renderGuru(selectedRombel);
       initGrafikListener();
     });
   }
 
-  // Inisialisasi rombel default (Kelas X → PPLG X-1) dan muat data pertama kali
+  // Inisialisasi filter default (semua kelas & semua rombel) dan muat data pertama kali
   renderRombel(selectedKelas);
 }
 
@@ -438,16 +409,10 @@ function gridLines(svg, max, steps) {
 }
 
 // ── Helper: normalisasi format rombel ──────────────────────────────────
-// DB menyimpan rombel sebagai "X_3", "XI_2", dsb.
-// Frontend menampilkan sebagai "PPLG X-3", "PPLG XI-2", dsb.
-// Fungsi ini mengubah keduanya ke key yang sama sehingga bisa dibandingkan.
+// DB menyimpan rombel sesuai pilihan di inputStudent.js, contoh "PPLG 3".
+// Perbandingan cukup trim + uppercase agar case/whitespace tidak masalah.
 function normalizeRombel(r) {
-  if (!r) return '';
-  return String(r)
-    .replace(/pplg\s*/i, '')   // hapus prefix "PPLG "
-    .replace(/[-\s]/g, '_')    // ubah dash / spasi jadi underscore
-    .toUpperCase()             // uppercase supaya case-insensitive
-    .trim();
+  return String(r || "").trim().toUpperCase();
 }
 // ─────────────────────────────────────────────────────────────────────
 
@@ -472,12 +437,23 @@ window.initGrafikListener = async function () {
   }
 
   const td = new Date();
-  // Filter pakai normalizeRombel supaya cocok walaupun format beda ("PPLG X-3" vs "X_3")
+  // Filter siswa berdasarkan kelas dan/atau rombel yang dipilih
+  const selectedKelasKey = String(selectedKelas || "").trim().toUpperCase();
   const selectedRombelKey = normalizeRombel(selectedRombel);
-  const usersRombel = users.filter(
-    user => normalizeRombel(user.rombel) === selectedRombelKey
-  );
-  const idcards = usersRombel.map(u => String(u.idcard).trim());
+  const usersRombel = users.filter(user => {
+    if (selectedKelasKey &&
+      String(user.kelas || "").trim().toUpperCase() !== selectedKelasKey) {
+      return false;
+    }
+    if (selectedRombelKey &&
+      normalizeRombel(user.rombel) !== selectedRombelKey) {
+      return false;
+    }
+    return true;
+  });
+  const idcards = usersRombel
+    .map(u => String(u.idcard ?? "").trim())
+    .filter(Boolean);
 
   const todayAtt = attendances.filter(a => {
     if (!a.created_at) return false;
@@ -585,6 +561,10 @@ window.initGrafikListener = async function () {
   const valIzin = document.getElementById("val-izin"); if (valIzin) valIzin.innerText = countIzin;
   const valTerlambat = document.getElementById("val-terlambat"); if (valTerlambat) valTerlambat.innerText = countTerlambat;
   const valBelum = document.getElementById("val-belum-absen"); if (valBelum) valBelum.innerText = (countBelum + countAlfa);
+
+  const hadirPct = totalSiswa > 0 ? ((countHadirTotal / totalSiswa) * 100).toFixed(1) : "0.0";
+  const pillToday = document.getElementById("hadirTodayPill");
+  if (pillToday) pillToday.textContent = `Hari Ini · ${hadirPct}%`;
 
   // Data Kehadiran 7 Hari
   const trendLabels = [];

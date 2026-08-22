@@ -125,17 +125,18 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
 
     const namaPemilik = uservalid.username || "Siswa";
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    // Jendela "hari ini" berbasis WIB (UTC+7), bukan timezone server
+    const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
+    const startWib = new Date(Date.now() + WIB_OFFSET_MS);
+    startWib.setUTCHours(0, 0, 0, 0);
+    const endWib = new Date(startWib.getTime() + 24 * 60 * 60 * 1000 - 1);
 
     const { data: existing, error: existingError } = await supabase
       .from("attendances")
       .select("id, time_finish")
       .eq("idcard", idcard)
-      .gte("created_at", todayStart.toISOString())
-      .lte("created_at", todayEnd.toISOString())
+      .gte("created_at", startWib.toISOString())
+      .lte("created_at", endWib.toISOString())
       .maybeSingle();
 
     if (existingError) {
@@ -270,7 +271,7 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
 
     const { data: users, error: userError } = await supabase
       .from("users")
-      .select("*");
+      .select("username, idcard, rombel, kelas, nis");
 
     if (userError) {
       console.error("Error fetch users:", userError.message);
@@ -290,6 +291,8 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
         ...att,
         idcard: idKartuAbsen,
         rombel: userCocok?.rombel || att.rombel || null,
+        kelas: userCocok?.kelas || null,
+        nis: userCocok?.nis ?? null,
         users: userCocok
           ? { username: userCocok.username || userCocok.name || "Siswa" }
           : null,
@@ -318,6 +321,8 @@ app.put("/api/attendances/:id", verifyToken, async (req, res) => {
         .status(400)
         .json({ success: false, error: "Tidak ada data yang diupdate" });
     }
+
+    updateData.updated_at = new Date().toISOString();
 
     const { data, error } = await supabase
       .from("attendances")
@@ -439,12 +444,12 @@ app.get("/api/users/:nis", verifyToken, async (req, res) => {
 
 app.put("/api/users/:nis", verifyToken, verifyAdmin, async (req, res) => {
   const { nis } = req.params;
-  const { username, email, rombel, role, idcard, whatsapp } = req.body;
+  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas } = req.body;
 
   try {
     const { data, error } = await supabase
       .from("users")
-      .update({ username, email, rombel, role, idcard, whatsapp })
+      .update({ username, email, rombel, role, idcard, whatsapp, rayon, kelas })
       .eq("nis", nis);
 
     if (error) {
