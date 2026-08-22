@@ -4,10 +4,9 @@ body {
   color: var(--color-teks) !important;
 }
 
-/* Top spacing utama (navbar fixed-top clearance) */
-.col.top,
-.gutter-index {
-  margin-top: 7%;
+/* Jarak konten dari navbar fixed-top */
+main {
+  padding-top: 140px;
 }
 
 .card:hover {
@@ -226,20 +225,24 @@ body {
 }
 
 @media (max-width: 1920px) {
-  .col.top,
-  .gutter-index {
-    margin-top: 130px;
-  }
-
-  .img-hero {
-    margin-top: 130px;
+  main {
+    padding-top: 150px;
   }
 }
 
+/* Navbar selalu di atas konten */
+header.fixed-top {
+  z-index: 1030;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
 @media (max-width: 1366px) {
-  .col.top,
-  .gutter-index {
-    margin-top: 120px;
+  main {
+    padding-top: 135px;
   }
 
   .title-index {
@@ -252,8 +255,8 @@ body {
     text-align: center !important;
   }
 
-  .col.top {
-    margin-top: 110px;
+  main {
+    padding-top: 125px;
   }
 
   .gutter-index {
@@ -292,8 +295,8 @@ body {
 }
 
 @media (max-width: 1183px) {
-  .col.top {
-    margin-top: 100px;
+  main {
+    padding-top: 115px;
   }
 
   .title-index {
@@ -302,8 +305,8 @@ body {
 }
 
 @media (max-width: 768px) {
-  .col.top {
-    margin-top: 90px;
+  main {
+    padding-top: 105px;
   }
 
   .title-index {
@@ -360,8 +363,8 @@ body {
 }
 
 @media (max-width: 576px) {
-  .col.top {
-    margin-top: 84px;
+  main {
+    padding-top: 95px;
   }
 
   .title-index {
