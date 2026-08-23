@@ -42,17 +42,20 @@ const register = async (req, res) => {
   try {
     const { email, password, role, username, idcard, rombel, nis, whatsapp, rayon, kelas } = req.body;
 
+    const userRole = resolveUserRole(role, req);
+    const isTeacher = userRole === "teacher";
+
     if (
       !email ||
       !password ||
       !username ||
       !idcard ||
-      !role ||
+      !userRole ||
       !rombel ||
       !nis ||
       !whatsapp || 
       !rayon ||
-      !kelas
+      (!isTeacher && !kelas)
     ) {
       return res.status(400).json({
         message: "Semua kolom input wajib diisi!",
@@ -97,8 +100,8 @@ const register = async (req, res) => {
 
     // Registrasi publik dibatasi ke role student/user.
     // Role "teacher" diizinkan bila request berasal dari admin/guru yang login.
-    const userRole = resolveUserRole(role, req);
-
+    // Registrasi publik dibatasi ke role student/user.
+    // Role "teacher" diizinkan bila request berasal dari admin/guru yang login.
     const { data, error } = await supabase
       .from("users")
       .insert([
@@ -112,7 +115,7 @@ const register = async (req, res) => {
           nis: nisNum,
           whatsapp: whatsapp,
           rayon: rayon,
-          kelas: kelas
+          kelas: isTeacher && !kelas ? null : kelas
         },
       ])
       .select();

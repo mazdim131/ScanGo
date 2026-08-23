@@ -6,11 +6,34 @@ const ROMBEL_GROUPS_PRINT = [
   ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
   ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
   ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
-  ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+  [
+    "PMN",
+    ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"],
+  ],
 ];
 
+const RAYON_MAP_PRINT = {
+  cic: "Cicurug",
+  cis: "Cisarua",
+  cib: "Cibedug",
+  suk: "Sukasari",
+  cia: "Ciawi",
+  taj: "Tajur",
+  wik: "Wikrama",
+};
+
+function formatRayonPrint(value) {
+  const v = String(value || "").trim();
+  const m = v.match(/^([a-zA-Z]+)(\d+)$/);
+  if (!m) return v || "-";
+  const nama = RAYON_MAP_PRINT[m[1].toLowerCase()];
+  return nama ? `${nama} ${parseInt(m[2], 10)}` : v;
+}
+
 function normalizeRombelPrint(value) {
-  return String(value || "").trim().toUpperCase();
+  return String(value || "")
+    .trim()
+    .toUpperCase();
 }
 
 function buildRombelOptionsPrint() {
@@ -34,7 +57,7 @@ function renderPrint() {
   const currentMonth = new Date().toISOString().substring(0, 7);
   return `
         <div class="print-container animate__animated animate__fadeIn mt-4" style="padding: 20px;">
-        <div class="data-card p-4" style="max-width: 600px; margin: 0 auto; background: var(--bg-sidebar); color: var(--color-teks) !important; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div class="data-card p-4" style="max-width: 100%; margin: 0 auto; background: var(--bg-sidebar); color: var(--color-teks) !important; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div class="text-center mb-4">
                 <h3 class="fw-bold mt-2" style="color: var(--color-teks);">Cetak Rekapitulasi Absensi</h3>
                 <p style="font-size: 0.9rem; color: var(--color-teks);">Unduh laporan absensi siswa dalam format Excel/PDF</p>
@@ -116,7 +139,7 @@ function renderPrint() {
   id="previewRekap"
   style="
     display: none;
-    max-width: 1100px;
+    max-width: 100%;
     margin: 20px auto 0;
   "></div>
 `;
@@ -158,7 +181,6 @@ function initPrint() {
     boxPilihanBulan.style.display = "block";
   });
 
-
   // ================================
   // AMBIL DATA SISWA
   // ================================
@@ -168,9 +190,13 @@ function initPrint() {
     const rombelLabel =
       printRombel.options[printRombel.selectedIndex]?.text || rombelTerpilih;
     const kelasTerpilih = printKelas.value;
+    const kelasLabel = kelasTerpilih
+      ? printKelas.options[printKelas.selectedIndex]?.text ||
+        `Kelas ${kelasTerpilih}`
+      : "";
 
     const jenisLaporan = document.querySelector(
-      'input[name="jenisRekap"]:checked'
+      'input[name="jenisRekap"]:checked',
     ).value;
 
     const semuaData = await fetchAttendanceData();
@@ -178,14 +204,19 @@ function initPrint() {
     let dataRombel = semuaData.filter((row) => {
       if (!row.created_at) return false;
 
-      if (kelasTerpilih &&
-        String(row.kelas || "").trim().toUpperCase() !==
-          String(kelasTerpilih).toUpperCase()) {
+      if (
+        kelasTerpilih &&
+        String(row.kelas || "")
+          .trim()
+          .toUpperCase() !== String(kelasTerpilih).toUpperCase()
+      ) {
         return false;
       }
 
-      return normalizeRombelPrint(row.rombel) ===
-        normalizeRombelPrint(rombelTerpilih);
+      return (
+        normalizeRombelPrint(row.rombel) ===
+        normalizeRombelPrint(rombelTerpilih)
+      );
     });
 
     const hariIni = new Date();
@@ -195,43 +226,31 @@ function initPrint() {
     // ================================
 
     if (jenisLaporan === "mingguan") {
-      const jarakKeSenin =
-        hariIni.getDay() === 0
-          ? 6
-          : hariIni.getDay() - 1;
+      const jarakKeSenin = hariIni.getDay() === 0 ? 6 : hariIni.getDay() - 1;
 
       const senin = new Date(hariIni);
 
-      senin.setDate(
-        hariIni.getDate() - jarakKeSenin
-      );
+      senin.setDate(hariIni.getDate() - jarakKeSenin);
 
       // Akhir pekan: Minggu (senin + 6) agar absen Sabtu/Minggu tetap terhitung
       const akhirPekan = new Date(senin);
 
-      akhirPekan.setDate(
-        senin.getDate() + 6
-      );
+      akhirPekan.setDate(senin.getDate() + 6);
 
-      const startStr =
-        senin.toLocaleDateString("sv-SE");
+      const startStr = senin.toLocaleDateString("sv-SE");
 
-      const endStr =
-        akhirPekan.toLocaleDateString("sv-SE");
+      const endStr = akhirPekan.toLocaleDateString("sv-SE");
 
       dataRombel = dataRombel.filter((row) => {
         const tgl = toLocalDateStr(row.created_at);
         return tgl >= startStr && tgl <= endStr;
       });
-
     } else {
-
       // ================================
       // BULANAN
       // ================================
 
-      const bulanTerpilih =
-        document.getElementById("printBulan").value;
+      const bulanTerpilih = document.getElementById("printBulan").value;
 
       if (!bulanTerpilih) {
         throw new Error("Pilih bulan dan tahun terlebih dahulu!");
@@ -248,7 +267,7 @@ function initPrint() {
         ...new Set(
           semuaData
             .filter((row) => row.rombel)
-            .map((row) => String(row.rombel).trim())
+            .map((row) => String(row.rombel).trim()),
         ),
       ];
 
@@ -258,7 +277,7 @@ function initPrint() {
 
       throw new Error(
         "Tidak ada data riwayat absensi ditemukan untuk rombel dan periode tersebut!" +
-          hint
+          hint,
       );
     }
 
@@ -267,11 +286,7 @@ function initPrint() {
     // ================================
 
     const daftarTanggal = [
-      ...new Set(
-        dataRombel.map(
-          (row) => toLocalDateStr(row.created_at)
-        )
-      ),
+      ...new Set(dataRombel.map((row) => toLocalDateStr(row.created_at))),
     ].sort();
 
     // ================================
@@ -294,58 +309,46 @@ function initPrint() {
           Nama: nama,
           RFID: rfid,
           Rombel: row.rombel,
+          Kelas: row.kelas || "-",
+          Rayon: formatRayonPrint(row.rayon),
           LogTanggal: {},
         };
       }
 
-      daftarSiswa[rfid].LogTanggal[
-        toLocalDateStr(row.created_at)
-      ] = row.status || "Hadir";
+      daftarSiswa[rfid].LogTanggal[toLocalDateStr(row.created_at)] =
+        row.status || "Hadir";
     });
 
     return {
       daftarTanggal,
       daftarSiswa,
       rombelLabel,
+      kelasLabel,
       jenisLaporan,
     };
   }
-
 
   // ==================================================
   // BUAT DATA TABEL
   // ==================================================
 
-  function buatDataTabel(
-  daftarTanggal,
-  daftarSiswa
-) {
-  const jumlahTanggal = daftarTanggal.length;
+  function buatDataTabel(daftarTanggal, daftarSiswa) {
+    const jumlahTanggal = daftarTanggal.length;
 
-  const fontTanggal =
-    jumlahTanggal > 24
-      ? 7
-      : jumlahTanggal > 16
-        ? 8
-        : 10;
+    const fontTanggal = jumlahTanggal > 24 ? 7 : jumlahTanggal > 16 ? 8 : 10;
 
-  const padTanggal =
-    jumlahTanggal > 24
-      ? "1px 1px"
-      : "4px 2px";
+    const padTanggal = jumlahTanggal > 24 ? "1px 1px" : "4px 2px";
 
+    // ==========================================
+    // HEADER TANGGAL
+    // ==========================================
 
-  // ==========================================
-  // HEADER TANGGAL
-  // ==========================================
+    let headerTanggalHtml = "";
 
-  let headerTanggalHtml = "";
+    daftarTanggal.forEach((tgl) => {
+      const s = tgl.split("-");
 
-  daftarTanggal.forEach((tgl) => {
-
-    const s = tgl.split("-");
-
-    headerTanggalHtml += `
+      headerTanggalHtml += `
       <th style="
         text-align: center;
         font-size: ${fontTanggal}px;
@@ -360,65 +363,44 @@ function initPrint() {
         ${s[2]}/${s[1]}
       </th>
     `;
-  });
+    });
 
+    // ==========================================
+    // BARIS SISWA
+    // ==========================================
 
-  // ==========================================
-  // BARIS SISWA
-  // ==========================================
+    let barisSiswaHtml = "";
 
-  let barisSiswaHtml = "";
+    let nomor = 1;
 
-  let nomor = 1;
+    for (const rfid in daftarSiswa) {
+      const siswa = daftarSiswa[rfid];
 
+      let kolomStatusHtml = "";
 
-  for (const rfid in daftarSiswa) {
+      let totalHadir = 0;
 
-    const siswa = daftarSiswa[rfid];
+      // ========================================
+      // STATUS SETIAP TANGGAL
+      // ========================================
 
-    let kolomStatusHtml = "";
+      daftarTanggal.forEach((tgl) => {
+        const status = siswa.LogTanggal[tgl] || "Alfa";
 
-    let totalHadir = 0;
+        const huruf =
+          status === "Hadir" ? "H" : status.substring(0, 1).toUpperCase();
 
+        let color = "#dc2626";
 
-    // ========================================
-    // STATUS SETIAP TANGGAL
-    // ========================================
+        if (huruf === "H") {
+          color = "#16a34a";
 
-    daftarTanggal.forEach((tgl) => {
+          totalHadir++;
+        } else if (huruf === "I" || huruf === "S") {
+          color = "#ea580c";
+        }
 
-      const status =
-        siswa.LogTanggal[tgl] || "Alfa";
-
-
-      const huruf =
-        status === "Hadir"
-          ? "H"
-          : status
-              .substring(0, 1)
-              .toUpperCase();
-
-
-      let color = "#dc2626";
-
-
-      if (huruf === "H") {
-
-        color = "#16a34a";
-
-        totalHadir++;
-
-      } else if (
-        huruf === "I" ||
-        huruf === "S"
-      ) {
-
-        color = "#ea580c";
-
-      }
-
-
-      kolomStatusHtml += `
+        kolomStatusHtml += `
         <td style="
           text-align: center;
           font-weight: bold;
@@ -433,14 +415,13 @@ function initPrint() {
           ${huruf}
         </td>
       `;
-    });
+      });
 
+      // ========================================
+      // BARIS SISWA
+      // ========================================
 
-    // ========================================
-    // BARIS SISWA
-    // ========================================
-
-    barisSiswaHtml += `
+      barisSiswaHtml += `
       <tr style="
         background: var(--color-card-bg);
         color: var(--color-teks);
@@ -458,11 +439,18 @@ function initPrint() {
         <td style="
           border: 1px solid #ccc;
           padding: 5px 8px;
-          text-align: left;
+          text-align: center;
         ">
           ${siswa.Nama}
         </td>
 
+        <td style="
+          border: 1px solid #ccc;
+          padding: 5px 8px;
+          text-align: center;
+        ">
+          ${siswa.Kelas}
+        </td>
 
         <td style="
           text-align: center;
@@ -470,6 +458,14 @@ function initPrint() {
           padding: 5px;
         ">
           ${siswa.Rombel}
+        </td>
+
+        <td style="
+          border: 1px solid #ccc;
+          padding: 5px 8px;
+          text-align: center;
+        ">
+          ${siswa.Rayon}
         </td>
 
 
@@ -487,26 +483,23 @@ function initPrint() {
 
       </tr>
     `;
+    }
+
+    // ==========================================
+    // RETURN
+    // ==========================================
+
+    return {
+      headerTanggalHtml,
+      barisSiswaHtml,
+    };
   }
-
-
-  // ==========================================
-  // RETURN
-  // ==========================================
-
-  return {
-    headerTanggalHtml,
-    barisSiswaHtml,
-  };
-}
-
 
   // ==================================================
   // BUAT PREVIEW
   // ==================================================
 
   async function tampilkanPreview(format) {
-
     btnPreviewCetak.disabled = true;
 
     btnPreviewCetak.innerHTML = `
@@ -517,20 +510,12 @@ function initPrint() {
     `;
 
     try {
+      const { daftarTanggal, daftarSiswa, rombelLabel, kelasLabel, jenisLaporan } =
+        await prosesDataSiswa();
 
-      const {
+      const { headerTanggalHtml, barisSiswaHtml } = buatDataTabel(
         daftarTanggal,
         daftarSiswa,
-        rombelLabel,
-        jenisLaporan,
-      } = await prosesDataSiswa();
-
-      const {
-        headerTanggalHtml,
-        barisSiswaHtml,
-      } = buatDataTabel(
-        daftarTanggal,
-        daftarSiswa
       );
 
       previewRekap.style.display = "block";
@@ -562,7 +547,7 @@ function initPrint() {
               </h4>
 
               <small style="color: var(--color-teks-sub);">
-                ${rombelLabel}
+                ${rombelLabel}${kelasLabel ? ` • ${kelasLabel}` : ""}
                 •
                 ${jenisLaporan.toUpperCase()}
                 •
@@ -589,7 +574,7 @@ function initPrint() {
           <div
             style="
               overflow-x:auto;
-              max-height:500px;
+              max-height:100%;
               overflow-y:auto;
               border:1px solid var(--border-sidebar);
               border-radius:8px;
@@ -616,26 +601,33 @@ function initPrint() {
                   "
                 >
 
-                  <th style="width:4%;">
+                  <th style="width:4%; text-align:center;">
                     No
                   </th>
 
                   <th
                     style="
                       width:25%;
-                      text-align:left;
-                    "
-                  >
+                      text-align:center;
+                    ">
                     Nama Siswa
                   </th>
 
-                  <th style="width:10%;">
+                  <th style="width:10%; text-align:center;">
+                    Kelas
+                  </th>
+
+                  <th style="width:10%; text-align:center;">
                     Rombel
+                  </th>
+
+                  <th style="width:10%; text-align:center;">
+                    Rayon
                   </th>
 
                   ${headerTanggalHtml}
 
-                  <th>
+                  <th style="width:10%; text-align:center;">
                     Total Hadir
                   </th>
 
@@ -715,7 +707,6 @@ function initPrint() {
         </div>
       `;
 
-
       // ================================
       // BATAL PREVIEW
       // ================================
@@ -723,15 +714,12 @@ function initPrint() {
       document
         .getElementById("btnBatalPreview")
         .addEventListener("click", () => {
-
           previewRekap.innerHTML = "";
 
           previewRekap.style.display = "none";
 
           printFormat.value = "";
-
         });
-
 
       // ================================
       // DOWNLOAD
@@ -751,14 +739,16 @@ function initPrint() {
               daftarTanggal,
               daftarSiswa,
               rombelLabel,
-              jenisLaporan
+              jenisLaporan,
+              kelasLabel,
             );
           } else {
             await downloadPDF(
               daftarTanggal,
               daftarSiswa,
               rombelLabel,
-              jenisLaporan
+              jenisLaporan,
+              kelasLabel,
             );
           }
         } catch (err) {
@@ -772,9 +762,7 @@ function initPrint() {
           `;
         }
       });
-
     } catch (error) {
-
       previewRekap.innerHTML = `
         <div class="alert alert-danger">
           <i class="bi bi-exclamation-triangle-fill"></i>
@@ -783,19 +771,15 @@ function initPrint() {
       `;
 
       previewRekap.style.display = "block";
-
     } finally {
-
       btnPreviewCetak.disabled = false;
 
       btnPreviewCetak.innerHTML = `
         <i class="bi bi-eye"></i>
         Tampilkan Preview
       `;
-
     }
   }
-
 
   // ==================================================
   // DOWNLOAD EXCEL
@@ -805,129 +789,110 @@ function initPrint() {
     daftarTanggal,
     daftarSiswa,
     rombelTerpilih,
-    jenisLaporan
+    jenisLaporan,
   ) {
-
     const rowsExcel = [];
 
     let nomor = 1;
 
     for (const rfid in daftarSiswa) {
-
       const siswa = daftarSiswa[rfid];
 
       const rowData = {
         No: nomor++,
         "Nama Siswa": siswa.Nama,
         RFID: siswa.RFID,
+        Kelas: siswa.Kelas,
         Rombel: siswa.Rombel,
+        Rayon: siswa.Rayon,
       };
 
       let totalHadir = 0;
 
       daftarTanggal.forEach((tgl) => {
-
-        const status =
-          siswa.LogTanggal[tgl] || "Alfa";
+        const status = siswa.LogTanggal[tgl] || "Alfa";
 
         rowData[tgl] =
-          status === "Hadir"
-            ? "H"
-            : status
-                .substring(0, 1)
-                .toUpperCase();
+          status === "Hadir" ? "H" : status.substring(0, 1).toUpperCase();
 
         if (status === "Hadir") {
           totalHadir++;
         }
-
       });
 
-      rowData["Total Hadir"] =
-        `${totalHadir} Hari`;
+      rowData["Total Hadir"] = `${totalHadir} Hari`;
 
       rowsExcel.push(rowData);
     }
 
-    const workSheet =
-      XLSX.utils.json_to_sheet(rowsExcel);
+    const workSheet = XLSX.utils.json_to_sheet(rowsExcel);
 
-    const workbook =
-      XLSX.utils.book_new();
+    const workbook = XLSX.utils.book_new();
 
-    XLSX.utils.book_append_sheet(
-      workbook,
-      workSheet,
-      "Rekap Absensi"
-    );
+    XLSX.utils.book_append_sheet(workbook, workSheet, "Rekap Absensi");
 
     XLSX.writeFile(
       workbook,
-      `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}.xlsx`
+      `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}.xlsx`,
     );
   }
-
 
   // ==================================================
   // DOWNLOAD PDF
   // ==================================================
 
   async function downloadPDF(
-  daftarTanggal,
-  daftarSiswa,
-  rombelTerpilih,
-  jenisLaporan
-) {
-  const {
-    headerTanggalHtml,
-    barisSiswaHtml,
-  } = buatDataTabel(
     daftarTanggal,
-    daftarSiswa
-  );
+    daftarSiswa,
+    rombelTerpilih,
+    jenisLaporan,
+    kelasLabel,
+  ) {
+    const { headerTanggalHtml, barisSiswaHtml } = buatDataTabel(
+      daftarTanggal,
+      daftarSiswa,
+    );
 
-  const opsiNamaFile =
-    `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}_${new Date()
+    const opsiNamaFile = `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}_${new Date()
       .toISOString()
       .substring(0, 10)}.pdf`;
 
-  // ==========================================
-  // CONTAINER PDF
-  // ==========================================
+    // ==========================================
+    // CONTAINER PDF
+    // ==========================================
 
-  const elementPdf = document.createElement("div");
+    const elementPdf = document.createElement("div");
 
-  elementPdf.id = "pdf-export-container";
+    elementPdf.id = "pdf-export-container";
 
-  elementPdf.style.position = "absolute";
-  elementPdf.style.left = "0";
-  elementPdf.style.top = "0";
+    elementPdf.style.position = "absolute";
+    elementPdf.style.left = "0";
+    elementPdf.style.top = "0";
 
-  // A4 Landscape dalam pixel
-  elementPdf.style.width = "1123px";
-  elementPdf.style.minHeight = "794px";
+    // A4 Landscape dalam pixel
+    elementPdf.style.width = "1123px";
+    elementPdf.style.minHeight = "794px";
 
-  elementPdf.style.margin = "0";
-  elementPdf.style.padding = "35px 45px";
+    elementPdf.style.margin = "0";
+    elementPdf.style.padding = "35px 45px";
 
-  elementPdf.style.backgroundColor = "#ffffff";
-  elementPdf.style.color = "#111827";
+    elementPdf.style.backgroundColor = "#ffffff";
+    elementPdf.style.color = "#111827";
 
-  elementPdf.style.boxSizing = "border-box";
+    elementPdf.style.boxSizing = "border-box";
 
-  // PENTING
-  elementPdf.style.display = "block";
-  elementPdf.style.overflow = "visible";
+    // PENTING
+    elementPdf.style.display = "block";
+    elementPdf.style.overflow = "visible";
 
-  elementPdf.style.zIndex = "9999";
-  elementPdf.style.pointerEvents = "none";
+    elementPdf.style.zIndex = "9999";
+    elementPdf.style.pointerEvents = "none";
 
+    // ==========================================
+    // ISI PDF
+    // ==========================================
 
-  // ==========================================
-  // ISI PDF
-  // ==========================================
-
-  elementPdf.innerHTML = `
+    elementPdf.innerHTML = `
 
     <div style="
       font-family: Arial, sans-serif;
@@ -965,7 +930,7 @@ function initPrint() {
           color: #374151;
         ">
           KOMPETENSI KEAHLIAN:
-          ${rombelTerpilih}
+          ${rombelTerpilih}${kelasLabel ? ` - ${kelasLabel}` : ""}
         </h3>
 
         <p style="
@@ -1025,7 +990,7 @@ function initPrint() {
               width: 180px;
               border: 1px solid #9ca3af;
               padding: 6px;
-              text-align: left;
+              text-align: center;
               vertical-align: middle;
             ">
               Nama Siswa
@@ -1038,7 +1003,27 @@ function initPrint() {
               text-align: center;
               vertical-align: middle;
             ">
+              Kelas
+            </th>
+
+            <th style="
+              width: 70px;
+              border: 1px solid #9ca3af;
+              padding: 6px 3px;
+              text-align: center;
+              vertical-align: middle;
+            ">
               Rombel
+            </th>
+
+            <th style="
+              width: 70px;
+              border: 1px solid #9ca3af;
+              padding: 6px 3px;
+              text-align: center;
+              vertical-align: middle;
+            ">
+              Rayon
             </th>
 
             ${headerTanggalHtml}
@@ -1119,145 +1104,107 @@ function initPrint() {
     </div>
   `;
 
+    // ==========================================
+    // MASUKKAN KE DOM
+    // ==========================================
 
-  // ==========================================
-  // MASUKKAN KE DOM
-  // ==========================================
+    document.body.appendChild(elementPdf);
 
-  document.body.appendChild(elementPdf);
-
-
-  try {
-
-    // Tunggu browser menyelesaikan layout
-    await new Promise((resolve) => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(resolve);
+    try {
+      // Tunggu browser menyelesaikan layout
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(resolve);
+        });
       });
-    });
 
+      // ==========================================
+      // UKUR UKURAN ELEMENT
+      // ==========================================
 
-    // ==========================================
-    // UKUR UKURAN ELEMENT
-    // ==========================================
+      const lebarCanvas = elementPdf.offsetWidth;
+      const tinggiCanvas = elementPdf.scrollHeight;
 
-    const lebarCanvas = elementPdf.offsetWidth;
-    const tinggiCanvas = elementPdf.scrollHeight;
+      console.log("PDF WIDTH :", lebarCanvas);
+      console.log("PDF HEIGHT:", tinggiCanvas);
 
+      // ==========================================
+      // KONFIGURASI PDF
+      // ==========================================
 
-    console.log("PDF WIDTH :", lebarCanvas);
-    console.log("PDF HEIGHT:", tinggiCanvas);
+      const opsiPdf = {
+        margin: 0,
 
+        filename: opsiNamaFile,
 
-    // ==========================================
-    // KONFIGURASI PDF
-    // ==========================================
+        image: {
+          type: "jpeg",
+          quality: 0.98,
+        },
 
-    const opsiPdf = {
+        html2canvas: {
+          scale: 2,
 
-      margin: 0,
+          useCORS: true,
 
-      filename: opsiNamaFile,
+          backgroundColor: "#ffffff",
 
-      image: {
-        type: "jpeg",
-        quality: 0.98,
-      },
+          logging: false,
 
-      html2canvas: {
+          width: lebarCanvas,
 
-        scale: 2,
+          height: tinggiCanvas,
 
-        useCORS: true,
+          scrollX: 0,
 
-        backgroundColor: "#ffffff",
+          scrollY: 0,
+        },
 
-        logging: false,
+        jsPDF: {
+          unit: "mm",
 
-        width: lebarCanvas,
+          format: "a4",
 
-        height: tinggiCanvas,
+          orientation: "landscape",
+        },
 
-        scrollX: 0,
+        pagebreak: {
+          mode: ["css", "legacy"],
+        },
+      };
 
-        scrollY: 0,
+      // ==========================================
+      // GENERATE PDF
+      // ==========================================
 
-      },
+      await html2pdf().set(opsiPdf).from(elementPdf).save();
+    } catch (err) {
+      console.error("Gagal generate PDF:", err);
 
-      jsPDF: {
-
-        unit: "mm",
-
-        format: "a4",
-
-        orientation: "landscape",
-
-      },
-
-      pagebreak: {
-
-        mode: [
-          "css",
-          "legacy"
-        ],
-
-      },
-
-    };
-
-
-    // ==========================================
-    // GENERATE PDF
-    // ==========================================
-
-    await html2pdf()
-      .set(opsiPdf)
-      .from(elementPdf)
-      .save();
-
-
-  } catch (err) {
-
-    console.error(
-      "Gagal generate PDF:",
-      err
-    );
-
-    throw err;
-
-  } finally {
-
-    // Baru hapus setelah selesai
-    elementPdf.remove();
-
+      throw err;
+    } finally {
+      // Baru hapus setelah selesai
+      elementPdf.remove();
+    }
   }
-}
-
 
   // ==================================================
   // TOMBOL PREVIEW
   // ==================================================
 
-  btnPreviewCetak.addEventListener(
-    "click",
-    async () => {
+  btnPreviewCetak.addEventListener("click", async () => {
+    const format = printFormat.value;
 
-      const format = printFormat.value;
+    if (!format) {
+      alert("Silakan pilih format laporan terlebih dahulu!");
 
-      if (!format) {
+      printFormat.focus();
 
-        alert(
-          "Silakan pilih format laporan terlebih dahulu!"
-        );
-
-        printFormat.focus();
-
-        return;
-      }
-
-      await tampilkanPreview(format);
+      return;
     }
-  );
+
+    await tampilkanPreview(format);
+  });
 }
 
 // function initPrint() {

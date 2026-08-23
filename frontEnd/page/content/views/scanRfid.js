@@ -251,102 +251,36 @@ async function submitScan() {
   statusEl.innerHTML =
     '<span class="scan-status-badge scanning"><i class="bi bi-arrow-repeat"></i> Memproses...</span>';
 
+  const mode =
+    (typeof window.currentScanMode !== "undefined" &&
+      window.currentScanMode) ||
+    "masuk";
+
   try {
-    const resCheck = await fetch(`${API_BASE}/api/attendances`, {
-      method: "GET",
-      credentials: "include"
+    const response = await fetch(`${API_BASE}/api/attendances/tap`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ idcard: cardId, mode }),
     });
-    const jsonCheck = await resCheck.json();
 
-    let dataHariIni = null;
-    if (jsonCheck.success) {
-      const todayStr = new Date().toLocaleDateString("sv-SE");
-
-      const logHariIni = (jsonCheck.data || []).filter((row) => {
-        const tglLog = row.created_at
-          ? new Date(row.created_at).toLocaleDateString("sv-SE")
-          : "";
-        return row.idcard === cardId && tglLog === todayStr;
-      });
-
-      if (logHariIni.length > 0) {
-        dataHariIni = logHariIni[0];
-      }
-    }
-
-    const mode =
-      (typeof window.currentScanMode !== "undefined" &&
-        window.currentScanMode) ||
-      "masuk";
-
-    let response;
-    if (dataHariIni) {
-      if (mode === "masuk") {
-        statusEl.innerHTML =
-          '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.</div>`;
-        speakAbsensi("Absensi gagal. Siswa sudah absen masuk hari ini. Gunakan mode Keluar untuk absen keluar.");
-        return;
-      }
-
-      if (dataHariIni.time_finish || dataHariIni.status_keluar) {
-        statusEl.innerHTML =
-          '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        speakAbsensi("Absensi gagal. Siswa sudah melakukan absensi masuk dan keluar hari ini.");
-        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa sudah absen masuk & keluar hari ini!</div>`;
-        return;
-      }
-
-      const sekarangJam = new Date().toISOString();
-
-      response = await fetch(
-        `${API_BASE}/api/attendances/${dataHariIni.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            time_finish: sekarangJam,
-          }),
-        },
-      );
-    } else {
-      if (mode === "keluar") {
-        statusEl.innerHTML =
-          '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.</div>`;
-        speakAbsensi("Absensi gagal. Siswa ini belum absen masuk hari ini. Gunakan mode Masuk terlebih dahulu.");
-        return;
-      }
-
-      response = await fetch(
-        `${API_BASE}/api/attendances/store?idcard=` +
-        encodeURIComponent(cardId) +
-        "&mac_address=RFID",
-        {
-          method: "POST",
-          credentials: "include"
-        },
-      );
-    }
-
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (response.ok && data.success) {
       statusEl.innerHTML =
         '<span class="scan-status-badge success"><i class="bi bi-check-circle-fill"></i> Berhasil!</span>';
 
-      const pesanSukses =
-        mode === "keluar"
-          ? "Absen KELUAR berhasil dicatat!"
-          : "Absen MASUK berhasil dicatat!";
+      const suksesKeluar = data.action === "keluar";
+      const pesanSukses = suksesKeluar
+        ? "Absen KELUAR berhasil dicatat!"
+        : "Absen MASUK berhasil dicatat!";
       resultEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${pesanSukses}</div>`;
       showToast(pesanSukses, "success");
 
       speakAbsensi(
-        mode === "keluar"
+        suksesKeluar
           ? "Absen keluar berhasil dicatat"
           : "Absen masuk berhasil dicatat"
       );
@@ -358,13 +292,35 @@ async function submitScan() {
           window.location.href = "/frontEnd/page/structure/dashboard.html";
         }
       }, 2900);
-    } else {
-      const pesanError = data.error || data.message || "Gagal memproses absensi";
-      statusEl.innerHTML =
-        '<span class="scan-status-badge error"><i class="bi bi-x-circle-fill"></i> Gagal</span>';
-      speakAbsensi(`Absensi gagal. ${pesanError}`);
-      resultEl.innerHTML = `<div class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> ${pesanError}</div>`;
+      return;
     }
+
+    let pesanError = data.error || data.message || "Gagal memproses absensi";
+    let alertType = "danger";
+    let ttsPesan = `Absensi gagal. ${pesanError}`;
+
+    switch (data.code) {
+      case "already_checked_in":
+        alertType = "warning";
+        pesanError = "Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.";
+        ttsPesan = "Absensi gagal. Siswa sudah absen masuk hari ini. Gunakan mode Keluar untuk absen keluar.";
+        break;
+      case "already_finished":
+        alertType = "warning";
+        pesanError = "Siswa sudah absen masuk & keluar hari ini!";
+        ttsPesan = "Absensi gagal. Siswa sudah melakukan absensi masuk dan keluar hari ini.";
+        break;
+      case "not_checked_in":
+        alertType = "warning";
+        pesanError = "Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.";
+        ttsPesan = "Absensi gagal. Siswa ini belum absen masuk hari ini. Gunakan mode Masuk terlebih dahulu.";
+        break;
+    }
+
+    statusEl.innerHTML =
+      '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
+    resultEl.innerHTML = `<div class="alert alert-${alertType} mt-3"><i class="bi bi-exclamation-octagon-fill"></i> ${pesanError}</div>`;
+    speakAbsensi(ttsPesan);
   } catch (error) {
     statusEl.innerHTML =
       '<span class="scan-status-badge error"><i class="bi bi-wifi-off"></i> Error</span>';
@@ -395,103 +351,39 @@ async function submitManual() {
     return;
   }
 
+  lastCardId = nama;
+
   resultManualEl.innerHTML =
     '<div class="alert alert-warning">Menyimpan data...</div>';
 
+  const mode =
+    (typeof window.currentScanMode !== "undefined" &&
+      window.currentScanMode) ||
+    "masuk";
+
   try {
-    const resCheck = await fetch(`${API_BASE}/api/attendances`, {
-      method: "GET",
-      credentials: "include"
+    const response = await fetch(`${API_BASE}/api/attendances/tap`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        username: nama,
+        mode,
+        status,
+        note: keterangan,
+      }),
     });
-    const jsonCheck = await resCheck.json();
 
-    let dataHariIni = null;
-    if (jsonCheck.success) {
-      const todayStr = new Date().toLocaleDateString("sv-SE");
-
-      const logHariIni = (jsonCheck.data || []).filter((row) => {
-        const tglLog = row.created_at
-          ? new Date(row.created_at).toLocaleDateString("sv-SE")
-          : "";
-        const namaSiswaLog = row.users
-          ? Array.isArray(row.users)
-            ? row.users[0]?.username
-            : row.users.username
-          : null;
-
-        return (
-          namaSiswaLog &&
-          namaSiswaLog.toLowerCase() === nama.toLowerCase() &&
-          tglLog === todayStr
-        );
-      });
-
-      if (logHariIni.length > 0) {
-        dataHariIni = logHariIni[0];
-      }
-    }
-
-    const mode =
-      (typeof window.currentScanMode !== "undefined" &&
-        window.currentScanMode) ||
-      "masuk";
-
-    let response;
-    if (dataHariIni) {
-      if (mode === "masuk") {
-        resultManualEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> ${nama} sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.</div>`;
-        return;
-      }
-
-      if (dataHariIni.time_finish) {
-        resultManualEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini sudah absen masuk & keluar hari ini!</div>`;
-        showToast("Kuota absensi siswa ini sudah penuh", "warning");
-        return;
-      }
-
-      const sekarangJam = new Date().toISOString();
-
-      response = await fetch(
-        `${API_BASE}/api/attendances/${dataHariIni.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            time_finish: sekarangJam,
-          }),
-        },
-      );
-    } else {
-      if (mode === "keluar") {
-        resultManualEl.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-octagon-fill"></i> ${nama} belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.</div>`;
-        return;
-      }
-
-      response = await fetch(`${API_BASE}/api/attendances/manual`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          username: nama,
-          status: status,
-          note: keterangan,
-        }),
-      });
-    }
-
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (response.ok && data.success) {
-      const pesanSukses =
-        mode === "keluar"
-          ? `Absen keluar untuk ${nama} berhasil diupdate!`
-          : `Absensi manual ${nama} berhasil disimpan!`;
-      resultManualEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${data.message || pesanSukses}</div>`;
+      const suksesKeluar = data.action === "keluar";
+      const pesanSukses = suksesKeluar
+        ? `Absen keluar untuk ${nama} berhasil diupdate!`
+        : data.message || `Absensi manual ${nama} berhasil disimpan!`;
+      resultManualEl.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> ${pesanSukses}</div>`;
 
       document.getElementById("manual-nama").value = "";
       document.getElementById("manual-keterangan").value = "";
@@ -507,13 +399,34 @@ async function submitManual() {
         toggleAbsenMode("scan");
       }, 1500);
     } else {
-      resultManualEl.innerHTML = `<div class="alert alert-danger">Gagal: ${data.error || data.message || "Terjadi kesalahan"}</div>`;
-      showToast(data.error || "Gagal memproses absensi", "danger");
+      let alertType = "danger";
+      let pesanError = data.error || data.message || "Terjadi kesalahan";
+
+      switch (data.code) {
+        case "already_checked_in":
+          alertType = "warning";
+          pesanError = `${nama} sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.`;
+          break;
+        case "already_finished":
+          alertType = "warning";
+          pesanError = `${nama} sudah absen masuk & keluar hari ini!`;
+          showToast("Kuota absensi siswa ini sudah penuh", "warning");
+          break;
+        case "not_checked_in":
+          alertType = "warning";
+          pesanError = `${nama} belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.`;
+          break;
+        case "user_not_found":
+          alertType = "warning";
+          break;
+      }
+
+      resultManualEl.innerHTML = `<div class="alert alert-${alertType}"><i class="bi bi-exclamation-octagon-fill"></i> ${pesanError}</div>`;
     }
   } catch (error) {
     resultManualEl.innerHTML = `<div class="alert alert-danger">Terjadi kesalahan koneksi ke server</div>`;
     showToast("Koneksi ke server gagal", "danger");
   } finally {
-    lastCardId = null;
+    if (lastCardId === nama) lastCardId = null;
   }
 }

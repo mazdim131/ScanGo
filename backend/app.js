@@ -40,6 +40,15 @@ function kirimNotifikasiWeb(siswa, jenis) {
     );
 }
 
+// Jendela "hari ini" berbasis WIB (UTC+7), bukan timezone server
+function rentangHariWIB() {
+  const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
+  const startWib = new Date(Date.now() + WIB_OFFSET_MS);
+  startWib.setUTCHours(0, 0, 0, 0);
+  const endWib = new Date(startWib.getTime() + 24 * 60 * 60 * 1000 - 1);
+  return { startWib: startWib.toISOString(), endWib: endWib.toISOString() };
+}
+
 // Helmet & body parser harus dipasang sebelum route
 app.use(
   helmet({
@@ -103,18 +112,31 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
         .json({ success: false, message: "UID Kartu tidak terbaca" });
     }
 
-    const { data: uservalid, error: userError } = await supabase
-      .from("users")
-      .select("username, idcard, whatsapp, rombel")
-      .eq("idcard", idcard)
-      .maybeSingle();
+    const { startWib, endWib } = rentangHariWIB();
 
-    if (userError) {
-      console.error("Error store user lookup:", userError.message);
+    const [userRes, attRes] = await Promise.all([
+      supabase
+        .from("users")
+        .select("username, idcard, whatsapp, rombel")
+        .eq("idcard", idcard)
+        .maybeSingle(),
+      supabase
+        .from("attendances")
+        .select("id, time_finish")
+        .eq("idcard", idcard)
+        .gte("created_at", startWib)
+        .lte("created_at", endWib)
+        .maybeSingle(),
+    ]);
+
+    if (userRes.error) {
+      console.error("Error store user lookup:", userRes.error.message);
       return res
         .status(500)
         .json({ success: false, message: "Terjadi kesalahan saat memverifikasi kartu." });
     }
+
+    const uservalid = userRes.data;
 
     if (!uservalid) {
       return res.status(403).json({
@@ -125,24 +147,12 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
 
     const namaPemilik = uservalid.username || "Siswa";
 
-    // Jendela "hari ini" berbasis WIB (UTC+7), bukan timezone server
-    const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
-    const startWib = new Date(Date.now() + WIB_OFFSET_MS);
-    startWib.setUTCHours(0, 0, 0, 0);
-    const endWib = new Date(startWib.getTime() + 24 * 60 * 60 * 1000 - 1);
-
-    const { data: existing, error: existingError } = await supabase
-      .from("attendances")
-      .select("id, time_finish")
-      .eq("idcard", idcard)
-      .gte("created_at", startWib.toISOString())
-      .lte("created_at", endWib.toISOString())
-      .maybeSingle();
-
-    if (existingError) {
-      console.error("Error check existing:", existingError.message);
-      throw existingError;
+    if (attRes.error) {
+      console.error("Error check existing:", attRes.error.message);
+      throw attRes.error;
     }
+
+    const existing = attRes.data;
 
     if (existing) {
       if (existing.time_finish) {
@@ -189,6 +199,199 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Error store attendance:", error.message);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
+  }
+});
+
+// Endpoint tap serbaguna: 1 request dari frontend, semua pengecekan di server.
+// Body/query: idcard ATAU username, mode ("masuk"|"keluar"), mac_address?, status?, note?
+app.post("/api/attendances/tap", verifyToken, async (req, res) => {
+  try {
+    const body = req.body || {};
+    const query = req.query || {};
+    const rawIdcard = String(body.idcard ?? query.idcard ?? "").trim();
+    const rawUsername = String(body.username ?? query.username ?? "").trim();
+    const mode = String(body.mode ?? query.mode ?? "masuk") === "keluar" ? "keluar" : "masuk";
+    const macAddress = body.mac_address ?? query.mac_address ?? null;
+    const statusInput = typeof body.status === "string" ? body.status.trim() : "";
+    const noteInput = typeof body.note === "string" ? body.note.trim() : "";
+
+    const byIdcard = rawIdcard !== "";
+    if (!byIdcard && !rawUsername) {
+      return res
+        .status(400)
+        .json({ success: false, code: "invalid_input", message: "UID kartu atau nama siswa wajib diisi." });
+    }
+
+    if (byIdcard && !/^\d+$/.test(rawIdcard)) {
+      return res.status(403).json({
+        success: false,
+        code: "unknown_card",
+        message: "ID RFID tidak dikenali! Silahkan registrasi terlebih dahulu.",
+      });
+    }
+
+    const { startWib, endWib } = rentangHariWIB();
+
+    let uservalid;
+    let existing;
+
+    if (byIdcard) {
+      const [userRes, attRes] = await Promise.all([
+        supabase
+          .from("users")
+          .select("username, idcard, whatsapp, rombel")
+          .eq("idcard", rawIdcard)
+          .maybeSingle(),
+        supabase
+          .from("attendances")
+          .select("id, time_finish")
+          .eq("idcard", rawIdcard)
+          .gte("created_at", startWib)
+          .lte("created_at", endWib)
+          .maybeSingle(),
+      ]);
+
+      if (userRes.error) {
+        console.error("Error tap user lookup:", userRes.error.message);
+        return res
+          .status(500)
+          .json({ success: false, message: "Terjadi kesalahan saat memverifikasi kartu." });
+      }
+      if (attRes.error) {
+        console.error("Error tap attendance lookup:", attRes.error.message);
+        throw attRes.error;
+      }
+
+      uservalid = userRes.data;
+      existing = attRes.data;
+    } else {
+      const userRes = await supabase
+        .from("users")
+        .select("username, idcard, whatsapp, rombel")
+        .ilike("username", rawUsername)
+        .maybeSingle();
+
+      if (userRes.error) {
+        console.error("Error tap manual user lookup:", userRes.error.message);
+        return res.status(500).json({ success: false, error: "Gagal mencari data siswa." });
+      }
+      if (!userRes.data) {
+        return res.status(404).json({
+          success: false,
+          code: "user_not_found",
+          error: `Nama "${rawUsername}" tidak ditemukan di database. Pastikan nama sesuai dengan data yang terdaftar.`,
+        });
+      }
+
+      uservalid = userRes.data;
+
+      const attRes = await supabase
+        .from("attendances")
+        .select("id, time_finish")
+        .eq("idcard", String(uservalid.idcard))
+        .gte("created_at", startWib)
+        .lte("created_at", endWib)
+        .maybeSingle();
+
+      if (attRes.error) {
+        console.error("Error tap manual attendance lookup:", attRes.error.message);
+        throw attRes.error;
+      }
+      existing = attRes.data;
+    }
+
+    if (!uservalid) {
+      return res.status(403).json({
+        success: false,
+        code: "unknown_card",
+        message: "ID RFID tidak dikenali! Silahkan registrasi terlebih dahulu.",
+      });
+    }
+
+    // Aturan absensi: 1x masuk + 1x keluar per kartu per hari
+    if (existing?.time_finish) {
+      return res.status(409).json({
+        success: false,
+        code: "already_finished",
+        message: "Kartu ini sudah absen masuk & keluar hari ini.",
+        attendance_id: existing.id,
+      });
+    }
+
+    if (mode === "masuk" && existing) {
+      return res.status(409).json({
+        success: false,
+        code: "already_checked_in",
+        message: "Kartu ini sudah absen hari ini.",
+        attendance_id: existing.id,
+      });
+    }
+
+    if (mode === "keluar" && !existing) {
+      return res.status(409).json({
+        success: false,
+        code: "not_checked_in",
+        message: "Kartu ini belum absen masuk hari ini.",
+      });
+    }
+
+    if (!existing) {
+      const macDefault = byIdcard ? "RFID Reader Card 135KHZ" : "Manual Input";
+      const insertPayload = {
+        idcard: byIdcard ? rawIdcard : String(uservalid.idcard),
+        mac_address: macAddress || macDefault,
+        status: statusInput || "Hadir",
+      };
+      if (!byIdcard) insertPayload.note = noteInput || "Tidak ada catatan";
+
+      const { data: attendanceData, error: insertError } = await supabase
+        .from("attendances")
+        .insert([insertPayload])
+        .select("id, created_at, status");
+
+      if (insertError) {
+        console.error("Error tap insert:", insertError.message);
+        return res
+          .status(500)
+          .json({ success: false, message: byIdcard ? "Gagal menyimpan absensi." : "Gagal menyimpan absensi manual." });
+      }
+
+      kirimNotifikasiWeb(uservalid, "MASUK");
+
+      const pesan = byIdcard
+        ? `Absensi berhasil dicatat! Selamat belajar ${uservalid.username || "Siswa"}`
+        : `Absensi manual berhasil! ${uservalid.username} tercatat dengan RFID ${uservalid.idcard}`;
+
+      return res.json({
+        success: true,
+        action: "masuk",
+        message: pesan,
+        data: attendanceData,
+      });
+    }
+
+    const nowIso = new Date().toISOString();
+    const { error: updateError } = await supabase
+      .from("attendances")
+      .update({ time_finish: nowIso, updated_at: nowIso })
+      .eq("id", existing.id);
+
+    if (updateError) {
+      console.error("Error tap update:", updateError.message);
+      return res.status(500).json({ success: false, message: "Gagal memperbarui absensi keluar." });
+    }
+
+    kirimNotifikasiWeb(uservalid, "PULANG");
+
+    return res.json({
+      success: true,
+      action: "keluar",
+      message: `Absen keluar untuk ${uservalid.username} berhasil dicatat!`,
+      attendance_id: existing.id,
+    });
+  } catch (error) {
+    console.error("Error tap attendance:", error.message);
     res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
   }
 });
@@ -271,7 +474,7 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
 
     const { data: users, error: userError } = await supabase
       .from("users")
-      .select("username, idcard, rombel, kelas, nis");
+      .select("username, idcard, rombel, kelas, nis, rayon");
 
     if (userError) {
       console.error("Error fetch users:", userError.message);
@@ -292,6 +495,7 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
         idcard: idKartuAbsen,
         rombel: userCocok?.rombel || att.rombel || null,
         kelas: userCocok?.kelas || null,
+        rayon: userCocok?.rayon || att.rayon || null,
         nis: userCocok?.nis ?? null,
         users: userCocok
           ? { username: userCocok.username || userCocok.name || "Siswa" }
@@ -442,19 +646,56 @@ app.get("/api/users/:nis", verifyToken, async (req, res) => {
   }
 });
 
-app.put("/api/users/:nis", verifyToken, verifyAdmin, async (req, res) => {
-  const { nis } = req.params;
-  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas } = req.body;
+app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const userId = Number(id);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ success: false, message: "ID tidak valid." });
+  }
+
+  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas, nis } = req.body;
+
+  if (nis !== undefined && nis !== null && String(nis).trim() !== "" && !/^\d+$/.test(String(nis).trim())) {
+    return res
+      .status(400)
+      .json({ success: false, message: "NIS/NIP harus berupa angka." });
+  }
+
+  const updates = {};
+  if (username) updates.username = username;
+  if (email) updates.email = email;
+  if (rombel) updates.rombel = rombel;
+  if (role) updates.role = role;
+  if (idcard) updates.idcard = idcard;
+  if (whatsapp) updates.whatsapp = whatsapp;
+  if (rayon) updates.rayon = rayon;
+  if (kelas) updates.kelas = kelas;
+  if (nis !== undefined && String(nis).trim() !== "") {
+    updates.nis = Number(String(nis).trim());
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Tidak ada data untuk diupdate." });
+  }
 
   try {
     const { data, error } = await supabase
       .from("users")
-      .update({ username, email, rombel, role, idcard, whatsapp, rayon, kelas })
-      .eq("nis", nis);
+      .update(updates)
+      .eq("id", userId)
+      .select("id");
 
     if (error) {
       console.error("Error update user:", error.message);
       throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data tidak ditemukan." });
     }
 
     return res
@@ -466,17 +707,29 @@ app.put("/api/users/:nis", verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
-app.delete("/api/users/:nis", verifyToken, verifyAdmin, async (req, res) => {
-  const { nis } = req.params;
+app.delete("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
+  const { id } = req.params;
+  const userId = Number(id);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return res.status(400).json({ success: false, message: "ID tidak valid." });
+  }
+
   try {
     const { data, error } = await supabase
       .from("users")
       .delete()
-      .eq("nis", nis);
+      .eq("id", userId)
+      .select("id");
 
     if (error) {
       console.error("Error delete user:", error.message);
       throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Data tidak ditemukan." });
     }
 
     return res

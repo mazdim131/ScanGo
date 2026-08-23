@@ -25,11 +25,22 @@ function buildClient(poolerPort) {
   });
 }
 
+function listMigrations() {
+  const dir = path.join(__dirname, "migrations");
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort();
+}
+
 async function runMigration(client, label) {
-  const sqlPath = path.join(__dirname, "migrations", "001_create_attendances.sql");
-  const sql = fs.readFileSync(sqlPath, "utf8");
-  await client.query(sql);
-  console.log(`Migration 001_create_attendances.sql berhasil dijalankan (${label})!`);
+  const files = listMigrations();
+  for (const file of files) {
+    const sqlPath = path.join(__dirname, "migrations", file);
+    const sql = fs.readFileSync(sqlPath, "utf8");
+    await client.query(sql);
+    console.log(`Migration ${file} berhasil dijalankan (${label})!`);
+  }
 }
 
 async function migrate() {
