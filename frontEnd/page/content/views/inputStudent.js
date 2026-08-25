@@ -1076,6 +1076,8 @@ async function actionEditSiswa(id, email) {
           <optgroup label="Cibedug">
             <option value="Cibedug 1">Cibedug 1</option>
             <option value="Cibedug 2">Cibedug 2</option>
+            <option value="Cibedug 3">Cibedug 3</option>
+            <option value="Cibedug 4">Cibedug 4</option>
           </optgroup>
           <optgroup label="Sukasari">
             <option value="Sukasari 1">Sukasari 1</option>
