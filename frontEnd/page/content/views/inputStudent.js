@@ -13,11 +13,13 @@ function renderInputSiswa() {
 
 function renderDataSiswa() {
   window.tableRoleFilter = "student";
+  window.currentSelectedRombel = null;
   return renderFormSiswaHTML() + renderDataTableHTML("Data Siswa");
 }
 
 function renderDataGuru() {
   window.tableRoleFilter = "teacher";
+  window.currentSelectedRombel = null;
   return renderFormGuruHTML() + renderDataTableHTML("Data Guru");
 }
 
@@ -32,7 +34,35 @@ function getFormContainerEl() {
   );
 }
 
-function renderFormSiswaHTML() {
+const KELAS_OPTIONS_SISWA = ["X", "XI", "XII"];
+
+function renderKelasOptionsSiswa(selected) {
+  return ["", ...KELAS_OPTIONS_SISWA]
+    .map((k) => {
+      const value = k === "" ? "" : k;
+      const label = k === "" ? "Pilih Kelas" : `Kelas ${k}`;
+      const isSelected = String(selected || "") === String(value);
+      return `<option value="${value}"${isSelected ? " selected" : ""}>${label}</option>`;
+    })
+    .join("");
+}
+
+function renderRombelOptionsSiswa(selected) {
+  return ROMBEL_GROUPS.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${normRombel(val) === normRombel(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+}
+
+function renderFormSiswaHTML(selected = {}) {
+  const selKelas = selected.kelas || "";
+  const selRombel = selected.rombel || "";
+  const selRayon = selected.rayon || "";
   return `
   <div id="formInputContainer" class="form-input-container" style="display: none;">
 
@@ -41,23 +71,42 @@ function renderFormSiswaHTML() {
     </div>
 
     <h2 class="form-title">
-      Input Siswa Baru
+      Input Data Siswa
     </h2>
 
     <form class="form-grid" id="formInputSiswa" data-mode="siswa" autocomplete="off">
 
-      <div class="form-group">
+      <div class="form-group full-width">
         <label class="form-label" for="nis">
-          <i class="bi bi-person-vcard"></i> NIS / NIP
+          <i class="bi bi-person-vcard"></i> NIS
         </label>
-        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa / NIP Guru" required>
+        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa" required>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="call">
-          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
+        <label class="form-label" for="kelas">
+          <i class="bi bi-collection"></i> Kelas
         </label>
-        <input type="number" id="whatsapp" class="form-control-modern" value="62" required >
+        <select id="kelas" class="form-control-modern">
+          ${renderKelasOptionsSiswa(selKelas)}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="rombel">
+          <i class="bi bi-people"></i> Rombel
+        </label>
+        <select id="rombel" class="form-control-modern">
+          <option value="">Pilih Rombel</option>
+          ${renderRombelOptionsSiswa(selRombel)}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="rayon">
+          <i class="bi bi-geo-alt"></i> Rayon
+        </label>
+        <input type="text" id="rayon" class="form-control-modern" placeholder="Contoh: Cicurug 1" value="${escapeHtml(selRayon || "")}">
       </div>
 
       <div class="form-group rfid-field">
@@ -92,127 +141,10 @@ function renderFormSiswaHTML() {
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="kelas">
-          <i class="bi bi-people"></i> Kelas
+        <label class="form-label" for="whatsapp">
+          <i class="bi bi-whatsapp"></i> No Whatsapp
         </label>
-        <select id="kelas" class="form-control-modern">
-          <option value="">Pilih Kelas</option>
-          <option value="X">Kelas X</option>
-          <option value="XI">Kelas XI</option>
-          <option value="XII">Kelas XII</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="rombel">
-          <i class="bi bi-people"></i> Rombel
-        </label>
-        <select id="rombel" class="form-control-modern">
-          <option value="">Pilih Rombel</option>
-          <optgroup label="PPLG">
-            <option value="PPLG 1">PPLG 1</option>
-            <option value="PPLG 2">PPLG 2</option>
-            <option value="PPLG 3">PPLG 3</option>
-            <option value="PPLG 4">PPLG 4</option>
-            <option value="PPLG 5">PPLG 5</option>
-          </optgroup>
-          <optgroup label="TJKT">
-            <option value="TJKT 1">TJKT 1</option>
-            <option value="TJKT 2">TJKT 2</option>
-            <option value="TJKT 3">TJKT 3</option>
-            <option value="TJKT 4">TJKT 4</option>
-            <option value="TJKT 5">TJKT 5</option>
-          </optgroup>
-          <optgroup label="DKV">
-            <option value="DKV 1">DKV 1</option>
-            <option value="DKV 2">DKV 2</option>
-            <option value="DKV 3">DKV 3</option>
-            <option value="DKV 4">DKV 4</option>
-            <option value="DKV 5">DKV 5</option>
-          </optgroup>
-          <optgroup label="KLN">
-            <option value="Kuliner 1">Kuliner 1</option>
-            <option value="Kuliner 2">Kuliner 2</option>
-            <option value="Kuliner 3">Kuliner 3</option>
-            <option value="Kuliner 4">Kuliner 4</option>
-            <option value="Kuliner 5">Kuliner 5</option>
-          </optgroup>
-          <optgroup label="HTL">
-            <option value="Hotel 1">Hotel 1</option>
-            <option value="Hotel 2">Hotel 2</option>
-            <option value="Hotel 3">Hotel 3</option>
-            <option value="Hotel 4">Hotel 4</option>
-            <option value="Hotel 5">Hotel 5</option>
-          </optgroup>
-          <optgroup label="PMN">
-            <option value="Pemasaran 1">Pemasaran 1</option>
-            <option value="Pemasaran 2">Pemasaran 2</option>
-            <option value="Pemasaran 3">Pemasaran 3</option>
-            <option value="Pemasaran 4">Pemasaran 4</option>
-            <option value="Pemasaran 5">Pemasaran 5</option>
-          </optgroup>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="rayon">
-          <i class="bi bi-people"></i> Rayon
-        </label>
-        <select id="rayon" class="form-control-modern">
-          <option value="">Pilih Rayon</option>
-          <optgroup label="Cicurug">
-            <option value="cic1">Cicurug 1</option>
-            <option value="cic2">Cicurug 2</option>
-            <option value="cic3">Cicurug 3</option>
-            <option value="cic4">Cicurug 4</option>
-            <option value="cic5">Cicurug 5</option>
-            <option value="cic6">Cicurug 6</option>
-            <option value="cic7">Cicurug 7</option>
-            <option value="cic8">Cicurug 8</option>
-            <option value="cic9">Cicurug 9</option>
-            <option value="cic10">Cicurug 10</option>
-          </optgroup>
-          <optgroup label="Cisarua">
-            <option value="cis1">Cisarua 1</option>
-            <option value="cis2">Cisarua 2</option>
-            <option value="cis3">Cisarua 3</option>
-            <option value="cis4">Cisarua 4</option>
-            <option value="cis5">Cisarua 5</option>
-            <option value="cis6">Cisarua 6</option>
-            <option value="cis7">Cisarua 7</option>
-          </optgroup>
-          <optgroup label="Cibedug">
-            <option value="cib1">Cibedug 1</option>
-            <option value="cib2">Cibedug 2</option>
-          </optgroup>
-          <optgroup label="Sukasari">
-            <option value="suk1">Sukasari 1</option>
-            <option value="suk2">Sukasari 2</option>
-          </optgroup>
-          <optgroup label="Ciawi">
-            <option value="cia1">Ciawi 1</option>
-            <option value="cia2">Ciawi 2</option>
-            <option value="cia3">Ciawi 3</option>
-            <option value="cia4">Ciawi 4</option>
-            <option value="cia5">Ciawi 5</option>
-            <option value="cia6">Ciawi 6</option>
-          </optgroup>
-          <optgroup label="Tajur">
-            <option value="taj1">Tajur 1</option>
-            <option value="taj2">Tajur 2</option>
-            <option value="taj3">Tajur 3</option>
-            <option value="taj4">Tajur 4</option>
-            <option value="taj5">Tajur 5</option>
-            <option value="taj6">Tajur 6</option>
-          </optgroup>
-          <optgroup label="Wikrama">
-            <option value="wik1">Wikrama 1</option>
-            <option value="wik2">Wikrama 2</option>
-            <option value="wik3">Wikrama 3</option>
-            <option value="wik4">Wikrama 4</option>
-            <option value="wik5">Wikrama 5</option>
-          </optgroup>
-        </select>
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required>
       </div>
 
       <div class="form-actions">
@@ -316,9 +248,6 @@ function renderDataTableHTML(tableTitle) {
         <div class="table-actions">
           <input type="text" id="searchTable" class="form-control form-control-sm bg-light border-0 text-muted rounded-3" style="width: 220px; height: 34px; font-size: 0.85rem;" placeholder="Cari nama / NIS / RFID...">
           <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;">
-          <button type="button" id="btnImportManual" class="btn-import btn-import-manual">
-            <i class="bi bi-pencil-square"></i> Input Manual
-          </button>
           <button type="button" id="btnImportExcel" class="btn-import btn-import-excel">
             <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
           </button>

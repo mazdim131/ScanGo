@@ -1,6 +1,7 @@
 // Daftar rombel disamakan dengan pilihan di inputStudent.js
 const ROMBEL_GROUPS_PRINT = [
   ["TEACHER", ["Guru Produktif"]],
+  ["Semua Rombel", ["Semua Rombel"]],
   ["PPLG", ["PPLG 1", "PPLG 2", "PPLG 3", "PPLG 4", "PPLG 5"]],
   ["TJKT", ["TJKT 1", "TJKT 2", "TJKT 3", "TJKT 4", "TJKT 5"]],
   ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
@@ -133,15 +134,6 @@ function renderPrint() {
 </button>
         </div>
     </div>
-    
-    
-    <div
-  id="previewRekap"
-  style="
-    display: none;
-    max-width: 100%;
-    margin: 20px auto 0;
-  "></div>
 `;
 }
 function initPrint() {
@@ -154,7 +146,6 @@ function initPrint() {
 
   const printFormat = document.getElementById("printFormat");
   const btnPreviewCetak = document.getElementById("btnPreviewCetak");
-  const previewRekap = document.getElementById("previewRekap");
 
   if (
     !radioMingguan ||
@@ -163,8 +154,7 @@ function initPrint() {
     !printKelas ||
     !printRombel ||
     !printFormat ||
-    !btnPreviewCetak ||
-    !previewRekap
+    !btnPreviewCetak
   ) {
     return;
   }
@@ -201,10 +191,19 @@ function initPrint() {
 
     const semuaData = await fetchAttendanceData();
 
+    const pilihSemuaRombel =
+      normalizeRombelPrint(rombelTerpilih) === "SEMUA ROMBEL";
+
+    const rombelGuru =
+      normalizeRombelPrint(rombelTerpilih) === "GURU PRODUKTIF";
+
     let dataRombel = semuaData.filter((row) => {
       if (!row.created_at) return false;
 
+      // Filter kelas hanya berlaku untuk rombel siswa.
+      // Rombel guru ("Guru Produktif") tidak punya kelas, jadi diabaikan.
       if (
+        !rombelGuru &&
         kelasTerpilih &&
         String(row.kelas || "")
           .trim()
@@ -212,6 +211,9 @@ function initPrint() {
       ) {
         return false;
       }
+
+      // "Semua Rombel" mengambil seluruh data (tetap hormati filter kelas).
+      if (pilihSemuaRombel) return true;
 
       return (
         normalizeRombelPrint(row.rombel) ===
@@ -518,262 +520,138 @@ function initPrint() {
         daftarSiswa,
       );
 
-      previewRekap.style.display = "block";
+      const ppmBody = document.getElementById("ppm-body");
+      const ppmTitle = document.getElementById("ppm-title");
+      const ppmSubtitle = document.getElementById("ppm-subtitle");
+      const ppmBadge = document.getElementById("ppm-badge");
+      const ppmBtnBatal = document.getElementById("ppm-btnBatal");
+      const ppmBtnDownload = document.getElementById("ppm-btnDownload");
+      const ppmBtnClose = document.getElementById("ppm-btnClose");
+      const overlay = document.getElementById("printPreviewModal");
 
-      previewRekap.innerHTML = `
-        <div
-          class="data-card p-4"
-          style="
-            background: var(--color-card-bg);
-            color: var(--color-teks);
-            border-radius:12px;
-            box-shadow:0 4px 15px rgba(0,0,0,.08);
-          "
-        >
+      if (!ppmBody || !overlay) return;
 
-          <div
-            style="
-              display:flex;
-              justify-content:space-between;
-              align-items:center;
-              margin-bottom:20px;
-              gap:15px;
-            "
+      if (ppmTitle) ppmTitle.textContent = "Preview Rekapitulasi";
+      if (ppmSubtitle) ppmSubtitle.textContent =
+        `${rombelLabel}${kelasLabel ? " • " + kelasLabel : ""} • ${jenisLaporan.toUpperCase()}`;
+      if (ppmBadge) ppmBadge.textContent = format === "pdf" ? "PDF" : "EXCEL";
+      if (ppmBtnDownload) {
+        ppmBtnDownload.innerHTML = `<i class="bi bi-download"></i> Unduh ${format === "pdf" ? "PDF" : "Excel"}`;
+      }
+
+      ppmBody.innerHTML = `
+        <div style="overflow-x:auto; border:1px solid var(--border-sidebar); border-radius:8px;">
+          <table
+            style="width:100%; border-collapse:collapse; min-width:900px; font-size:12px;"
+            border="1" cellspacing="0" cellpadding="7"
           >
-
-            <div>
-              <h4 style="margin:0;font-weight:700;">
-                Preview Rekapitulasi
-              </h4>
-
-              <small style="color: var(--color-teks-sub);">
-                ${rombelLabel}${kelasLabel ? ` • ${kelasLabel}` : ""}
-                •
-                ${jenisLaporan.toUpperCase()}
-                •
-                ${format.toUpperCase()}
-              </small>
-            </div>
-
-            <span
-              style="
-                padding:6px 12px;
-                border-radius:20px;
-                background:#eef2ff;
-                color:#4f46e5;
-                font-size:12px;
-                font-weight:600;
-              "
-            >
-              ${format === "pdf" ? "PDF" : "EXCEL"}
-            </span>
-
-          </div>
-
-
-          <div
-            style="
-              overflow-x:auto;
-              max-height:100%;
-              overflow-y:auto;
-              border:1px solid var(--border-sidebar);
-              border-radius:8px;
-            "
-          >
-
-            <table
-              style="
-                width:100%;
-                border-collapse:collapse;
-                min-width:900px;
-                font-size:12px;
-              "
-              border="1"
-              cellspacing="0"
-              cellpadding="7"
-            >
-
-              <thead>
-
-                <tr
-                  style="
-                    background: var(--bg-tab);
-                  "
-                >
-
-                  <th style="width:4%; text-align:center;">
-                    No
-                  </th>
-
-                  <th
-                    style="
-                      width:25%;
-                      text-align:center;
-                    ">
-                    Nama Siswa
-                  </th>
-
-                  <th style="width:10%; text-align:center;">
-                    Kelas
-                  </th>
-
-                  <th style="width:10%; text-align:center;">
-                    Rombel
-                  </th>
-
-                  <th style="width:10%; text-align:center;">
-                    Rayon
-                  </th>
-
-                  ${headerTanggalHtml}
-
-                  <th style="width:10%; text-align:center;">
-                    Total Hadir
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-                ${barisSiswaHtml}
-              </tbody>
-
-            </table>
-
-          </div>
-
-
-          <div
-            style="
-              margin-top:15px;
-              font-size:11px;
-              color: var(--color-teks-sub);
-            "
-          >
-            <b>Keterangan:</b>
-
-            <span style="color:#198754;">
-              H = Hadir
-            </span>
-
-            &nbsp; | &nbsp;
-
-            <span style="color:#dc3545;">
-              A = Alfa
-            </span>
-
-            &nbsp; | &nbsp;
-
-            <span style="color:#fd7e14;">
-              I = Izin
-            </span>
-
-            &nbsp; | &nbsp;
-
-            <span style="color:#fd7e14;">
-              S = Sakit
-            </span>
-          </div>
-
-
-          <div
-            style="
-              display:flex;
-              justify-content:flex-end;
-              gap:10px;
-              margin-top:20px;
-            "
-          >
-
-            <button
-              id="btnBatalPreview"
-              class="btn btn-light"
-            >
-              <i class="bi bi-x-lg"></i>
-              Batal
-            </button>
-
-            <button
-              id="btnDownloadPreview"
-              class="btn btn-primary"
-            >
-              <i class="bi bi-download"></i>
-              Unduh ${format === "pdf" ? "PDF" : "Excel"}
-            </button>
-
-          </div>
-
+            <thead>
+              <tr style="background: var(--bg-tab);">
+                <th style="width:4%; text-align:center;">No</th>
+                <th style="width:25%; text-align:center;">Nama Siswa</th>
+                <th style="width:10%; text-align:center;">Kelas</th>
+                <th style="width:10%; text-align:center;">Rombel</th>
+                <th style="width:10%; text-align:center;">Rayon</th>
+                ${headerTanggalHtml}
+                <th style="width:10%; text-align:center;">Total Hadir</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${barisSiswaHtml}
+            </tbody>
+          </table>
         </div>
       `;
 
-      // ================================
-      // BATAL PREVIEW
-      // ================================
+      overlay.classList.add("active");
+      document.body.style.overflow = "hidden";
 
-      document
-        .getElementById("btnBatalPreview")
-        .addEventListener("click", () => {
-          previewRekap.innerHTML = "";
+      const closeModal = () => {
+        overlay.classList.remove("active");
+        document.body.style.overflow = "";
+        printFormat.value = "";
+        document.removeEventListener("keydown", escapeHandler);
+      };
 
-          previewRekap.style.display = "none";
+      const escapeHandler = (e) => {
+        if (e.key === "Escape") closeModal();
+      };
+      document.addEventListener("keydown", escapeHandler);
 
-          printFormat.value = "";
-        });
+      ppmBtnBatal.onclick = closeModal;
+      if (ppmBtnClose) ppmBtnClose.onclick = closeModal;
+      overlay.onclick = (e) => {
+        if (e.target === overlay) closeModal();
+      };
 
-      // ================================
-      // DOWNLOAD
-      // ================================
-
-      const btnDownload = document.getElementById("btnDownloadPreview");
-      btnDownload.addEventListener("click", async () => {
-        btnDownload.disabled = true;
-        btnDownload.innerHTML = `
+      ppmBtnDownload.onclick = async () => {
+        ppmBtnDownload.disabled = true;
+        ppmBtnDownload.innerHTML = `
           <span class="spinner-border spinner-border-sm"></span>
           Menyiapkan ${format === "excel" ? "Excel" : "PDF"}...
         `;
-
         try {
           if (format === "excel") {
-            await downloadExcel(
-              daftarTanggal,
-              daftarSiswa,
-              rombelLabel,
-              jenisLaporan,
-              kelasLabel,
-            );
+            await downloadExcel(daftarTanggal, daftarSiswa, rombelLabel, jenisLaporan, kelasLabel);
           } else {
-            await downloadPDF(
-              daftarTanggal,
-              daftarSiswa,
-              rombelLabel,
-              jenisLaporan,
-              kelasLabel,
-            );
+            await downloadPDF(daftarTanggal, daftarSiswa, rombelLabel, jenisLaporan, kelasLabel);
           }
+          closeModal();
         } catch (err) {
           console.error("Gagal mengunduh berkas:", err);
-          alert("Gagal mengunduh: " + (err.message || err));
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              title: "Unduh Gagal!",
+              text: err.message || String(err),
+              icon: "error",
+              confirmButtonText: "Tutup",
+            });
+          } else {
+            alert("Gagal mengunduh: " + (err.message || err));
+          }
         } finally {
-          btnDownload.disabled = false;
-          btnDownload.innerHTML = `
+          ppmBtnDownload.disabled = false;
+          ppmBtnDownload.innerHTML = `
             <i class="bi bi-download"></i>
             Unduh ${format === "pdf" ? "PDF" : "Excel"}
           `;
         }
-      });
+      };
     } catch (error) {
-      previewRekap.innerHTML = `
-        <div class="alert alert-danger">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          ${error.message}
-        </div>
-      `;
+      const ppmBody = document.getElementById("ppm-body");
+      const overlay = document.getElementById("printPreviewModal");
+      const ppmBtnBatal = document.getElementById("ppm-btnBatal");
+      const ppmBtnClose = document.getElementById("ppm-btnClose");
+      const ppmBtnDownload = document.getElementById("ppm-btnDownload");
 
-      previewRekap.style.display = "block";
+      if (ppmBody) {
+        ppmBody.innerHTML = `
+          <div class="alert alert-danger m-0">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            ${error.message}
+          </div>
+        `;
+      }
+
+      if (overlay) {
+        overlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      const closeErrorModal = () => {
+        overlay.classList.remove("active");
+        document.body.style.overflow = "";
+        printFormat.value = "";
+      };
+
+      if (ppmBtnBatal) ppmBtnBatal.onclick = closeErrorModal;
+      if (ppmBtnClose) ppmBtnClose.onclick = closeErrorModal;
+      if (ppmBtnDownload) ppmBtnDownload.onclick = closeErrorModal;
+      if (overlay) overlay.onclick = (e) => {
+        if (e.target === overlay) closeErrorModal();
+      };
     } finally {
       btnPreviewCetak.disabled = false;
-
       btnPreviewCetak.innerHTML = `
         <i class="bi bi-eye"></i>
         Tampilkan Preview
@@ -790,6 +668,7 @@ function initPrint() {
     daftarSiswa,
     rombelTerpilih,
     jenisLaporan,
+    kelasLabel,
   ) {
     const rowsExcel = [];
 
@@ -831,9 +710,16 @@ function initPrint() {
 
     XLSX.utils.book_append_sheet(workbook, workSheet, "Rekap Absensi");
 
+    const labelBerkas = [
+      String(rombelTerpilih || "").replace(/\s+/g, "-"),
+      kelasLabel ? String(kelasLabel).replace(/\s+/g, "-") : "",
+    ]
+      .filter(Boolean)
+      .join("_");
+
     XLSX.writeFile(
       workbook,
-      `Rekap_${jenisLaporan.toUpperCase()}_${String(rombelTerpilih).replace(/\s+/g, "-")}.xlsx`,
+      `Rekap_${jenisLaporan.toUpperCase()}_${labelBerkas}.xlsx`,
     );
   }
 
@@ -1196,7 +1082,16 @@ function initPrint() {
     const format = printFormat.value;
 
     if (!format) {
-      alert("Silakan pilih format laporan terlebih dahulu!");
+      if (typeof Swal !== "undefined") {
+        Swal.fire({
+          title: "Format Belum Dipilih",
+          text: "Silakan pilih format laporan terlebih dahulu (PDF atau Excel)!",
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+      } else {
+        alert("Silakan pilih format laporan terlebih dahulu!");
+      }
 
       printFormat.focus();
 

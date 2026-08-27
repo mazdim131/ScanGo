@@ -9,367 +9,289 @@
     <link rel="icon" type="image/png" href="/frontEnd/assets/logo/favicon.png?v20260822">
 
     <!-- css global -->
-    <link rel="stylesheet" href="/frontEnd/style/global.css?v20260822">
-    <!-- css index -->
-    <link rel="stylesheet" href="/frontEnd/style/index.css?v20260822b">
+    <link rel="stylesheet" href="/frontEnd/style/global.css?v20260810" />
+    <!-- css landing index -->
+    <link rel="stylesheet" href="/frontEnd/style/index.css?v20260822" />
+    <!-- css dashboard (SPA) -->
+    <link rel="stylesheet" href="/frontEnd/style/dashboard.css?v20260812" />
+    <!-- css statistika (dipakai view Grafik yang dirender via SPA router) -->
+    <link rel="stylesheet" href="/frontEnd/style/statistika.css?v20260810" />
 
-    <!-- css component navbar -->
+    <!-- css file view dashboard -->
+    <link rel="stylesheet" href="/frontEnd/style/components/dashboard/inputStudent.css?v20260815">
+    <link rel="stylesheet" href="/frontEnd/style/components/dashboard/scanRfid.css?v20260807">
+    <link rel="stylesheet" href="/frontEnd/style/components/dashboard/detailSiswa.css">
+    <link rel="stylesheet" href="/frontEnd/style/components/dashboard/print.css">
+    <link rel="stylesheet" href="/frontEnd/style/components/dashboard/printPreviewModal.css">
+    <link rel="stylesheet" href="/frontEnd/style/components/dashboard/loginView.css">
+
+    <!-- css component navbar & footer -->
     <link rel="stylesheet" href="/frontEnd/style/components/navbar.css?v20260822">
-    <!-- css component footer -->
     <link rel="stylesheet" href="/frontEnd/style/components/footer.css?v20260822">
-    <!-- css component changeTheme -->
-    <link rel="stylesheet" href="/frontEnd/style/components/changeTheme.css?v20260822">
+    <!-- css component change theme -->
+    <link rel="stylesheet" href="/frontEnd/style/components/changeTheme.css?v20260807">
 
-    <!-- link bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <!-- link font inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 
-    <!-- link animate -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-    <!-- link swipper -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css">
-
-    <!-- link icon bootstrap -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 
-
 <body>
-    <header class="fixed-top w-100">
-        <div class="container animate__animated animate__fadeInDown">
-            <nav id="navbar"></nav>
-        </div>
-    </header>
 
-    <main id="">
-        <div class="container px-4">
-            <div class="row gx-5">
-                <div class="col top">
-                    <div class="p-3">
-                        <h1 class="title-index animate__animated animate__fadeInDown">
-                            Revolusi Absensi Siswa Menjadi Mudah & Cepat.
-                        </h1>
+    <!-- ===================== DASHBOARD (SPA) ===================== -->
+    <div class="dashboard-container">
 
-                        <p class="subtitle-index animate__animated animate__fadeInDown">
-                            Sistem manajemen kehadiran modern berbasis kartu
-                            untuk efisiensi waktu belajar mengajar di sekolah Anda.
-                        </p>
+        <aside class="sidebar d-none d-md-flex">
+            <div class="sidebar-logo">
+                <div class="d-flex gap-3">
+                    <h3 style="color: var(--color-teks);"><b>ScanGo</b></h3>
+                </div>
+            </div>
 
-                        <div class="btn-index d-flex mt-5 gap-3 animate__animated animate__fadeIn">
-                            <button type="button" onclick="btnGetStarted()" class="btn btn-lg btn-started">
-                                <i class="bi bi-upc-scan"></i> Mulai Absensi</button>
-                            <button class="btn btn-lg btn-watch" onclick="btnGuide()"><i class="bi bi-map"></i> Lihat
-                                Demo</button>
-                        </div>
+            <div class="sidebar-menu">
+                <div class="menu-icon" onclick="navigateTo('dashboard')">
+                    <i class="bi bi-house-door"></i>
+                    <span>Dashboard</span>
+                </div>
 
-                        <a href="/frontEnd/page/structure/about.html#dev"
-                            class="profile-person d-flex gap-2 mt-5 animate__animated animate__fadeInUp text-decoration-none"
-                            style="color: var(--color-teks) !important;">
-                            <img src="/frontEnd/assets/profiles/dimas.webp" alt="Profile Dev" class="img-profile-dev"
-                                loading="lazy" decoding="async">
-                            <img src="/frontEnd/assets/profiles/hifzhi.webp" alt="Profile Dev" class="img-profile-dev"
-                                loading="lazy" decoding="async">
-                            <img src="/frontEnd/assets/profiles/yazid.webp" alt="Profile Dev" class="img-profile-dev"
-                                loading="lazy" decoding="async">
-                            <p class="dev-text">
-                                Lihat Profil Pengembang
-                            </p>
-                        </a>
+                <!-- <div class="menu-icon" onclick="navigateTo('scan-rfid')">
+                    <i class="bi bi-upc-scan"></i>
+                    <span>Scan RFID</span>
+                </div> -->
+
+                <div class="menu-icon" onclick="navigateTo('print')">
+                    <i class="bi bi-printer"></i>
+                    <span>Cetak Data</span>
+                </div>
+
+                <div class="menu-icon" onclick="navigateTo('grafik')">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Grafik</span>
+                </div>
+
+                <!-- <div class="menu-icon" onclick="navigateTo('input-siswa')">
+                    <i class="bi bi-person-fill-add"></i>
+                    <span>Input Siswa</span>
+                </div> -->
+
+                <div class="menu-icon" onclick="navigateTo('data-siswa')">
+                    <i class="bi bi-people"></i>
+                    <span>Data Siswa</span>
+                </div>
+
+                <div class="menu-icon" onclick="navigateTo('data-guru')">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Data Guru</span>
+                </div>
+
+                <div class="menu-icon" onclick="navigateTo('login')">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Login</span>
+                </div>
+
+                <div class="menu-icon" style="margin-top: auto;" data-bs-toggle="modal"
+                    data-bs-target="#modalTheme">
+                    <i class="bi bi-gear"></i>
+                    <span>Tema</span>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-wrapper mt-4" style="flex: 1; display: flex; flex-direction: column;">
+
+            <header
+                class="header-panel animate__animated animate__fadeIn pe-4 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <button id="sidebarToggleBtn" class="btn btn-light ms-3" type="button"
+                        aria-controls="mobileMenu" aria-label="Buka menu">
+                        <i class="bi bi-list fs-3"></i>
+                    </button>
+                    <h4 class="ms-2 ms-md-3 mb-0" style="color: var(--color-teks);">Dashboard Monitoring</h4>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="clock-date-wrapper me-3">
+                        <p id="time" class="mb-0"></p>
+                        <p id="date" class="mb-0"></p>
                     </div>
                 </div>
-                <div class="col gutter-index">
-                    <div class="p-3">
-                        <img src="/frontEnd/assets/images/hero.webp"
-                            class="img-hero rounded-4 animate__animated animate__fadeInDown" style="height: 400px;"
-                            fetchpriority="high" decoding="async">
+            </header>
 
-                        <div class="scango-stats-container animate__animated animate__fadeInUp">
-                            <div class="stat-item">
-                                <div class="stat-badge badge-orange"></div>
-                                <h2 class="stat-number">500k+</h2>
-                                <p class="stat-label">Total Pemindaian</p>
-                            </div>
+            <main class="main-content" style="overflow-y: auto;">
+                <div id="content"></div>
+            </main>
 
-                            <div class="stat-item">
-                                <div class="stat-badge badge-blue"></div>
-                                <h2 class="stat-number">1.5k+</h2>
-                                <p class="stat-label">Perangkat Aktif</p>
-                            </div>
+        </div>
 
-                            <div class="stat-item">
-                                <div class="stat-badge badge-green"></div>
-                                <h2 class="stat-number">90%</h2>
+    </div>
 
-                                <p class="stat-label">Dampak Nyata</p>
-                            </div>
-
-                        </div>
+    <!-- Mobile menu -->
+    <div class="offcanvas offcanvas-bottom rounded-top-4" tabindex="-1" id="mobileMenu"
+        aria-labelledby="mobileMenuLabel" style="height: auto; max-height: 80vh;">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="mobileMenuLabel">Menu Navigasi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="row g-4 text-center">
+                <div class="col-4" onclick="navigateTo('dashboard')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-house-door fs-3 text-secondary"></i>
+                        <div class="small mt-1">Home</div>
+                    </div>
+                </div>
+                <div class="col-4" onclick="navigateTo('print')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-printer fs-3"></i>
+                        <div class="small mt-1">Cetak</div>
+                    </div>
+                </div>
+                <div class="col-4" onclick="navigateTo('grafik')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-bar-chart-line fs-3"></i>
+                        <div class="small mt-1">Grafik</div>
+                    </div>
+                </div>
+                <div class="col-4" onclick="navigateTo('input-siswa')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-person-fill-add fs-3"></i>
+                        <div class="small mt-1">Siswa</div>
+                    </div>
+                </div>
+                <div class="col-4" onclick="navigateTo('data-siswa')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-people fs-3"></i>
+                        <div class="small mt-1">Data Siswa</div>
+                    </div>
+                </div>
+                <div class="col-4" onclick="navigateTo('data-guru')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-person-badge fs-3"></i>
+                        <div class="small mt-1">Data Guru</div>
+                    </div>
+                </div>
+                <div class="col-4" onclick="navigateTo('login')" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-box-arrow-in-right fs-3"></i>
+                        <div class="small mt-1">Login</div>
+                    </div>
+                </div>
+                <div class="col-4" data-bs-toggle="modal" data-bs-target="#modalTheme" data-bs-dismiss="offcanvas">
+                    <div class="p-3 bg-light rounded-3"><i class="bi bi-gear fs-3"></i>
+                        <div class="small mt-1">Tema</div>
+                    </div>
+                </div>
+                <div class="col-4"
+                    onclick="if(confirm('Yakin ingin keluar?')){ sessionStorage.removeItem('token'); sessionStorage.removeItem('role'); sessionStorage.removeItem('username'); fetch(API_BASE + '/api/auth/logout', { method: 'POST', credentials: 'include' }).finally(function(){ window.location.href='/index.html'; }); }">
+                    <div class="p-3 bg-light rounded-3 text-danger"><i class="bi bi-box-arrow-left fs-3"></i>
+                        <div class="small mt-1">Keluar</div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="container-sm">
-        </div>
-
-        <section class="tech-stack-section container-sm animate__animated animate__fadeInUp">
-            <div class="swiper mySwiper">
-                <div class="swiper-wrapper">
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/bootstrap.png" alt="Bootstrap">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/nodejs.png" alt="NodeJS">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/postgree.png" alt="PostgreSQL">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/swipper.png" alt="Swiper">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/expressjs.png" alt="ExpressJS">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/animate.png" alt="Animate CSS">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/sweetalert.png" alt="SweetAlert">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/supabase.png" alt="Supabase">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/github.png" alt="Github">
-                        </div>
-                    </div>
-
-                    <div class="swiper-slide">
-                        <div class="logo-card">
-                            <img src="/frontEnd/assets/logo/partners/techStack/vercel.png" alt="Vercel">
-                        </div>
-                    </div>
+    <div class="modal fade" id="modalTheme" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Pengaturan</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <span>Ubah Tema</span>
+                    <div id="changeTheme2"></div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <hr class="container-sm">
-
-        <div class="container mt-5">
-            <div class="row align-items-center how gx-0 gx-md-5 gy-4">
-
-                <div class="col-12 col-md-6 how text-center">
-                    <img src="/frontEnd/assets/mascot/bertanya-tanya.webp" class="img-fluid"
-                        style="max-height: 500px; width: auto;" loading="lazy" decoding="async">
+    <div class="modal fade" id="modalProfile" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5>Ubah Foto Profil</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-
-                <div class="col-12 col-md-6">
-                    <h1 class="fw-bold mb-3">Transformasi Digital Terbaik untuk Instansi Anda</h1>
-
-                    <p class="text-muted" style="color: var(--color-teks) !important;">
-                        ScanGo hadir sebagai solusi modern untuk mempermudah pengelolaan data instansi secara cepat,
-                        tepat, dan otomatis. Sistem ini didukung oleh teknologi IoT mutakhir yang mampu memproses
-                        pemindaian kartu RFID dalam hitungan detik dengan stabilitas server yang sangat tinggi.
-                    </p>
-
-                    <p class="text-muted mb-4" style="color: var(--color-teks) !important;">
-                        Melalui antarmuka yang sederhana, Anda dapat mengelola data pengguna, hingga melakukan impor
-                        data massal via Excel hanya dengan beberapa klik. ScanGo adalah pilihan terbaik untuk
-                        mentransformasi sistem absensi Anda menjadi ekosistem digital yang efisien dan akurat secara
-                        real-time.
-                    </p>
-
-                    <a href="/frontEnd/page/structure/about.html" style="color: var(--color-teks);"
-                        class="text-decoration-none fw-bold">
-                        Pelajari lebih lanjut <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
+                <div class="modal-body text-center">
+                    <img id="previewImage" src="/frontEnd/assets/profiles/dimas.webp?v20260808"
+                        style="width:150px;height:150px;border-radius:50%;object-fit:cover;">
+                    <br><br>
+                    <input type="file" id="profileInput" accept="image/*" class="form-control">
                 </div>
-
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button class="btn btn-primary" id="saveProfile">Simpan</button>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div class="container mt-5">
-            <div class="row g-3">
-                <div class="col-12 col-md-4">
-                    <div class="card container-sm rounded-5" style="border: none !important; padding: 20px;">
-                        <div class="card-body">
-
-                            <div class="d-flex">
-                                <button class="btn btn-light" style="border: none !important;"><i class="bi bi-palette"
-                                        style="font-size: 20px;"></i></button>
-
-                                <div class="ms-4" style="flex-direction: column;">
-                                    <h6><b>Profesional Design</b></h6>
-                                    <span style="font-size: 14px;">Tampilan profesional</span>
-                                </div>
-                            </div>
-
-                            <h5 class="mt-4">Dibuat dengan design yang profesional yang dibuat tanpa campur tangan AI
-                                melainkan dibuat manual oleh developer junior</h5>
-
-                        </div>
-                    </div>
+    <div id="printPreviewModal" class="print-preview-overlay">
+        <div class="print-preview-box">
+            <div class="print-preview-header">
+                <div>
+                    <h4 id="ppm-title">Preview Rekapitulasi</h4>
+                    <small id="ppm-subtitle"></small>
                 </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="card container-sm rounded-5" style="border: none !important; padding: 20px;">
-                        <div class="card-body">
-
-                            <div class="d-flex">
-                                <button class="btn btn-light" style="border: none !important;"><i class="bi bi-people"
-                                        style="font-size: 20px;"></i></button>
-
-                                <div class="ms-4" style="flex-direction: column;">
-                                    <h6><b>User Friendly</b></h6>
-                                    <span style="font-size: 14px;">Mudah digunakan</span>
-                                </div>
-                            </div>
-
-                            <h5 class="mt-4">Platform kami di set dengan tampilan yang sangat sederhana. Memungkinkan
-                                pengguna menggunakannya tanpa kesulitan</h5>
-
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span id="ppm-badge" class="print-preview-format-badge"></span>
+                    <button id="ppm-btnClose" class="btn btn-sm btn-light" title="Tutup">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-
-                <div class="col-12 col-md-4">
-                    <div class="card container-sm rounded-5" style="border: none !important; padding: 20px;">
-                        <div class="card-body">
-
-                            <div class="d-flex">
-                                <button class="btn btn-light" style="border: none !important;"><i class="bi bi-palette"
-                                        style="font-size: 20px;"></i></button>
-
-                                <div class="ms-4" style="flex-direction: column;">
-                                    <h6><b>Make an Impact</b></h6>
-                                    <span style="font-size: 14px;">Berdampak pada lingkungan</span>
-                                </div>
-                            </div>
-
-                            <h5 class="mt-4">Pantau semua laporan keuangan di lingkungan anda kapan saja dan di mana
-                                saja hanya melalui smartphone atau laptop Anda.</h5>
-
-                        </div>
-                    </div>
+            </div>
+            <div class="print-preview-body" id="ppm-body"></div>
+            <div class="print-preview-footer">
+                <div class="print-preview-legend">
+                    <b>Keterangan:</b>
+                    <span style="color:#198754;">H = Hadir</span> |
+                    <span style="color:#dc3545;">A = Alfa</span> |
+                    <span style="color:#fd7e14;">I = Izin</span> |
+                    <span style="color:#fd7e14;">S = Sakit</span>
                 </div>
-
+                <div class="print-preview-actions">
+                    <button id="ppm-btnBatal" class="btn btn-light">
+                        <i class="bi bi-x-lg"></i> Batal
+                    </button>
+                    <button id="ppm-btnDownload" class="btn btn-primary">
+                        <i class="bi bi-download"></i> Unduh
+                    </button>
+                </div>
             </div>
         </div>
-
-        <div class="container-sm w-100 promote mt-4 rounded-4 text-center">
-            <div class="d-flex gap-2 justify-content-center">
-                <img src="/frontEnd/assets/logo/partners/wikrama.png" style="height: 50px;">
-                <img src="/frontEnd/assets/logo/partners/pplg.png" style="height: 50px;">
-            </div>
-            <h1><b>ScanGo</b></h1>
-            <h5>Mulai efisiensi Anda hari ini, cukup dengan satu ketukan kartu.</h5>
-        </div>
-    </main>
-
-
-    <footer id="footer" class="container"></footer>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+    </div>
 
     <script>
-        function btnGetStarted() {
-            window.location.href = "/frontEnd/page/structure/signIn.html";
-        }
-
-        function btnGuide() {
-            window.location.href = "/frontEnd/page/structure/guide.html";
-        }
-
-        const swiperEl = document.querySelector(".mySwiper");
-
-        const swiper = swiperEl
-            ? new Swiper(".mySwiper", {
-                loop: true,
-                allowTouchMove: false,
-
-                autoplay: {
-                    delay: 0,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                },
-
-                speed: 4000,
-
-                breakpoints: {
-                    320: {
-                        slidesPerView: 2,
-                        spaceBetween: 20,
-                    },
-                    768: {
-                        slidesPerView: 3,
-                        spaceBetween: 30,
-                    },
-                    1024: {
-                        slidesPerView: 5,
-                        spaceBetween: 40,
-                    },
-                },
-            })
-            : null;
-
-        if (swiper && swiperEl) {
-            swiperEl.addEventListener("mouseenter", () => {
-                swiper.autoplay.stop();
-            });
-
-            swiperEl.addEventListener("mouseleave", () => {
-                swiper.autoplay.start();
-            });
-        }
-
+        (function () {
+            const origFetch = window.fetch;
+            window.fetch = function (url, options) {
+                options = options || {};
+                options.headers = options.headers || {};
+                options.credentials = options.credentials || "include";
+                const token = sessionStorage.getItem("token");
+                if (token && !options.headers["Authorization"]) {
+                    options.headers["Authorization"] = "Bearer " + token;
+                }
+                return origFetch.call(this, url, options);
+            };
+        })();
     </script>
-
-    <!-- script component navbar -->
-    <script src="/frontEnd/components/navbar.js?v20260822"></script>
-    <!-- script component footer -->
-    <script src="/frontEnd/components/footer.js?v20260822"></script>
-    <!-- script component change theme -->
-    <script src="/frontEnd/components/changetheme.js?v20260822"></script>
-
-    <!-- script bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+    <script src="/frontEnd/config.js?v20260807"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/frontEnd/components/toast.js?v20260807"></script>
+    <script src="/frontEnd/page/content/views/inputStudent.js?v20260816"></script>
+    <script src="/frontEnd/page/content/views/dashboad.js?v20260822"></script>
+    <script src="/frontEnd/page/content/views/scanRfid.js?v20260823"></script>
+    <script src="/frontEnd/page/content/views/detailSiswa.js?v20260809"></script>
+    <script src="/frontEnd/page/content/views/print.js?v20260822"></script>
+    <script src="/frontEnd/page/content/views/statistika.js?v20260822"></script>
+    <script src="/frontEnd/page/content/views/loginView.js?v20260827"></script>
+    <script src="/frontEnd/components/router.js?v20260816"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/frontEnd/components/changetheme.js?v20260807"></script>
+    <script src="/frontEnd/components/dashboard/sidebarToggle.js?v20260812"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 
 </html>
