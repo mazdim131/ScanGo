@@ -100,8 +100,6 @@ const register = async (req, res) => {
 
     // Registrasi publik dibatasi ke role student/user.
     // Role "teacher" diizinkan bila request berasal dari admin/guru yang login.
-    // Registrasi publik dibatasi ke role student/user.
-    // Role "teacher" diizinkan bila request berasal dari admin/guru yang login.
     const { data, error } = await supabase
       .from("users")
       .insert([
@@ -188,14 +186,16 @@ const login = async (req, res) => {
         kelas: user.kelas
       },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" },
+      // NOTE: Kadaluarsa token di-nonaktifkan sementara agar token tidak kadaluarsa.
+      // { expiresIn: "24h" },
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
+      // NOTE: Kadaluarsa cookie di-nonaktifkan sementara agar cookie tidak kadaluarsa.
+      // maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({

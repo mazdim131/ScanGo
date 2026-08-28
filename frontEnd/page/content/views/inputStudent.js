@@ -682,7 +682,14 @@ function initImportExcelListener() {
         const workbook = XLSX.read(data, { type: "array" });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        const rawJson = XLSX.utils.sheet_to_json(worksheet);
+        const jsonData = rawJson.map((row) => {
+          const clean = {};
+          for (const [key, value] of Object.entries(row)) {
+            clean[String(key).trim()] = value;
+          }
+          return clean;
+        });
 
         if (jsonData.length === 0) {
           throw new Error("File excel kosong atau format tidak sesuai!");
@@ -704,7 +711,7 @@ function initImportExcelListener() {
 
         Swal.fire({
           title: "Sukses!",
-          text: `${jsonData.length} Data siswa berhasil diimport dari Excel!`,
+          text: result.message || `${jsonData.length} Data siswa berhasil diimport dari Excel!`,
           icon: "success",
         });
 

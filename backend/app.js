@@ -11,6 +11,7 @@ const verifyAdmin = require("./middlewares/adminMiddleware");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const bcrypt = require("bcryptjs");
 
 const ORIGIN_FRONTEND = (process.env.CORS_ORIGIN || "")
   .split(",")
@@ -788,12 +789,6 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
       });
     }
 
-    const usersNormalized = users.map((u) => ({
-      ...u,
-      idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
-      nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
-    }));
-
     const hasNonNumeric = users.some(
       (u) =>
         (u.idcard !== "" && u.idcard != null && !/^\d+$/.test(String(u.idcard))) ||
@@ -804,6 +799,33 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
       return res.status(400).json({
         success: false,
         message: "Terdapat data dengan ID kartu/NIS yang bukan angka!",
+      });
+    }
+
+    const usersNormalized = [];
+    const saltRounds = 10;
+
+    const normRole = (raw) => {
+      const r = String(raw || "").trim().toLowerCase();
+      if (["siswa", "student", "murid", "s"].includes(r)) return "student";
+      if (["guru", "teacher", "pengajar", "g", "t"].includes(r)) return "teacher";
+      if (["admin", "a"].includes(r)) return "admin";
+      return r || "student";
+    };
+
+    for (const u of users) {
+      const role = normRole(u.role);
+      usersNormalized.push({
+        username: String(u.username || "").trim(),
+        email: String(u.email || "").trim(),
+        password: await bcrypt.hash(String(u.password || ""), saltRounds),
+        role,
+        idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
+        nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
+        rombel: String(u.rombel || "").trim(),
+        whatsapp: String(u.whatsapp || "").trim(),
+        rayon: String(u.rayon || "").trim(),
+        kelas: role === "teacher" && !u.kelas ? null : String(u.kelas || "").trim(),
       });
     }
 
@@ -824,6 +846,9 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
 const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
+  if (typeof supabase.testConnection === "function") {
+    supabase.testConnection();
+  }
   app.listen(PORT, () => {
     console.log(`Server STANDBY di: http://localhost:${PORT}`);
   });
