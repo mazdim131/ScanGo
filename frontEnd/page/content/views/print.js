@@ -441,7 +441,7 @@ function initPrint() {
         <td style="
           border: 1px solid #ccc;
           padding: 5px 8px;
-          text-align: center;
+          text-align: left;
         ">
           ${siswa.Nama}
         </td>

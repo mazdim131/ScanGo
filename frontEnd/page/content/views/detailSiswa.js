@@ -90,7 +90,7 @@ function initDetailSiswaListener(routerState) {
 
       document.getElementById("profileInfo").innerHTML = `
             <div class="detail-name">${user.username}</div>
-            <div class="detail-nis-code">NIS: ${user.nis}</div>
+            <div class="detail-nis-code">NIS: ${user.nis} | ${user.jenisKelamin}</div>
             <div class="detail-badges">
                 <span class="badge-role">${roleLabel}</span>
                 <span class="badge-status-aktif">Aktif</span>

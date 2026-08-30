@@ -475,7 +475,7 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
 
     const { data: users, error: userError } = await supabase
       .from("users")
-      .select("username, idcard, rombel, kelas, nis, rayon");
+      .select("username, idcard, rombel, kelas, nis, rayon, jenisKelamin");
 
     if (userError) {
       console.error("Error fetch users:", userError.message);
@@ -498,6 +498,7 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
         kelas: userCocok?.kelas || null,
         rayon: userCocok?.rayon || att.rayon || null,
         nis: userCocok?.nis ?? null,
+        jenisKelamin: userCocok?.jenisKelamin ?? null,
         users: userCocok
           ? { username: userCocok.username || userCocok.name || "Siswa" }
           : null,
@@ -654,7 +655,7 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
     return res.status(400).json({ success: false, message: "ID tidak valid." });
   }
 
-  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas, nis } = req.body;
+  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas, nis, jenisKelamin } = req.body;
 
   if (nis !== undefined && nis !== null && String(nis).trim() !== "" && !/^\d+$/.test(String(nis).trim())) {
     return res
@@ -671,6 +672,7 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
   if (whatsapp) updates.whatsapp = whatsapp;
   if (rayon) updates.rayon = rayon;
   if (kelas) updates.kelas = kelas;
+  if (jenisKelamin) updates.jenisKelamin = jenisKelamin;
   if (nis !== undefined && String(nis).trim() !== "") {
     updates.nis = Number(String(nis).trim());
   }
@@ -823,6 +825,7 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
         idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
         nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
         rombel: String(u.rombel || "").trim(),
+        jenisKelamin: String(u.jenisKelamin || "").trim(),
         whatsapp: String(u.whatsapp || "").trim(),
         rayon: String(u.rayon || "").trim(),
         kelas: role === "teacher" && !u.kelas ? null : String(u.kelas || "").trim(),

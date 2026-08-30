@@ -59,6 +59,28 @@ function renderRombelOptionsSiswa(selected) {
   }).join("");
 }
 
+const RAYON_GROUPS = [
+  ["Cicurug", ["Cicurug 1", "Cicurug 2", "Cicurug 3", "Cicurug 4", "Cicurug 5", "Cicurug 6", "Cicurug 7", "Cicurug 8", "Cicurug 9", "Cicurug 10"]],
+  ["Cisarua", ["Cisarua 1", "Cisarua 2", "Cisarua 3", "Cisarua 4", "Cisarua 5", "Cisarua 6", "Cisarua 7"]],
+  ["Cibedug", ["Cibedug 1", "Cibedug 2", "Cibedug 3", "Cibedug 4"]],
+  ["Sukasari", ["Sukasari 1", "Sukasari 2"]],
+  ["Ciawi", ["Ciawi 1", "Ciawi 2", "Ciawi 3", "Ciawi 4", "Ciawi 5", "Ciawi 6"]],
+  ["Tajur", ["Tajur 1", "Tajur 2", "Tajur 3", "Tajur 4", "Tajur 5", "Tajur 6"]],
+  ["Wikrama", ["Wikrama 1", "Wikrama 2", "Wikrama 3", "Wikrama 4", "Wikrama 5"]],
+];
+
+function renderRayonOptionsHTML(selected) {
+  return RAYON_GROUPS.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${String(val) === String(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+}
+
 function renderFormSiswaHTML(selected = {}) {
   const selKelas = selected.kelas || "";
   const selRombel = selected.rombel || "";
@@ -81,6 +103,17 @@ function renderFormSiswaHTML(selected = {}) {
           <i class="bi bi-person-vcard"></i> NIS
         </label>
         <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa" required>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="jenisKelamin">
+          <i class="bi bi-person-bounding-box"></i> Jenis Kelamin
+        </label>
+        <select id="jenisKelamin" class="form-control-modern">
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Laki Laki">Laki Laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
       </div>
 
       <div class="form-group">
@@ -106,7 +139,10 @@ function renderFormSiswaHTML(selected = {}) {
         <label class="form-label" for="rayon">
           <i class="bi bi-geo-alt"></i> Rayon
         </label>
-        <input type="text" id="rayon" class="form-control-modern" placeholder="Contoh: Cicurug 1" value="${escapeHtml(selRayon || "")}">
+        <select id="rayon" class="form-control-modern">
+          <option value="">Pilih Rayon</option>
+          ${renderRayonOptionsHTML(selRayon)}
+        </select>
       </div>
 
       <div class="form-group rfid-field">
@@ -220,6 +256,17 @@ function renderFormGuruHTML() {
         <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
       </div>
 
+      <div class="form-group">
+        <label class="form-label" for="jenisKelamin">
+          <i class="bi bi-person-bounding-box"></i> Jenis Kelamin
+        </label>
+        <select id="jenisKelamin" class="form-control-modern">
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Laki Laki">Laki Laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+      </div>
+
       <input type="hidden" id="rombel" value="Guru Produktif">
       <input type="hidden" id="rayon" value="Guru Produktif">
 
@@ -248,6 +295,9 @@ function renderDataTableHTML(tableTitle) {
         <div class="table-actions">
           <input type="text" id="searchTable" class="form-control form-control-sm bg-light border-0 text-muted rounded-3" style="width: 220px; height: 34px; font-size: 0.85rem;" placeholder="Cari nama / NIS / RFID...">
           <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;">
+          <button type="button" id="btnImportManual" class="btn-import btn-import-manual">
+            <i class="bi bi-pencil-square"></i> Input Manual
+          </button>
           <button type="button" id="btnImportExcel" class="btn-import btn-import-excel">
             <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
           </button>
@@ -259,6 +309,7 @@ function renderDataTableHTML(tableTitle) {
             <tr>
               <th>#</th>
               <th data-sort="nama" class="sortable-th">Nama <span class="sort-indicator"></span></th>
+              <th>Jenis Kelamin</th>
               <th data-sort="rombel" class="sortable-th">Rombel <span class="sort-indicator"></span></th>
               <th data-sort="idcard" class="sortable-th">UID RFID <span class="sort-indicator"></span></th>
               <th>Status</th>
@@ -300,6 +351,7 @@ function initInputSiswaListener() {
     const whatsappInput = document.getElementById("whatsapp");
     const rayonInput = document.getElementById("rayon");
     const kelasInput = document.getElementById("kelas");
+    const jenisKelaminInput = document.getElementById("jenisKelamin");
 
     if (
       !IdRfidInput ||
@@ -309,7 +361,8 @@ function initInputSiswaListener() {
       !emailInput ||
       !passwordInput ||
       !whatsappInput ||
-      !rayonInput
+      !rayonInput ||
+      !jenisKelaminInput
     ) {
       console.error("Ada elemen HTML yang gagal dimuat!");
       return;
@@ -325,6 +378,7 @@ function initInputSiswaListener() {
     const whatsapp = whatsappInput.value.trim();
     const rayon = rayonInput.value.trim();
     const kelas = mode === "guru" ? null : kelasInput?.value.trim() || "";
+    const jenisKelamin = jenisKelaminInput.value.trim();
 
     if (
       !username ||
@@ -336,7 +390,8 @@ function initInputSiswaListener() {
       !role ||
       !whatsapp ||
       !rayon ||
-      (mode !== "guru" && !kelas)
+      (mode !== "guru" && !kelas) ||
+      !jenisKelamin
     ) {
       showToast("Wajib mengisi semua kolom input!", "danger");
       Swal.fire({
@@ -387,6 +442,7 @@ function initInputSiswaListener() {
           whatsapp,
           rayon,
           kelas,
+          jenisKelamin,
         }),
       });
 
@@ -427,6 +483,7 @@ function initInputSiswaListener() {
       IdRfidInput.value = "";
       whatsappInput.value = "";
       rayonInput.value = mode === "guru" ? "Guru Produktif" : "";
+      jenisKelaminInput.value = "";
       if (kelasInput) kelasInput.value = "";
 
       getFormContainerEl().style.display = "none";
@@ -518,6 +575,7 @@ function renderTable() {
         u.role === "teacher" ? "Guru" : "Siswa",
         u.rayon,
         u.kelas,
+        u.jenisKelamin,
       ].some((v) =>
         String(v || "")
           .toLowerCase()
@@ -557,12 +615,13 @@ function renderTable() {
           <small style="color:var(--color-teks-sub);">${user.rayon}</small> 
           <span class="badge-${user.role === "teacher" ? "guru" : "siswa"}">${user.role === "teacher" ? "Guru" : "Siswa"}</span>
         </td>
+        <td>${user.jenisKelamin}</td>
         <td>${user.kelas || ""} ${user.rombel || "-"}</td>
         <td><code>${user.idcard}</code></td>
         <td><span class="status-aktif">Aktif</span></td>
         <td>${user.whatsapp}</td>
         <td>
-          <button class= "btn-detail btn btn-secondary btn-sm" data-id="${user.id}" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-eye"></i></button>
+          <button class="btn-detail btn btn-secondary btn-sm" data-id="${user.id}" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-eye"></i></button>
           <button class="btn-edit btn btn-primary btn-sm" data-id="${user.id}" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-pencil-square"></i></button>
           <button class="btn-delete btn btn-danger btn-sm" data-id="${user.id}" data-nis="${user.nis}"><i class="bi bi-trash"></i></button>
         </td>
@@ -586,6 +645,8 @@ function getSortValue(user) {
       return String(user.rayon || "");
     case "kelas":
       return String(user.kelas || "");
+    case "jenisKelamin":
+      return String(user.jenisKelamin || "");
     default:
       return "";
   }
@@ -862,6 +923,7 @@ async function actionEditSiswa(id, email) {
     const rombel = userData?.rombel || "";
     const kelasDb = userData?.kelas || "";
     const rayonDb = userData?.rayon || "";
+    const jenisKelamin = userData?.jenisKelamin || "";
 
     const escapeAttr = (value) =>
       String(value ?? "")
@@ -889,6 +951,13 @@ async function actionEditSiswa(id, email) {
         : v;
     }
 
+    function normJenisKelamin(v) {
+      const low = String(v || "").trim().toLowerCase();
+      if (low === "laki-laki" || low === "laki laki" || low === "male" || low === "l") return "Laki Laki";
+      if (low === "perempuan" || low === "female" || low === "p") return "Perempuan";
+      return String(v || "").trim();
+    }
+
     const identitasHTML = `
         <div style="text-align: left; margin-bottom: 8px;">
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
@@ -911,11 +980,22 @@ async function actionEditSiswa(id, email) {
         <label>${isTeacher ? "No Whatsapp" : "No Whatsapp"}</label></div>
         <input id="swal-whatsapp" class="swal2-input" style="margin-top:0;" value="${escapeAttr(whatsapp)}">
       `;
+    
+    const opsiJenisKelamin = `
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
+        <label>Jenis Kelamin</label></div>
+        <select id="swal-jenisKelamin" class="swal2-input" style="margin-top: 0; width: 100%; max-width: 100%;">
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Laki Laki">Laki Laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+    `;
 
     const roleSiswaHTML = `
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>Peran</label></div>
         <select id="swal-role" class="swal2-input" style="margin-top:0; width: 100%; max-width: 100%;">
+          <option>Pilih Role</option>
           <option value="student" ${role === "student" ? "selected" : ""}>Siswa</option>
           <option value="teacher" ${role === "teacher" ? "selected" : ""}>Guru</option>
         </select>
@@ -925,7 +1005,7 @@ async function actionEditSiswa(id, email) {
       <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Kelas</label></div>
         <div class="form-group">
         <select id="swal-kelas" class="form-control-modern">
-          <option value="">Pilih Kelas</option>
+          <option>Pilih Kelas</option>
           <option value="X">Kelas X</option>
           <option value="XI">Kelas XI</option>
           <option value="XII">Kelas XII</option>
@@ -937,7 +1017,7 @@ async function actionEditSiswa(id, email) {
       <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rombel</label></div>
       <div class="form-group">
         <select id="swal-rombel" class="form-control-modern">
-          <option value="">Pilih Rombel</option>
+          <option>Pilih Rombel</option>
           <optgroup label="PPLG">
             <option value="PPLG 1">PPLG 1</option>
             <option value="PPLG 2">PPLG 2</option>
@@ -987,7 +1067,7 @@ async function actionEditSiswa(id, email) {
     const opsiRayonSiswaHTML = `
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rayon</label></div>
         <select id="swal-rayon" class="form-control-modern">
-          <option value="">Pilih Rayon</option>
+          <option>Pilih Rayon</option>
           <optgroup label="Cicurug">
             <option value="Cicurug 1">Cicurug 1</option>
             <option value="Cicurug 2">Cicurug 2</option>
@@ -1047,6 +1127,7 @@ async function actionEditSiswa(id, email) {
 
     const htmlSiswa = `${identitasHTML}
         ${roleSiswaHTML}
+        ${opsiJenisKelamin}
         ${opsiKelasHTML}
         ${opsiRombelSiswaHTML}
         ${opsiRayonSiswaHTML}`;
@@ -1063,6 +1144,7 @@ async function actionEditSiswa(id, email) {
         document.getElementById("swal-kelas").value = kelasDb;
         document.getElementById("swal-rombel").value = rombel;
         document.getElementById("swal-rayon").value = normalRayonEdit(rayonDb);
+        document.getElementById("swal-jenisKelamin").value = normJenisKelamin(jenisKelamin);
       },
       title: isTeacher ? "Edit Data Guru" : "Edit Data Siswa",
       html: isTeacher ? htmlGuru : htmlSiswa,
@@ -1097,6 +1179,9 @@ async function actionEditSiswa(id, email) {
           payload.kelas = ambilOpsi("swal-kelas", kelasDb);
           payload.rombel = ambilOpsi("swal-rombel", rombel);
           payload.rayon = ambilOpsi("swal-rayon", rayonDb);
+          payload.jenisKelamin = normJenisKelamin(
+            ambilOpsi("swal-jenisKelamin", jenisKelamin),
+          );
         }
 
         return payload;

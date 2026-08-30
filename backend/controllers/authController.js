@@ -16,7 +16,7 @@ const resolveUserRole = (role, req) => {
     if (!token) {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
-        token = authHeader.split(" ")[1];
+         token = authHeader.split(" ")[1];
       }
     }
 
@@ -40,7 +40,7 @@ const resolveUserRole = (role, req) => {
 
 const register = async (req, res) => {
   try {
-    const { email, password, role, username, idcard, rombel, nis, whatsapp, rayon, kelas } = req.body;
+    const { email, password, role, username, idcard, rombel, nis, whatsapp, rayon, kelas, jenisKelamin } = req.body;
 
     const userRole = resolveUserRole(role, req);
     const isTeacher = userRole === "teacher";
@@ -55,6 +55,7 @@ const register = async (req, res) => {
       !nis ||
       !whatsapp || 
       !rayon ||
+      !jenisKelamin ||
       (!isTeacher && !kelas)
     ) {
       return res.status(400).json({
@@ -113,6 +114,7 @@ const register = async (req, res) => {
           nis: nisNum,
           whatsapp: whatsapp,
           rayon: rayon,
+          jenisKelamin: jenisKelamin,
           kelas: isTeacher && !kelas ? null : kelas
         },
       ])
@@ -132,7 +134,8 @@ const register = async (req, res) => {
         nis: data[0].nis,
         whatsapp: data[0].whatsapp,
         rayon: data[0].rayon,
-        kelas: data[0].kelas
+        kelas: data[0].kelas,
+        jenisKelamin: data[0].jenisKelamin,
       },
     });
   } catch (error) {
@@ -183,7 +186,8 @@ const login = async (req, res) => {
         nis: user.nis,
         whatsapp: user.whatsapp,
         rayon: user.rayon,
-        kelas: user.kelas
+        kelas: user.kelas,
+        jenisKelamin: user.jenisKelamin,
       },
       process.env.JWT_SECRET,
       // NOTE: Kadaluarsa token di-nonaktifkan sementara agar token tidak kadaluarsa.
@@ -211,7 +215,8 @@ const login = async (req, res) => {
         nis: user.nis,
         whatsapp: user.whatsapp,
         rayon: user.rayon,
-        kelas: user.kelas
+        kelas: user.kelas,
+        jenisKelamin: user.jenisKelamin,
       },
     });
   } catch (error) {
