@@ -62,6 +62,7 @@ function renderGrafik() {
                         <div class="filter-group">
                             <label class="filter-label" for="filterKelas"><i class="bi bi-collection"></i> Kelas</label>
                             <select id="filterKelas" class="form-select">
+                                <option value="">Semua Kelas</option>
                                 <option value="X">Kelas X</option>
                                 <option value="XI">Kelas XI</option>
                                 <option value="XII">Kelas XII</option>
@@ -78,17 +79,70 @@ function renderGrafik() {
                     <div class="grid">
                         <div class="panel">
                             <div class="panel-head">
-                                <div>
-                                    <h3>Kehadiran 7 Hari Terakhir</h3>
-                                    <p>Jumlah siswa hadir per hari</p>
-                                </div>
-                                <div style="display:flex;gap:8px;align-items:center;">
-                                    <span class="filterpill"
-                                        style="background:var(--green-soft);color:var(--green);border-color:transparent;">Hari
-                                        Ini · 87.4%</span>
-                                    <span class="filterpill">7 Hari</span>
-                                </div>
-                            </div>
+    <div>
+        <h3>Kehadiran 7 Hari Terakhir</h3>
+        <p>Jumlah siswa hadir per hari</p>
+    </div>
+    
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+
+    <span class="filterpill"
+        id="hadirTodayPill"
+        style="background:var(--green-soft);color:var(--green);border-color:transparent;">
+        Hari Ini · -
+    </span>
+
+    <span class="filterpill">
+        7 Hari
+    </span>
+
+    <div class="download-wrapper">
+
+        <button type="button"
+            class="download-btn"
+            id="downloadStatBtn">
+
+            <i class="bi bi-download"></i>
+            Download
+            <i class="bi bi-chevron-down"></i>
+
+        </button>
+
+        <div class="download-menu"
+            id="downloadStatMenu">
+
+            <button type="button"
+                class="download-option"
+                data-format="pdf">
+
+                <i class="bi bi-file-earmark-pdf"></i>
+
+                <span>
+                    <strong>PDF</strong>
+                    <small>Dokumen laporan</small>
+                </span>
+
+            </button>
+
+            <button type="button"
+                class="download-option"
+                data-format="png">
+
+                <i class="bi bi-image"></i>
+
+                <span>
+                    <strong>PNG</strong>
+                    <small>Gambar statistik</small>
+                </span>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+</div>
 
                             <div class="chart-box tall" id="trendChart"></div>
                             <div class="delta-row" id="deltaRow"></div>
@@ -181,10 +235,7 @@ function renderGrafik() {
 
                 </div>
   `;
-
-
 }
-
 
 // const guruMap = {
 
@@ -220,70 +271,44 @@ function renderGrafik() {
 // };
 
 function renderGuru(rombel) {
-
   const container = document.querySelector(".teacher-list");
 
   if (!container) return;
 
   container.innerHTML = "";
-
-  const guru = guruMap[rombel] || [];
-
-  guru.forEach(g => {
-
-    container.innerHTML += `
-        <div class="teacher-item">
-
-            <div class="teacher-avatar">
-                <i class="bi bi-person-fill"></i>
-            </div>
-
-            <div class="teacher-info">
-
-                <div class="teacher-name">
-                    ${g.nama}
-                </div>
-
-                <div class="teacher-subject">
-                    ${g.mapel} • ${g.jam}
-                </div>
-
-            </div>
-
-        </div>
-        `;
-
-  });
-
 }
 
-let selectedRombel = "PPLG X-1";
-let selectedKelas = "X";
-const rombelMap = {
-  X: [
-    "PPLG X-1",
-    "PPLG X-2",
-    "PPLG X-3",
-    "PPLG X-4",
-    "PPLG X-5",
-  ],
+let selectedRombel = "";
+let selectedKelas = "";
 
-  XI: [
-    "PPLG XI-1",
-    "PPLG XI-2",
-    "PPLG XI-3",
-    "PPLG XI-4",
-    "PPLG XI-5",
+// Daftar rombel disamakan dengan pilihan di inputStudent.js
+const ROMBEL_GROUPS_STAT = [
+  ["TEACHER", ["Guru Produktif"]],
+  ["PPLG", ["PPLG 1", "PPLG 2", "PPLG 3", "PPLG 4", "PPLG 5"]],
+  ["TJKT", ["TJKT 1", "TJKT 2", "TJKT 3", "TJKT 4", "TJKT 5"]],
+  ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
+  ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
+  ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
+  [
+    "PMN",
+    ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"],
   ],
+];
 
-  XII: [
-    "PPLG XII-1",
-    "PPLG XII-2",
-    "PPLG XII-3",
-    "PPLG XII-4",
-    "PPLG XII-5",
-  ]
-};
+function renderRombelOptionsStat() {
+  const selected = String(selectedRombel || "");
+  const allOption = `<option value=""${selected === "" ? " selected" : ""}>Semua Rombel</option>`;
+  const groups = ROMBEL_GROUPS_STAT.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${normalizeRombel(val) === normalizeRombel(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+  return allOption + groups;
+}
 
 function renderRombel(kelas) {
   const rombelSelect = document.getElementById("filterRombel");
@@ -296,18 +321,15 @@ function renderRombel(kelas) {
   const kelasSelect = document.getElementById("filterKelas");
   if (kelasSelect) kelasSelect.value = kelas;
 
-  // Isi dropdown rombel sesuai kelas yang dipilih
-  const rombels = rombelMap[kelas] || [];
-  rombelSelect.innerHTML = rombels.map(
-    rombel => `<option value="${rombel}">${rombel}</option>`
-  ).join('');
+  rombelSelect.innerHTML = renderRombelOptionsStat();
 
-  // Set rombel default (pertama)
-  selectedRombel = rombels[0] || "";
-  rombelSelect.value = selectedRombel;
-  renderGuru(selectedRombel);
+  // Reset pilihan rombel jika tidak ada lagi di daftar
+  if (selectedRombel && !rombelSelect.value) {
+    selectedRombel = "";
+  }
+  rombelSelect.value = selectedRombel || "";
 
-  // Muat data untuk rombel yang aktif
+  // Muat data untuk filter yang aktif
   initGrafikListener();
 }
 
@@ -360,29 +382,28 @@ function initStatistikaListener() {
   updateClock();
   clockInterval = setInterval(updateClock, 1000);
 
-  // ── Dropdown Kelas (X / XI / XII) ──
+  // ── Dropdown Kelas (Semua / X / XI / XII) ──
   const kelasSelect = document.getElementById("filterKelas");
   if (kelasSelect) {
     kelasSelect.value = selectedKelas;
     kelasSelect.addEventListener("change", function () {
-      renderRombel(this.value);
+      selectedKelas = this.value;
+      renderRombel(selectedKelas);
     });
   }
 
-  // ── Dropdown Rombel (PPLG 1-5) ──
+  // ── Dropdown Rombel (Sesuai daftar inputStudent.js) ──
   const rombelSelect = document.getElementById("filterRombel");
   if (rombelSelect) {
     rombelSelect.addEventListener("change", function () {
       selectedRombel = this.value;
-      renderGuru(selectedRombel);
       initGrafikListener();
     });
   }
 
-  // Inisialisasi rombel default (Kelas X → PPLG X-1) dan muat data pertama kali
+  // Inisialisasi filter default (semua kelas & semua rombel) dan muat data pertama kali
   renderRombel(selectedKelas);
 }
-
 
 //dasborad statistik
 // ===================== helpers =====================
@@ -438,31 +459,30 @@ function gridLines(svg, max, steps) {
 }
 
 // ── Helper: normalisasi format rombel ──────────────────────────────────
-// DB menyimpan rombel sebagai "X_3", "XI_2", dsb.
-// Frontend menampilkan sebagai "PPLG X-3", "PPLG XI-2", dsb.
-// Fungsi ini mengubah keduanya ke key yang sama sehingga bisa dibandingkan.
+// DB menyimpan rombel sesuai pilihan di inputStudent.js, contoh "PPLG 3".
+// Perbandingan cukup trim + uppercase agar case/whitespace tidak masalah.
 function normalizeRombel(r) {
-  if (!r) return '';
-  return String(r)
-    .replace(/pplg\s*/i, '')   // hapus prefix "PPLG "
-    .replace(/[-\s]/g, '_')    // ubah dash / spasi jadi underscore
-    .toUpperCase()             // uppercase supaya case-insensitive
-    .trim();
+  return String(r || "")
+    .trim()
+    .toUpperCase();
 }
 // ─────────────────────────────────────────────────────────────────────
 
 // ===================== 1. Kehadiran 7 Hari Terakhir (single line) =====================
 window.initGrafikListener = async function () {
-
   let users = [];
   let attendances = [];
   try {
-    const resA = await fetch(`${API_BASE}/api/attendances`, { credentials: "include" });
+    const resA = await fetch(`${API_BASE}/api/attendances`, {
+      credentials: "include",
+    });
     if (resA.ok) {
       const dataA = await resA.json();
       if (dataA.success) attendances = dataA.data || [];
     }
-    const resU = await fetch(`${API_BASE}/api/users`, { credentials: "include" });
+    const resU = await fetch(`${API_BASE}/api/users`, {
+      credentials: "include",
+    });
     if (resU.ok) {
       const dataU = await resU.json();
       if (dataU.success) users = dataU.data || [];
@@ -472,28 +492,50 @@ window.initGrafikListener = async function () {
   }
 
   const td = new Date();
-  // Filter pakai normalizeRombel supaya cocok walaupun format beda ("PPLG X-3" vs "X_3")
+  // Filter siswa berdasarkan kelas dan/atau rombel yang dipilih
+  const selectedKelasKey = String(selectedKelas || "")
+    .trim()
+    .toUpperCase();
   const selectedRombelKey = normalizeRombel(selectedRombel);
-  const usersRombel = users.filter(
-    user => normalizeRombel(user.rombel) === selectedRombelKey
-  );
-  const idcards = usersRombel.map(u => String(u.idcard).trim());
+  const usersRombel = users.filter((user) => {
+    if (
+      selectedKelasKey &&
+      String(user.kelas || "")
+        .trim()
+        .toUpperCase() !== selectedKelasKey
+    ) {
+      return false;
+    }
+    if (
+      selectedRombelKey &&
+      normalizeRombel(user.rombel) !== selectedRombelKey
+    ) {
+      return false;
+    }
+    return true;
+  });
+  const idcards = usersRombel
+    .map((u) => String(u.idcard ?? "").trim())
+    .filter(Boolean);
 
-  const todayAtt = attendances.filter(a => {
+  const todayAtt = attendances.filter((a) => {
     if (!a.created_at) return false;
     const d = new Date(a.created_at);
-    return d.getFullYear() === td.getFullYear() && d.getMonth() === td.getMonth() && d.getDate() === td.getDate();
+    return (
+      d.getFullYear() === td.getFullYear() &&
+      d.getMonth() === td.getMonth() &&
+      d.getDate() === td.getDate()
+    );
   });
 
-  const todayAttRombel = todayAtt.filter(att =>
-    idcards.includes(String(att.idcard).trim())
+  const todayAttRombel = todayAtt.filter((att) =>
+    idcards.includes(String(att.idcard).trim()),
   );
-
 
   const totalSiswa = usersRombel.length;
   const hadirMap = new Map();
-  todayAttRombel.forEach(a => {
-    let cId = String(a.idcard || '').trim();
+  todayAttRombel.forEach((a) => {
+    let cId = String(a.idcard || "").trim();
     if (cId) {
       if (!hadirMap.has(cId)) {
         hadirMap.set(cId, a);
@@ -517,8 +559,8 @@ window.initGrafikListener = async function () {
   let countHadirTotal = 0;
   let countBelum = 0;
 
-  usersRombel.forEach(u => {
-    let uId = String(u.idcard || '').trim();
+  usersRombel.forEach((u) => {
+    let uId = String(u.idcard || "").trim();
     if (uId && hadirMap.has(uId)) {
       const attObj = hadirMap.get(uId);
       const attStatus = (attObj.status || "Hadir").toLowerCase();
@@ -526,21 +568,43 @@ window.initGrafikListener = async function () {
 
       if (attObj.created_at) {
         const dtt = new Date(attObj.created_at);
-        timeStr = String(dtt.getHours()).padStart(2, '0') + ':' + String(dtt.getMinutes()).padStart(2, '0');
+        timeStr =
+          String(dtt.getHours()).padStart(2, "0") +
+          ":" +
+          String(dtt.getMinutes()).padStart(2, "0");
       }
 
       if (attStatus === "sakit") {
         countSakit++;
-        absentList.push({ name: u.username, rombel: u.rombel, status: "Sakit" });
-        studentsList.push({ name: u.username, rombel: u.rombel, status: "sakit", time: timeStr });
+        absentList.push({
+          name: u.username,
+          rombel: u.rombel,
+          status: "Sakit",
+        });
+        studentsList.push({
+          name: u.username,
+          rombel: u.rombel,
+          status: "sakit",
+          time: timeStr,
+        });
       } else if (attStatus === "izin") {
         countIzin++;
         absentList.push({ name: u.username, rombel: u.rombel, status: "Izin" });
-        studentsList.push({ name: u.username, rombel: u.rombel, status: "izin", time: timeStr });
+        studentsList.push({
+          name: u.username,
+          rombel: u.rombel,
+          status: "izin",
+          time: timeStr,
+        });
       } else if (attStatus === "alfa") {
         countAlfa++;
         absentList.push({ name: u.username, rombel: u.rombel, status: "Alfa" });
-        studentsList.push({ name: u.username, rombel: u.rombel, status: "alfa", time: timeStr });
+        studentsList.push({
+          name: u.username,
+          rombel: u.rombel,
+          status: "alfa",
+          time: timeStr,
+        });
       } else {
         // Hadir
         let isTerlambat = false;
@@ -560,7 +624,11 @@ window.initGrafikListener = async function () {
         // Cek note khusus "Tidak bawa kartu"
         let noteStr = "";
         const pNote = (attObj.note || "").toLowerCase();
-        if (pNote.includes("kartu") || pNote.includes("gak bawa") || attObj.mac_address === "Manual Input") {
+        if (
+          pNote.includes("kartu") ||
+          pNote.includes("gak bawa") ||
+          attObj.mac_address === "Manual Input"
+        ) {
           noteStr = " (Tdk bawa kartu)";
         }
 
@@ -569,22 +637,41 @@ window.initGrafikListener = async function () {
           rombel: u.rombel,
           status: isTerlambat ? "terlambat" : "sudah",
           time: timeStr,
-          note: noteStr
+          note: noteStr,
         });
       }
     } else {
       countBelum++;
-      studentsList.push({ name: u.username, rombel: u.rombel, status: "belum" });
-      absentList.push({ name: u.username, rombel: u.rombel, status: "Belum Absen" });
+      studentsList.push({
+        name: u.username,
+        rombel: u.rombel,
+        status: "belum",
+      });
+      absentList.push({
+        name: u.username,
+        rombel: u.rombel,
+        status: "Belum Absen",
+      });
     }
   });
 
-  const valTotal = document.getElementById("val-total-siswa"); if (valTotal) valTotal.innerText = totalSiswa;
-  const valHadir = document.getElementById("val-hadir"); if (valHadir) valHadir.innerText = countHadirTotal;
-  const valSakit = document.getElementById("val-sakit"); if (valSakit) valSakit.innerText = countSakit;
-  const valIzin = document.getElementById("val-izin"); if (valIzin) valIzin.innerText = countIzin;
-  const valTerlambat = document.getElementById("val-terlambat"); if (valTerlambat) valTerlambat.innerText = countTerlambat;
-  const valBelum = document.getElementById("val-belum-absen"); if (valBelum) valBelum.innerText = (countBelum + countAlfa);
+  const valTotal = document.getElementById("val-total-siswa");
+  if (valTotal) valTotal.innerText = totalSiswa;
+  const valHadir = document.getElementById("val-hadir");
+  if (valHadir) valHadir.innerText = countHadirTotal;
+  const valSakit = document.getElementById("val-sakit");
+  if (valSakit) valSakit.innerText = countSakit;
+  const valIzin = document.getElementById("val-izin");
+  if (valIzin) valIzin.innerText = countIzin;
+  const valTerlambat = document.getElementById("val-terlambat");
+  if (valTerlambat) valTerlambat.innerText = countTerlambat;
+  const valBelum = document.getElementById("val-belum-absen");
+  if (valBelum) valBelum.innerText = countBelum + countAlfa;
+
+  const hadirPct =
+    totalSiswa > 0 ? ((countHadirTotal / totalSiswa) * 100).toFixed(1) : "0.0";
+  const pillToday = document.getElementById("hadirTodayPill");
+  if (pillToday) pillToday.textContent = `Hari Ini · ${hadirPct}%`;
 
   // Data Kehadiran 7 Hari
   const trendLabels = [];
@@ -593,19 +680,25 @@ window.initGrafikListener = async function () {
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dmy = d.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" });
-    trendLabelsShort.push(dmy.split(',')[0]);
+    const dmy = d.toLocaleDateString("id-ID", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+    trendLabelsShort.push(dmy.split(",")[0]);
     trendLabels.push(dmy);
 
-    const atts = attendances.filter(a => {
+    const atts = attendances.filter((a) => {
       if (!a.created_at) return false;
       const ad = new Date(a.created_at);
-      return (ad.getFullYear() === d.getFullYear() &&
+      return (
+        ad.getFullYear() === d.getFullYear() &&
         ad.getMonth() === d.getMonth() &&
-        ad.getDate() === d.getDate()) &&
-        idcards.includes(String(a.idcard).trim());
+        ad.getDate() === d.getDate() &&
+        idcards.includes(String(a.idcard).trim())
+      );
     });
-    const unique = new Set(atts.map(a => String(a.idcard).trim())).size;
+    const unique = new Set(atts.map((a) => String(a.idcard).trim())).size;
     trendData.push(unique || 0);
   }
 
@@ -614,18 +707,18 @@ window.initGrafikListener = async function () {
     { label: "Tepat Waktu", value: countTepat, color: "#1FA871" },
     { label: "Terlambat", value: countTerlambat, color: "#EAB308" },
     { label: "Sakit/Izin", value: countSakit + countIzin, color: "#3FA9E0" },
-    { label: "Tidak Hadir", value: countBelum + countAlfa, color: "#E25C5C" }
+    { label: "Tidak Hadir", value: countBelum + countAlfa, color: "#E25C5C" },
   ];
 
   // Jam Tap-in — selalu tampilkan 07:00 sampai 14:00 (8 slot)
   const TAP_START_HR = 7; // mulai jam 7 pagi
   const tLabels = [];
   for (let i = 0; i < 8; i++) {
-    tLabels.push(String(TAP_START_HR + i).padStart(2, '0') + ":00");
+    tLabels.push(String(TAP_START_HR + i).padStart(2, "0") + ":00");
   }
 
   let tBins = [0, 0, 0, 0, 0, 0, 0, 0];
-  Array.from(hadirMap.values()).forEach(a => {
+  Array.from(hadirMap.values()).forEach((a) => {
     if (a.created_at) {
       const hrs = new Date(a.created_at).getHours();
       let binIdx = hrs - TAP_START_HR;
@@ -645,7 +738,7 @@ window.initGrafikListener = async function () {
 
     const box = document.getElementById("trendChart");
     if (!box) return;
-    box.innerHTML = '';
+    box.innerHTML = "";
     const svg = svgEl("svg", {
       viewBox: `0 0 ${VW} ${VH}`,
       preserveAspectRatio: "none",
@@ -703,7 +796,7 @@ window.initGrafikListener = async function () {
       }),
     );
 
-    // points + hover targets
+    // points + hover targets + labels
     const tip = makeTooltip(box);
     pts.forEach((p, i) => {
       const c = svgEl("circle", {
@@ -715,6 +808,19 @@ window.initGrafikListener = async function () {
         "stroke-width": 2,
       });
       svg.appendChild(c);
+
+      // Label angka (agar muncul di export PDF/PNG)
+      const valText = svgEl("text", {
+        x: p[0],
+        y: p[1] - 12,
+        "text-anchor": "middle",
+        "font-size": 12,
+        fill: "#4F5AED",
+        "font-weight": 600,
+      });
+      valText.textContent = data[i];
+      svg.appendChild(valText);
+
       const hit = svgEl("circle", {
         cx: p[0],
         cy: p[1],
@@ -755,7 +861,7 @@ window.initGrafikListener = async function () {
     // delta chips
     const deltaRow = document.getElementById("deltaRow");
     if (deltaRow) {
-      deltaRow.innerHTML = '';
+      deltaRow.innerHTML = "";
       data.forEach((val, i) => {
         const item = document.createElement("div");
         item.className = "delta-item";
@@ -783,7 +889,7 @@ window.initGrafikListener = async function () {
     if (!box) return;
 
     // clean old svg
-    const oldSvg = box.querySelector('svg');
+    const oldSvg = box.querySelector("svg");
     if (oldSvg) oldSvg.remove();
 
     const size = 180,
@@ -800,7 +906,7 @@ window.initGrafikListener = async function () {
     box.insertBefore(svg, box.firstChild);
 
     // update labels dynamically
-    const dc = box.querySelector('.donut-center .big');
+    const dc = box.querySelector(".donut-center .big");
     if (dc) dc.textContent = totalSiswa;
 
     const tip = makeTooltip(box);
@@ -865,14 +971,17 @@ window.initGrafikListener = async function () {
       const row = document.createElement("div");
       row.className = "rank-item";
       let tagHtml = "";
-      if (s.status === "Sakit") tagHtml = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
-      else if (s.status === "Izin") tagHtml = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
-      else if (s.status === "Alfa") tagHtml = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
+      if (s.status === "Sakit")
+        tagHtml = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
+      else if (s.status === "Izin")
+        tagHtml = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
+      else if (s.status === "Alfa")
+        tagHtml = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
       else tagHtml = `<span class="rank-tag absent">Belum Absen</span>`;
 
       row.innerHTML = `
       <div class="avatar"></div>
-      <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
+      <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || "-"}</div></div>
       ${tagHtml}`;
       list.appendChild(row);
     });
@@ -884,7 +993,14 @@ window.initGrafikListener = async function () {
     const students = studentsList;
     // prioritas: belum > alfa > sakit > izin > terlambat > sudah
     students.sort((a, b) => {
-      const rank = { "belum": 1, "alfa": 2, "sakit": 3, "izin": 4, "terlambat": 5, "sudah": 6 };
+      const rank = {
+        belum: 1,
+        alfa: 2,
+        sakit: 3,
+        izin: 4,
+        terlambat: 5,
+        sudah: 6,
+      };
       if (rank[a.status] === rank[b.status]) return 0;
       return rank[a.status] < rank[b.status] ? -1 : 1;
     });
@@ -897,16 +1013,22 @@ window.initGrafikListener = async function () {
       row.className = "rank-item";
       let note = s.note || "";
       let tag = "";
-      if (s.status === "belum") tag = `<span class="rank-tag belum">Belum Tap</span>`;
-      else if (s.status === "terlambat") tag = `<span class="rank-tag late">Sudah (Terlambat)${note} · ${s.time}</span>`;
-      else if (s.status === "sudah") tag = `<span class="rank-tag sudah">Sudah${note} · ${s.time}</span>`;
-      else if (s.status === "sakit") tag = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
-      else if (s.status === "izin") tag = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
-      else if (s.status === "alfa") tag = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
+      if (s.status === "belum")
+        tag = `<span class="rank-tag belum">Belum Tap</span>`;
+      else if (s.status === "terlambat")
+        tag = `<span class="rank-tag late">Sudah (Terlambat)${note} · ${s.time}</span>`;
+      else if (s.status === "sudah")
+        tag = `<span class="rank-tag sudah">Sudah${note} · ${s.time}</span>`;
+      else if (s.status === "sakit")
+        tag = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
+      else if (s.status === "izin")
+        tag = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
+      else if (s.status === "alfa")
+        tag = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
 
       row.innerHTML = `
       <div class="avatar"></div>
-      <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
+      <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || "-"}</div></div>
       ${tag}`;
       list.appendChild(row);
     });
@@ -1003,7 +1125,7 @@ window.initGrafikListener = async function () {
 
     const schoolDaysMap = new Map();
 
-    attendances.forEach(a => {
+    attendances.forEach((a) => {
       if (a.created_at) {
         const d = new Date(a.created_at);
         const dow = d.getDay();
@@ -1015,7 +1137,10 @@ window.initGrafikListener = async function () {
 
           // Sisihkan Hari Ini, dan ambil yang ada di masa lalu (1 - 31 hari ke belakang)
           if (dStr !== todayStr && diffDays > 0 && diffDays <= 31) {
-            schoolDaysMap.set(dStr, new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+            schoolDaysMap.set(
+              dStr,
+              new Date(d.getFullYear(), d.getMonth(), d.getDate()),
+            );
           }
         }
       }
@@ -1025,43 +1150,504 @@ window.initGrafikListener = async function () {
 
     // Untuk setiap siswa di rombel ini, hitung berapa hari tidak hadir dalam 30 hari
     const perhatianSiswa = [];
-    usersRombel.forEach(u => {
-      const uId = String(u.idcard || '').trim();
+    usersRombel.forEach((u) => {
+      const uId = String(u.idcard || "").trim();
       let absentCount = 0;
-      schoolDays.forEach(sd => {
-        const hadir = attendances.some(a => {
+      schoolDays.forEach((sd) => {
+        const hadir = attendances.some((a) => {
           if (!a.created_at) return false;
           const ad = new Date(a.created_at);
-          return String(a.idcard || '').trim() === uId &&
+          return (
+            String(a.idcard || "").trim() === uId &&
             ad.getFullYear() === sd.getFullYear() &&
             ad.getMonth() === sd.getMonth() &&
-            ad.getDate() === sd.getDate();
+            ad.getDate() === sd.getDate()
+          );
         });
         if (!hadir) absentCount++;
       });
       // Masukkan ke 'perlu perhatian' jika absen 3–5 kali atau lebih
       if (absentCount >= 3) {
-        perhatianSiswa.push({ name: u.username, rombel: u.rombel, absentCount });
+        perhatianSiswa.push({
+          name: u.username,
+          rombel: u.rombel,
+          absentCount,
+        });
       }
     });
 
     perhatianSiswa.sort((a, b) => b.absentCount - a.absentCount);
 
-    list.innerHTML = '';
+    list.innerHTML = "";
     if (perhatianSiswa.length === 0) {
       list.innerHTML = `<div style="padding:16px;text-align:center;color:var(--color-sub);font-size:13px;">Tidak ada siswa yang perlu perhatian khusus</div>`;
     } else {
-      perhatianSiswa.forEach(s => {
-        const row = document.createElement('div');
-        row.className = 'rank-item';
-        const badgeColor = s.absentCount >= 8 ? '#DC2626' : s.absentCount >= 5 ? '#F0973C' : '#D97706';
+      perhatianSiswa.forEach((s) => {
+        const row = document.createElement("div");
+        row.className = "rank-item";
+        const badgeColor =
+          s.absentCount >= 8
+            ? "#DC2626"
+            : s.absentCount >= 5
+              ? "#F0973C"
+              : "#D97706";
         row.innerHTML = `
           <div class="avatar"></div>
-          <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
+          <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || "-"}</div></div>
           <span class="rank-tag" style="background:${badgeColor}20;color:${badgeColor};border:1px solid ${badgeColor}40;">${s.absentCount}x absen</span>`;
         list.appendChild(row);
       });
     }
-    if (pill) pill.textContent = perhatianSiswa.length + ' siswa';
+    if (pill) pill.textContent = perhatianSiswa.length + " siswa";
   })();
+
+  // ============================================================
+  // DOWNLOAD DROPDOWN
+  // ============================================================
+
+  const downloadBtn = document.getElementById("downloadStatBtn");
+
+  const downloadMenu = document.getElementById("downloadStatMenu");
+
+  if (downloadBtn && downloadMenu) {
+    downloadBtn.onclick = function (e) {
+      e.stopPropagation();
+
+      downloadMenu.classList.toggle("show");
+    };
+
+    const options = downloadMenu.querySelectorAll(".download-option");
+
+    options.forEach((option) => {
+      option.onclick = function () {
+        const format = this.dataset.format;
+
+        downloadMenu.classList.remove("show");
+
+        openExportPreview(format);
+      };
+    });
+  }
 };
+
+// ============================================================
+// EXPORT STATISTIKA
+// ============================================================
+
+function getExportInfo() {
+  const kelas = selectedKelas || "Semua Kelas";
+  const rombel = selectedRombel || "Semua Rombel";
+
+  return {
+    kelas,
+    rombel,
+    tanggal: new Date().toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+  };
+}
+
+// ============================================================
+// PREVIEW EXPORT
+// ============================================================
+
+let currentExportFormat = null;
+
+function createExportModal() {
+  if (document.getElementById("exportStatModal")) {
+    return;
+  }
+
+  const modal = document.createElement("div");
+
+  modal.id = "exportStatModal";
+
+  modal.innerHTML = `
+        <div class="export-modal-overlay">
+
+            <div class="export-modal">
+
+                <div class="export-modal-header">
+
+                    <div>
+                        <h3 id="exportModalTitle">
+                            Preview Statistik
+                        </h3>
+
+                        <p id="exportModalSubtitle">
+                            Preview sebelum download
+                        </p>
+                    </div>
+
+                    <button type="button"
+                        class="export-modal-close"
+                        id="closeExportModal">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </button>
+
+                </div>
+
+
+                <div class="export-modal-body"
+                    id="exportPreview">
+
+                </div>
+
+
+                <div class="export-modal-footer">
+
+                    <button type="button"
+                        class="export-cancel-btn"
+                        id="cancelExport">
+
+                        Batal
+
+                    </button>
+
+                    <button type="button"
+                        class="export-confirm-btn"
+                        id="confirmExport">
+
+                        <i class="bi bi-download"></i>
+                        Download
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+  document.body.appendChild(modal);
+
+  document.getElementById("closeExportModal").onclick = closeExportModal;
+
+  document.getElementById("cancelExport").onclick = closeExportModal;
+}
+
+function openExportPreview(format) {
+  currentExportFormat = format;
+
+  createExportModal();
+
+  const modal = document.getElementById("exportStatModal");
+
+  const preview = document.getElementById("exportPreview");
+
+  const title = document.getElementById("exportModalTitle");
+
+  const subtitle = document.getElementById("exportModalSubtitle");
+
+  const confirmButton = document.getElementById("confirmExport");
+
+  const chart = document.getElementById("trendChart");
+
+  if (!chart) {
+    alert("Grafik tidak ditemukan.");
+
+    return;
+  }
+
+  const svg = chart.querySelector("svg");
+
+  if (!svg) {
+    alert("Grafik belum selesai dibuat.");
+
+    return;
+  }
+
+  const info = getExportInfo();
+
+  // Judul modal
+
+  title.textContent = format === "pdf" ? "Preview PDF" : "Preview PNG";
+
+  subtitle.textContent =
+    format === "pdf"
+      ? "Preview laporan sebelum mengunduh PDF."
+      : "Preview gambar sebelum mengunduh PNG.";
+
+  confirmButton.innerHTML = `
+        <i class="bi bi-download"></i>
+        Download ${format.toUpperCase()}
+    `;
+
+  // Clone SVG grafik
+
+  const svgClone = svg.cloneNode(true);
+
+  preview.innerHTML = `
+
+        <div class="export-preview-page">
+
+            <div class="export-preview-title">
+                Statistik Kehadiran Siswa
+            </div>
+
+            <div class="export-preview-info">
+
+                Kelas:
+                <strong>${info.kelas}</strong>
+
+                &nbsp; • &nbsp;
+
+                Rombel:
+                <strong>${info.rombel}</strong>
+
+                &nbsp; • &nbsp;
+
+                Periode:
+                <strong>7 Hari Terakhir</strong>
+
+            </div>
+
+
+            <div class="export-preview-chart"
+                id="previewChartContainer">
+            </div>
+
+        </div>
+
+    `;
+
+  document.getElementById("previewChartContainer").appendChild(svgClone);
+
+  modal.style.display = "block";
+}
+
+function closeExportModal() {
+  const modal = document.getElementById("exportStatModal");
+
+  if (modal) {
+    modal.style.display = "none";
+  }
+
+  currentExportFormat = null;
+}
+
+// ============================================================
+// Ambil SVG grafik Kehadiran 7 Hari
+// ============================================================
+
+function getTrendSVG() {
+  const chart = document.getElementById("trendChart");
+
+  if (!chart) {
+    throw new Error("Grafik kehadiran tidak ditemukan.");
+  }
+
+  const svg = chart.querySelector("svg");
+
+  if (!svg) {
+    throw new Error("SVG grafik belum tersedia.");
+  }
+
+  return svg;
+}
+
+// ============================================================
+// Konversi SVG → Canvas
+// ============================================================
+
+function svgToCanvas(svg, width = 1400, height = 560) {
+  return new Promise((resolve, reject) => {
+    const serializer = new XMLSerializer();
+
+    let svgString = serializer.serializeToString(svg);
+
+    // Tambahkan namespace jika belum ada
+    if (!svgString.includes("xmlns=")) {
+      svgString = svgString.replace(
+        "<svg",
+        '<svg xmlns="http://www.w3.org/2000/svg"',
+      );
+    }
+
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+
+      // Background putih
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, width, height);
+
+      // Gambar SVG
+      ctx.drawImage(img, 0, 0, width, height);
+
+      URL.revokeObjectURL(url);
+
+      resolve(canvas);
+    };
+
+    img.onerror = function (error) {
+      URL.revokeObjectURL(url);
+      reject(error);
+    };
+
+    img.src = url;
+  });
+}
+
+// ============================================================
+// DOWNLOAD PNG
+// ============================================================
+
+async function exportTrendPNG() {
+  const svg = getTrendSVG();
+  const svgCanvas = await svgToCanvas(svg, 1600, 650);
+  const info = getExportInfo();
+
+  // Buat canvas baru dengan ukuran lebih besar untuk menampung teks
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = 1700;
+  finalCanvas.height = 950;
+  const ctx = finalCanvas.getContext("2d");
+
+  // Background putih
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+  // Header Teks
+  ctx.fillStyle = "#000000";
+  ctx.font = "bold 40px sans-serif";
+  ctx.fillText("Statistik Kehadiran Siswa", 50, 70);
+
+  ctx.font = "24px sans-serif";
+  ctx.fillText(`Kelas: ${info.kelas}`, 50, 120);
+  ctx.fillText(`Rombel: ${info.rombel}`, 50, 160);
+  ctx.fillText(`Periode: 7 Hari Terakhir`, 50, 200);
+  ctx.fillText(`Dicetak: ${info.tanggal}`, 50, 240);
+
+  // Gambar grafik (svgCanvas)
+  ctx.drawImage(svgCanvas, 50, 270, 1600, 650);
+
+  // Footer Teks
+  ctx.font = "20px sans-serif";
+  ctx.fillStyle = "#666666";
+  ctx.fillText("Laporan Statistik Absensi", 50, 930);
+
+  const rombelName = info.rombel.replace(/\s+/g, "-").toLowerCase();
+  const link = document.createElement("a");
+  link.download = `statistik-kehadiran-7-hari-${rombelName}.png`;
+  link.href = finalCanvas.toDataURL("image/png");
+  link.click();
+}
+
+// ============================================================
+// DOWNLOAD PDF
+// ============================================================
+
+async function exportTrendPDF() {
+  if (typeof html2pdf === "undefined") {
+    throw new Error("Library html2pdf belum dimuat!");
+  }
+
+  const svg = getTrendSVG();
+  const canvas = await svgToCanvas(svg, 1600, 650);
+  const imageData = canvas.toDataURL("image/png");
+  const info = getExportInfo();
+
+  // Buat wadah sementara untuk di-render oleh html2pdf
+  const container = document.createElement("div");
+  container.style.padding = "20px";
+  container.style.fontFamily = "sans-serif";
+  container.style.width = "1000px"; // Ukuran relatif lebar
+  container.style.backgroundColor = "#ffffff";
+
+  container.innerHTML = `
+    <h2 style="margin: 0 0 5px 0;">Statistik Kehadiran Siswa</h2>
+    <p style="margin: 0; font-size: 14px;">Kelas: ${info.kelas}</p>
+    <p style="margin: 0; font-size: 14px;">Rombel: ${info.rombel}</p>
+    <p style="margin: 0; font-size: 14px;">Periode: 7 Hari Terakhir</p>
+    <p style="margin: 0 0 15px 0; font-size: 14px;">Dicetak: ${info.tanggal}</p>
+    <img src="${imageData}" style="width: 100%; border-radius: 8px;" alt="Grafik Statistik" />
+    <p style="margin-top: 20px; font-size: 12px; color: #666;">Laporan Statistik Absensi</p>
+  `;
+
+  const rombelName = info.rombel.replace(/\s+/g, "-").toLowerCase();
+  const filename = `statistik-kehadiran-7-hari-${rombelName}.pdf`;
+
+  const opt = {
+    margin: 10,
+    filename: filename,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+  };
+
+  await html2pdf().set(opt).from(container).save();
+}
+
+// ============================================================
+// KONFIRMASI DOWNLOAD
+// ============================================================
+
+document.addEventListener("click", function (e) {
+  // Tutup dropdown jika klik di luar
+  const wrapper = document.querySelector(".download-wrapper");
+
+  if (wrapper && !wrapper.contains(e.target)) {
+    const menu = document.getElementById("downloadStatMenu");
+
+    if (menu) {
+      menu.classList.remove("show");
+    }
+  }
+
+  // Tombol download modal
+  if (e.target.closest && e.target.closest("#confirmExport")) {
+    const button = document.getElementById("confirmExport");
+
+    if (!currentExportFormat) {
+      return;
+    }
+
+    button.disabled = true;
+
+    button.innerHTML = `
+            <i class="bi bi-hourglass-split"></i>
+            Memproses...
+        `;
+
+    setTimeout(async () => {
+      try {
+        if (currentExportFormat === "png") {
+          await exportTrendPNG();
+        } else if (currentExportFormat === "pdf") {
+          await exportTrendPDF();
+        }
+
+        closeExportModal();
+      } catch (error) {
+        console.error("Export gagal:", error);
+
+        alert("Gagal membuat file: " + error.message);
+      } finally {
+        button.disabled = false;
+
+        button.innerHTML = `
+                    <i class="bi bi-download"></i>
+                    Download ${(currentExportFormat || "").toUpperCase()}
+                `;
+      }
+    }, 100);
+  }
+});

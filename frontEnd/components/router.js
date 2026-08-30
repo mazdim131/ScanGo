@@ -7,6 +7,13 @@ function navigateTo(page) {
   const content = document.getElementById("content");
   if (!content) return;
 
+  // Auto-close print preview overlay if open
+  const printOverlay = document.getElementById("printPreviewModal");
+  if (printOverlay && printOverlay.classList.contains("active")) {
+    printOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
   content.innerHTML = "";
 
   switch (page) {
@@ -66,6 +73,12 @@ function navigateTo(page) {
         if (typeof initScanRfid !== "undefined") initScanRfid();
       } else {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
+      }
+      break;
+    case "login":
+      if (typeof renderLogin !== "undefined") {
+        content.innerHTML = renderLogin();
+        if (typeof initLoginView !== "undefined") initLoginView();
       }
       break;
     case "print":

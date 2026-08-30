@@ -94,7 +94,7 @@
 .statistika-page .main-content {
   flex: 1;
   padding: 24px 32px;
-  background-color: var(--bg-content);
+  background-color: transparent;
   transition: background-color var(--transition-speed);
 }
 
@@ -912,4 +912,234 @@
 
 .offcanvas-body .row .col-4:active {
   transform: scale(0.95);
+}
+
+.download-wrapper {
+    position: relative;
+}
+
+.download-btn {
+    border: 1px solid #E5E7EB;
+    background: #fff;
+    color: #374151;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.download-btn:hover {
+    background: #F9FAFB;
+}
+
+.download-menu {
+    position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+
+    width: 190px;
+
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+
+    padding: 6px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,.10);
+
+    z-index: 1000;
+
+    display: none;
+}
+
+.download-menu.show {
+    display: block;
+}
+
+.download-option {
+    width: 100%;
+
+    border: 0;
+    background: transparent;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.download-option:hover {
+    background: #F5F6FA;
+}
+
+.download-option > i {
+    font-size: 20px;
+}
+
+.download-option[data-format="pdf"] > i {
+    color: #DC2626;
+}
+
+.download-option[data-format="png"] > i {
+    color: #4F5AED;
+}
+
+.download-option span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.download-option strong {
+    font-size: 13px;
+}
+
+.download-option small {
+    font-size: 11px;
+    color: #6B7280;
+}
+
+.export-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(15, 23, 42, .45);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 9999;
+}
+
+.export-modal {
+    width: min(900px, 95vw);
+    max-height: 90vh;
+
+    background: #fff;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: 0 25px 60px rgba(0,0,0,.2);
+}
+
+.export-modal-header {
+    padding: 18px 22px;
+
+    border-bottom: 1px solid #E5E7EB;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.export-modal-header h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.export-modal-header p {
+    margin: 4px 0 0;
+    color: #6B7280;
+    font-size: 12px;
+}
+
+.export-modal-close {
+    width: 34px;
+    height: 34px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #F3F4F6;
+
+    cursor: pointer;
+}
+
+.export-modal-body {
+    padding: 24px;
+
+    overflow: auto;
+
+    background: #F8FAFC;
+}
+
+.export-preview-page {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 10px;
+}
+
+.export-preview-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.export-preview-info {
+    margin-top: 6px;
+    margin-bottom: 20px;
+
+    color: #6B7280;
+
+    font-size: 12px;
+}
+
+.export-preview-chart svg {
+    width: 100%;
+    height: auto;
+}
+
+.export-modal-footer {
+    padding: 14px 22px;
+
+    border-top: 1px solid #E5E7EB;
+
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+.export-cancel-btn,
+.export-confirm-btn {
+    padding: 9px 14px;
+
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.export-cancel-btn {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+}
+
+.export-confirm-btn {
+    background: #4F5AED;
+    color: #fff;
+    border: none;
 }

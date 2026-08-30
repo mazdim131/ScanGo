@@ -1,29 +1,90 @@
 if (typeof window.tableAllData === "undefined") window.tableAllData = [];
 if (typeof window.tableSortKey === "undefined") window.tableSortKey = "nama";
 if (typeof window.tableSortDir === "undefined") window.tableSortDir = "asc";
-if (typeof window.tableSearchQuery === "undefined") window.tableSearchQuery = "";
-if (typeof window.tableRoleFilter === "undefined") window.tableRoleFilter = null;
+if (typeof window.tableSearchQuery === "undefined")
+  window.tableSearchQuery = "";
+if (typeof window.tableRoleFilter === "undefined")
+  window.tableRoleFilter = null;
 
 function renderInputSiswa() {
   window.tableRoleFilter = null;
-  return renderInputFormHTML() + renderDataTableHTML("Daftar Siswa / Guru");
+  return renderFormSiswaHTML() + renderDataTableHTML("Daftar Siswa / Guru");
 }
 
 function renderDataSiswa() {
   window.tableRoleFilter = "student";
-  return renderInputFormHTML() + renderDataTableHTML("Data Siswa");
+  window.currentSelectedRombel = null;
+  return renderFormSiswaHTML() + renderDataTableHTML("Data Siswa");
 }
 
 function renderDataGuru() {
   window.tableRoleFilter = "teacher";
-  return renderInputFormHTML() + renderDataTableHTML("Data Guru");
+  window.currentSelectedRombel = null;
+  return renderFormGuruHTML() + renderDataTableHTML("Data Guru");
 }
 
 function initDataTableListener() {
   initInputSiswaListener();
 }
 
-function renderInputFormHTML() {
+function getFormContainerEl() {
+  return (
+    document.getElementById("formInputContainer") ||
+    document.getElementById("formInputContainerGuru")
+  );
+}
+
+const KELAS_OPTIONS_SISWA = ["X", "XI", "XII"];
+
+function renderKelasOptionsSiswa(selected) {
+  return ["", ...KELAS_OPTIONS_SISWA]
+    .map((k) => {
+      const value = k === "" ? "" : k;
+      const label = k === "" ? "Pilih Kelas" : `Kelas ${k}`;
+      const isSelected = String(selected || "") === String(value);
+      return `<option value="${value}"${isSelected ? " selected" : ""}>${label}</option>`;
+    })
+    .join("");
+}
+
+function renderRombelOptionsSiswa(selected) {
+  return ROMBEL_GROUPS.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${normRombel(val) === normRombel(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+}
+
+const RAYON_GROUPS = [
+  ["Cicurug", ["Cicurug 1", "Cicurug 2", "Cicurug 3", "Cicurug 4", "Cicurug 5", "Cicurug 6", "Cicurug 7", "Cicurug 8", "Cicurug 9", "Cicurug 10"]],
+  ["Cisarua", ["Cisarua 1", "Cisarua 2", "Cisarua 3", "Cisarua 4", "Cisarua 5", "Cisarua 6", "Cisarua 7"]],
+  ["Cibedug", ["Cibedug 1", "Cibedug 2", "Cibedug 3", "Cibedug 4"]],
+  ["Sukasari", ["Sukasari 1", "Sukasari 2"]],
+  ["Ciawi", ["Ciawi 1", "Ciawi 2", "Ciawi 3", "Ciawi 4", "Ciawi 5", "Ciawi 6"]],
+  ["Tajur", ["Tajur 1", "Tajur 2", "Tajur 3", "Tajur 4", "Tajur 5", "Tajur 6"]],
+  ["Wikrama", ["Wikrama 1", "Wikrama 2", "Wikrama 3", "Wikrama 4", "Wikrama 5"]],
+];
+
+function renderRayonOptionsHTML(selected) {
+  return RAYON_GROUPS.map(([label, items]) => {
+    const options = items
+      .map(
+        (val) =>
+          `<option value="${val}"${String(val) === String(selected) ? " selected" : ""}>${val}</option>`,
+      )
+      .join("");
+    return `<optgroup label="${label}">${options}</optgroup>`;
+  }).join("");
+}
+
+function renderFormSiswaHTML(selected = {}) {
+  const selKelas = selected.kelas || "";
+  const selRombel = selected.rombel || "";
+  const selRayon = selected.rayon || "";
   return `
   <div id="formInputContainer" class="form-input-container" style="display: none;">
 
@@ -32,26 +93,55 @@ function renderInputFormHTML() {
     </div>
 
     <h2 class="form-title">
-      Input Siswa Baru
+      Input Data Siswa
     </h2>
 
-    <form class="form-grid" id="formInputSiswa" autocomplete="off">
+    <form class="form-grid" id="formInputSiswa" data-mode="siswa" autocomplete="off">
 
-      <div class="form-group">
+      <div class="form-group full-width">
         <label class="form-label" for="nis">
-          <i class="bi bi-person-vcard"></i> NIS / NIP
+          <i class="bi bi-person-vcard"></i> NIS
         </label>
-        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa / NIP Guru" required>
+        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Siswa" required>
+      </div>
+
+      <div class="form-group full-width">
+        <label class="form-label" for="jenisKelamin">
+          <i class="bi bi-person-bounding-box"></i> Jenis Kelamin
+        </label>
+        <select id="jenisKelamin" class="form-control-modern">
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Laki Laki">Laki Laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="selectRole">
-          <i class="bi bi-shield-check"></i> Peran
+        <label class="form-label" for="kelas">
+          <i class="bi bi-collection"></i> Kelas
         </label>
-        <select id="selectRole" class="form-control-modern">
-          <option value="">Pilih Peran</option>
-          <option value="student">Siswa</option>
-          <option value="teacher">Guru</option>
+        <select id="kelas" class="form-control-modern">
+          ${renderKelasOptionsSiswa(selKelas)}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="rombel">
+          <i class="bi bi-people"></i> Rombel
+        </label>
+        <select id="rombel" class="form-control-modern">
+          <option value="">Pilih Rombel</option>
+          ${renderRombelOptionsSiswa(selRombel)}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="rayon">
+          <i class="bi bi-geo-alt"></i> Rayon
+        </label>
+        <select id="rayon" class="form-control-modern">
+          <option value="">Pilih Rayon</option>
+          ${renderRayonOptionsHTML(selRayon)}
         </select>
       </div>
 
@@ -86,45 +176,99 @@ function renderInputFormHTML() {
         <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
       </div>
 
-      <div class="form-group full-width">
-        <label class="form-label" for="call">
-          <i class="bi bi-whatsapp"></i> No Whatsapp Orang Tua/Siswa
+      <div class="form-group">
+        <label class="form-label" for="whatsapp">
+          <i class="bi bi-whatsapp"></i> No Whatsapp
         </label>
-        <input type="number" id="whatsapp" class="form-control-modern" value="62" required >
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required>
       </div>
 
-      <div class="form-group full-width">
-        <label class="form-label" for="rombel">
-          <i class="bi bi-people"></i> Rombel
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" id="btnBackToDataAlt">
+          <i class="bi bi-x-lg"></i> Batal
+        </button>
+        <button type="button" id="btnSave" class="btn-save">
+          <i class="bi bi-check-lg"></i> Simpan
+        </button>
+      </div>
+
+    </form>
+  </div>
+`;
+}
+
+function renderFormGuruHTML() {
+  return `
+  <div id="formInputContainerGuru" class="form-input-container form-input-container-guru" style="display: none;">
+
+    <div class="back-link" id="btnBackToData">
+      <i class="bi bi-arrow-left"></i> Kembali
+    </div>
+
+    <h2 class="form-title">
+      Input Data Guru/Laboran
+    </h2>
+
+    <form class="form-grid" id="formInputGuru" data-mode="guru" autocomplete="off">
+
+      <div class="form-group">
+        <label class="form-label" for="nis">
+          <i class="bi bi-person-vcard"></i> NIP
         </label>
-        <select id="rombel" class="form-control-modern">
-          <option value="">Pilih Rombel</option>
-          <optgroup label="TEACHER">
-            <option value="Guru Produktif">GURU</option>
-          </optgroup>
-          <optgroup label="PPLG X">
-            <option value="X_1">PPLG X-1</option>
-            <option value="X_2">PPLG X-2</option>
-            <option value="X_3">PPLG X-3</option>
-            <option value="X_4">PPLG X-4</option>
-            <option value="X_5">PPLG X-5</option>
-          </optgroup>
-          <optgroup label="PPLG XI">
-            <option value="XI_1">PPLG XI-1</option>
-            <option value="XI_2">PPLG XI-2</option>
-            <option value="XI_3">PPLG XI-3</option>
-            <option value="XI_4">PPLG XI-4</option>
-            <option value="XI_5">PPLG XI-5</option>
-          </optgroup>
-          <optgroup label="PPLG XII">
-            <option value="XII_1">PPLG XII-1</option>
-            <option value="XII_2">PPLG XII-2</option>
-            <option value="XII_3">PPLG XII-3</option>
-            <option value="XII_4">PPLG XII-4</option>
-            <option value="XII_5">PPLG XII-5</option>
-          </optgroup>
+        <input type="number" id="nis" class="form-control-modern" placeholder="Nomor Induk Pegawai" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="call">
+          <i class="bi bi-whatsapp"></i> No Whatsapp Guru
+        </label>
+        <input type="number" id="whatsapp" class="form-control-modern" value="62" required>
+      </div>
+
+      <div class="form-group rfid-field">
+        <label class="form-label" for="RFID">
+          <i class="bi bi-rss"></i> UID RFID
+        </label>
+        <input type="number" id="RFID" class="form-control-modern" placeholder="Tempelkan kartu ke reader atau ketik manual" required>
+        <span class="form-hint">
+          <i class="bi bi-info-circle"></i> Tempelkan kartu RFID ke reader saat kursor di sini &mdash; UID terisi otomatis.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="username">
+          <i class="bi bi-person"></i> Nama Lengkap
+        </label>
+        <input type="text" id="username" class="form-control-modern" placeholder="Nama Lengkap" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">
+          <i class="bi bi-envelope"></i> Email
+        </label>
+        <input type="email" id="email" class="form-control-modern" placeholder="example@smkwikrama.sch.id" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">
+          <i class="bi bi-lock"></i> Password
+        </label>
+        <input type="password" id="password" class="form-control-modern" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="jenisKelamin">
+          <i class="bi bi-person-bounding-box"></i> Jenis Kelamin
+        </label>
+        <select id="jenisKelamin" class="form-control-modern">
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Laki Laki">Laki Laki</option>
+          <option value="Perempuan">Perempuan</option>
         </select>
       </div>
+
+      <input type="hidden" id="rombel" value="Guru Produktif">
+      <input type="hidden" id="rayon" value="Guru Produktif">
 
       <div class="form-actions">
         <button type="button" class="btn-cancel" id="btnBackToDataAlt">
@@ -165,10 +309,11 @@ function renderDataTableHTML(tableTitle) {
             <tr>
               <th>#</th>
               <th data-sort="nama" class="sortable-th">Nama <span class="sort-indicator"></span></th>
+              <th>Jenis Kelamin</th>
               <th data-sort="rombel" class="sortable-th">Rombel <span class="sort-indicator"></span></th>
               <th data-sort="idcard" class="sortable-th">UID RFID <span class="sort-indicator"></span></th>
               <th>Status</th>
-              <th>Whatsapp Orang Tua</th>
+              <th>No Whatsapp</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -192,14 +337,21 @@ function initInputSiswaListener() {
   btnDaftar.addEventListener("click", async function (e) {
     e.preventDefault();
 
+    const formEl =
+      document.getElementById("formInputSiswa") ||
+      document.getElementById("formInputGuru");
+    const mode = formEl?.dataset?.mode === "guru" ? "guru" : "siswa";
+
     const IdRfidInput = document.getElementById("RFID");
     const nisInput = document.getElementById("nis");
     const rombelInput = document.getElementById("rombel");
     const usernameInput = document.getElementById("username");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
-    const roleInput = document.getElementById("selectRole");
     const whatsappInput = document.getElementById("whatsapp");
+    const rayonInput = document.getElementById("rayon");
+    const kelasInput = document.getElementById("kelas");
+    const jenisKelaminInput = document.getElementById("jenisKelamin");
 
     if (
       !IdRfidInput ||
@@ -208,8 +360,9 @@ function initInputSiswaListener() {
       !usernameInput ||
       !emailInput ||
       !passwordInput ||
-      !roleInput ||
-      !whatsappInput
+      !whatsappInput ||
+      !rayonInput ||
+      !jenisKelaminInput
     ) {
       console.error("Ada elemen HTML yang gagal dimuat!");
       return;
@@ -221,8 +374,11 @@ function initInputSiswaListener() {
     const username = usernameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
-    const role = roleInput.value.trim();
+    const role = mode === "guru" ? "teacher" : "student";
     const whatsapp = whatsappInput.value.trim();
+    const rayon = rayonInput.value.trim();
+    const kelas = mode === "guru" ? null : kelasInput?.value.trim() || "";
+    const jenisKelamin = jenisKelaminInput.value.trim();
 
     if (
       !username ||
@@ -232,7 +388,10 @@ function initInputSiswaListener() {
       !idcard ||
       !nis ||
       !role ||
-      !whatsapp
+      !whatsapp ||
+      !rayon ||
+      (mode !== "guru" && !kelas) ||
+      !jenisKelamin
     ) {
       showToast("Wajib mengisi semua kolom input!", "danger");
       Swal.fire({
@@ -281,6 +440,9 @@ function initInputSiswaListener() {
           rombel,
           nis,
           whatsapp,
+          rayon,
+          kelas,
+          jenisKelamin,
         }),
       });
 
@@ -316,13 +478,15 @@ function initInputSiswaListener() {
       usernameInput.value = "";
       emailInput.value = "";
       passwordInput.value = "";
-      rombelInput.value = "";
+      rombelInput.value = mode === "guru" ? "Guru Produktif" : "";
       nisInput.value = "";
       IdRfidInput.value = "";
-      roleInput.value = "";
       whatsappInput.value = "";
+      rayonInput.value = mode === "guru" ? "Guru Produktif" : "";
+      jenisKelaminInput.value = "";
+      if (kelasInput) kelasInput.value = "";
 
-      document.getElementById("formInputContainer").style.display = "none";
+      getFormContainerEl().style.display = "none";
       document.getElementById("dataContainer").style.display = "block";
       loadTableSiswa();
     } catch (error) {
@@ -350,7 +514,7 @@ async function loadTableSiswa() {
   if (!tableBody) return;
 
   try {
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>`;
 
     const response = await fetch(`${API_BASE}/api/users`, {
       method: "GET",
@@ -359,20 +523,20 @@ async function loadTableSiswa() {
 
     if (!response.ok) {
       const errResult = await response.json().catch(() => ({}));
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data siswa: ${errResult.message || response.statusText}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data siswa: ${errResult.message || response.statusText}</td></tr>`;
       return;
     }
 
     const result = await response.json();
 
     if (!result.success) {
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuat data siswa!</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Gagal memuat data siswa!</td></tr>`;
       return;
     }
 
     if (result.data.length === 0) {
       window.tableAllData = [];
-      tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada data siswa terdaftar.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Belum ada data siswa terdaftar.</td></tr>`;
       return;
     }
 
@@ -381,7 +545,7 @@ async function loadTableSiswa() {
     attachRombelFilterInput();
   } catch (error) {
     console.error("Error loading table: ", error);
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Koneksi ke server terputus!</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Koneksi ke server terputus!</td></tr>`;
   }
 }
 
@@ -409,7 +573,14 @@ function renderTable() {
         u.rombel,
         u.whatsapp,
         u.role === "teacher" ? "Guru" : "Siswa",
-      ].some((v) => String(v || "").toLowerCase().includes(q)),
+        u.rayon,
+        u.kelas,
+        u.jenisKelamin,
+      ].some((v) =>
+        String(v || "")
+          .toLowerCase()
+          .includes(q),
+      ),
     );
   }
 
@@ -428,7 +599,7 @@ function renderTable() {
   tableBody.innerHTML = "";
 
   if (rows.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Tidak ada data yang cocok.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Tidak ada data yang cocok.</td></tr>`;
     updateSortIndicator();
     return;
   }
@@ -440,17 +611,19 @@ function renderTable() {
         <td>${index + 1}</td>
         <td>
           <strong>${user.username}</strong><br>
-          <small style="color:var(--color-teks-sub);">${user.nis}</small> 
+          <small style="color:var(--color-teks-sub);">${user.nis}</small>
+          <small style="color:var(--color-teks-sub);">${user.rayon}</small> 
           <span class="badge-${user.role === "teacher" ? "guru" : "siswa"}">${user.role === "teacher" ? "Guru" : "Siswa"}</span>
         </td>
-        <td>${user.rombel || "-"}</td>
+        <td>${user.jenisKelamin}</td>
+        <td>${user.kelas || ""} ${user.rombel || "-"}</td>
         <td><code>${user.idcard}</code></td>
         <td><span class="status-aktif">Aktif</span></td>
         <td>${user.whatsapp}</td>
         <td>
-          <button class= "btn-detail btn btn-secondary btn-sm" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-eye"></i></button>
-          <button class="btn-edit btn btn-primary btn-sm" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-pencil-square"></i></button>
-          <button class="btn-delete btn btn-danger btn-sm" data-nis="${user.nis}"><i class="bi bi-trash"></i></button>
+          <button class="btn-detail btn btn-secondary btn-sm" data-id="${user.id}" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-eye"></i></button>
+          <button class="btn-edit btn btn-primary btn-sm" data-id="${user.id}" data-nis="${user.nis}" data-email="${userEmail}"><i class="bi bi-pencil-square"></i></button>
+          <button class="btn-delete btn btn-danger btn-sm" data-id="${user.id}" data-nis="${user.nis}"><i class="bi bi-trash"></i></button>
         </td>
       `;
     tableBody.appendChild(row);
@@ -468,6 +641,12 @@ function getSortValue(user) {
       return String(user.rombel || "");
     case "idcard":
       return String(user.idcard || "");
+    case "rayon":
+      return String(user.rayon || "");
+    case "kelas":
+      return String(user.kelas || "");
+    case "jenisKelamin":
+      return String(user.jenisKelamin || "");
     default:
       return "";
   }
@@ -564,7 +743,14 @@ function initImportExcelListener() {
         const workbook = XLSX.read(data, { type: "array" });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        const rawJson = XLSX.utils.sheet_to_json(worksheet);
+        const jsonData = rawJson.map((row) => {
+          const clean = {};
+          for (const [key, value] of Object.entries(row)) {
+            clean[String(key).trim()] = value;
+          }
+          return clean;
+        });
 
         if (jsonData.length === 0) {
           throw new Error("File excel kosong atau format tidak sesuai!");
@@ -586,7 +772,7 @@ function initImportExcelListener() {
 
         Swal.fire({
           title: "Sukses!",
-          text: `${jsonData.length} Data siswa berhasil diimport dari Excel!`,
+          text: result.message || `${jsonData.length} Data siswa berhasil diimport dari Excel!`,
           icon: "success",
         });
 
@@ -613,11 +799,11 @@ function initImportManualListener() {
 
   function showForm() {
     document.getElementById("dataContainer").style.display = "none";
-    document.getElementById("formInputContainer").style.display = "block";
+    getFormContainerEl().style.display = "block";
   }
 
   function showData() {
-    document.getElementById("formInputContainer").style.display = "none";
+    getFormContainerEl().style.display = "none";
     document.getElementById("dataContainer").style.display = "block";
   }
 
@@ -646,10 +832,12 @@ function initActionButtonsListener() {
         ? e.target
         : e.target.closest(".btn-delete");
       const nis = button.getAttribute("data-nis");
+      const id = button.getAttribute("data-id");
+      if (!id) return showToast("ID data tidak ditemukan!", "danger");
 
       const confirm = await Swal.fire({
         title: "Yakin mau dihapus?",
-        text: `Data dengan NIS ${nis} akan hilang permanen dari database.`,
+        text: `Data ${nis} akan hilang permanen dari database.`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
@@ -661,7 +849,7 @@ function initActionButtonsListener() {
       if (!confirm.isConfirmed) return;
 
       try {
-        const response = await fetch(`${API_BASE}/api/users/${nis}`, {
+        const response = await fetch(`${API_BASE}/api/users/id/${id}`, {
           method: "DELETE",
           credentials: "include",
         });
@@ -687,9 +875,10 @@ function initActionButtonsListener() {
       const button = e.target.classList.contains("btn-edit")
         ? e.target
         : e.target.closest(".btn-edit");
-      const nis = button.getAttribute("data-nis");
+      const id = button.getAttribute("data-id");
       const email = button.getAttribute("data-email");
-      actionEditSiswa(nis, email);
+      if (!id) return showToast("ID data tidak ditemukan!", "danger");
+      actionEditSiswa(id, email);
     }
     //detail
     if (
@@ -710,75 +899,298 @@ function initActionButtonsListener() {
   };
 }
 
-async function actionEditSiswa(nis, email) {
+async function actionEditSiswa(id, email) {
   try {
     const row = document
-      .querySelector(`button[data-nis="${nis}"]`)
+      .querySelector(`button[data-id="${id}"]`)
       .closest("tr");
     if (!row) return Swal.fire("Eror", "Baris data tidak ditemukan!", "error");
 
-    const username = row.cells[1].querySelector("strong").innerText.trim();
-    const badgeText = row.cells[1]
-      .querySelector("span")
-      .innerText.trim()
-      .toLowerCase();
-    const role = badgeText === "guru" ? "teacher" : "student";
-    const rombel =
-      row.cells[2].innerText.trim() === "-"
-        ? ""
-        : row.cells[2].innerText.trim();
-    const idcard = row.cells[3].querySelector("code").innerText.trim();
-    const whatsapp = row.cells[5].innerText.trim();
+    const userData = (window.tableAllData || []).find(
+      (u) => String(u.id) === String(id),
+    );
+    if (!userData)
+      return Swal.fire("Eror", "Data pengguna tidak ditemukan!", "error");
 
-    const { value: formValues } = await Swal.fire({
-      title: "Edit Data Siswa / Guru",
-      html: `
+    const isTeacher = String(userData.role || "").toLowerCase() === "teacher";
+
+    const nis = userData?.nis || "";
+    const username = userData?.username || "";
+    const emailUser = userData?.email || email;
+    const idcard = userData?.idcard || "";
+    const whatsapp = userData?.whatsapp || "";
+    const role = userData?.role || "student";
+    const rombel = userData?.rombel || "";
+    const kelasDb = userData?.kelas || "";
+    const rayonDb = userData?.rayon || "";
+    const jenisKelamin = userData?.jenisKelamin || "";
+
+    const escapeAttr = (value) =>
+      String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+
+    function normalRayonEdit(v) {
+      const map = {
+        cic: "Cicurug",
+        cis: "Cisarua",
+        cib: "Cibedug",
+        suk: "Sukasari",
+        cia: "Ciawi",
+        taj: "Tajur",
+        wik: "Wikrama",
+      };
+      const m = String(v || "")
+        .trim()
+        .match(/^([a-zA-Z]+)(\d+)$/);
+      if (!m) return v;
+      return map[m[1].toLowerCase()]
+        ? `${map[m[1].toLowerCase()]} ${parseInt(m[2], 10)}`
+        : v;
+    }
+
+    function normJenisKelamin(v) {
+      const low = String(v || "").trim().toLowerCase();
+      if (low === "laki-laki" || low === "laki laki" || low === "male" || low === "l") return "Laki Laki";
+      if (low === "perempuan" || low === "female" || low === "p") return "Perempuan";
+      return String(v || "").trim();
+    }
+
+    const identitasHTML = `
         <div style="text-align: left; margin-bottom: 8px;">
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
+        <label>NIS / NIP</label></div>
+        <input id="swal-nis" class="swal2-input" style="margin-top:0; width: 100%; max-width: 100%;" value="${escapeAttr(nis)}">
+
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>Nama Lengkap</label></div>
-        <input id="swal-username" class="swal2-input" style="margin-top:0; width: 100%; max-width: 100%;" value="${username}">
+        <input id="swal-username" class="swal2-input" style="margin-top:0; width: 100%; max-width: 100%;" value="${escapeAttr(username)}">
 
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>Email</label></div>
-        <input id="swal-email" class="swal2-input" style="margin-top:0;" value="${email}">
+        <input id="swal-email" class="swal2-input" style="margin-top:0;" value="${escapeAttr(emailUser)}">
 
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>UID RFID</label></div>
-        <input id="swal-idcard" class="swal2-input" style="margin-top:0;" value="${idcard}">
+        <input id="swal-idcard" class="swal2-input" style="margin-top:0;" value="${escapeAttr(idcard)}">
 
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
-        <label>Whatsapp Orang Tua</label></div>
-        <input id="swal-whatsapp" class="swal2-input" style="margin-top:0;" value="${whatsapp}">
+        <label>${isTeacher ? "No Whatsapp" : "No Whatsapp"}</label></div>
+        <input id="swal-whatsapp" class="swal2-input" style="margin-top:0;" value="${escapeAttr(whatsapp)}">
+      `;
+    
+    const opsiJenisKelamin = `
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
+        <label>Jenis Kelamin</label></div>
+        <select id="swal-jenisKelamin" class="swal2-input" style="margin-top: 0; width: 100%; max-width: 100%;">
+          <option value="">Pilih Jenis Kelamin</option>
+          <option value="Laki Laki">Laki Laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+    `;
 
-
+    const roleSiswaHTML = `
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>Peran</label></div>
         <select id="swal-role" class="swal2-input" style="margin-top:0; width: 100%; max-width: 100%;">
+          <option>Pilih Role</option>
           <option value="student" ${role === "student" ? "selected" : ""}>Siswa</option>
           <option value="teacher" ${role === "teacher" ? "selected" : ""}>Guru</option>
         </select>
+      `;
 
-        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rombel (Contoh: X_3)</label></div>
-        <input id="swal-rombel" class="swal2-input" style="margin-top:0;" value="${rombel}">
-      `,
+    const opsiKelasHTML = `
+      <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Kelas</label></div>
+        <div class="form-group">
+        <select id="swal-kelas" class="form-control-modern">
+          <option>Pilih Kelas</option>
+          <option value="X">Kelas X</option>
+          <option value="XI">Kelas XI</option>
+          <option value="XII">Kelas XII</option>
+        </select>
+      </div>
+      `;
+
+    const opsiRombelSiswaHTML = `
+      <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rombel</label></div>
+      <div class="form-group">
+        <select id="swal-rombel" class="form-control-modern">
+          <option>Pilih Rombel</option>
+          <optgroup label="PPLG">
+            <option value="PPLG 1">PPLG 1</option>
+            <option value="PPLG 2">PPLG 2</option>
+            <option value="PPLG 3">PPLG 3</option>
+            <option value="PPLG 4">PPLG 4</option>
+            <option value="PPLG 5">PPLG 5</option>
+          </optgroup>
+          <optgroup label="TJKT">
+            <option value="TJKT 1">TJKT 1</option>
+            <option value="TJKT 2">TJKT 2</option>
+            <option value="TJKT 3">TJKT 3</option>
+            <option value="TJKT 4">TJKT 4</option>
+            <option value="TJKT 5">TJKT 5</option>
+          </optgroup>
+          <optgroup label="DKV">
+            <option value="DKV 1">DKV 1</option>
+            <option value="DKV 2">DKV 2</option>
+            <option value="DKV 3">DKV 3</option>
+            <option value="DKV 4">DKV 4</option>
+            <option value="DKV 5">DKV 5</option>
+          </optgroup>
+          <optgroup label="KLN">
+            <option value="Kuliner 1">Kuliner 1</option>
+            <option value="Kuliner 2">Kuliner 2</option>
+            <option value="Kuliner 3">Kuliner 3</option>
+            <option value="Kuliner 4">Kuliner 4</option>
+            <option value="Kuliner 5">Kuliner 5</option>
+          </optgroup>
+          <optgroup label="HTL">
+            <option value="Hotel 1">Hotel 1</option>
+            <option value="Hotel 2">Hotel 2</option>
+            <option value="Hotel 3">Hotel 3</option>
+            <option value="Hotel 4">Hotel 4</option>
+            <option value="Hotel 5">Hotel 5</option>
+          </optgroup>
+          <optgroup label="PMN">
+            <option value="Pemasaran 1">Pemasaran 1</option>
+            <option value="Pemasaran 2">Pemasaran 2</option>
+            <option value="Pemasaran 3">Pemasaran 3</option>
+            <option value="Pemasaran 4">Pemasaran 4</option>
+            <option value="Pemasaran 5">Pemasaran 5</option>
+          </optgroup>
+        </select>
+      </div>
+      `;
+
+    const opsiRayonSiswaHTML = `
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;"><label>Rayon</label></div>
+        <select id="swal-rayon" class="form-control-modern">
+          <option>Pilih Rayon</option>
+          <optgroup label="Cicurug">
+            <option value="Cicurug 1">Cicurug 1</option>
+            <option value="Cicurug 2">Cicurug 2</option>
+            <option value="Cicurug 3">Cicurug 3</option>
+            <option value="Cicurug 4">Cicurug 4</option>
+            <option value="Cicurug 5">Cicurug 5</option>
+            <option value="Cicurug 6">Cicurug 6</option>
+            <option value="Cicurug 7">Cicurug 7</option>
+            <option value="Cicurug 8">Cicurug 8</option>
+            <option value="Cicurug 9">Cicurug 9</option>
+            <option value="Cicurug 10">Cicurug 10</option>
+          </optgroup>
+          <optgroup label="Cisarua">
+            <option value="Cisarua 1">Cisarua 1</option>
+            <option value="Cisarua 2">Cisarua 2</option>
+            <option value="Cisarua 3">Cisarua 3</option>
+            <option value="Cisarua 4">Cisarua 4</option>
+            <option value="Cisarua 5">Cisarua 5</option>
+            <option value="Cisarua 6">Cisarua 6</option>
+            <option value="Cisarua 7">Cisarua 7</option>
+          </optgroup>
+          <optgroup label="Cibedug">
+            <option value="Cibedug 1">Cibedug 1</option>
+            <option value="Cibedug 2">Cibedug 2</option>
+            <option value="Cibedug 3">Cibedug 3</option>
+            <option value="Cibedug 4">Cibedug 4</option>
+          </optgroup>
+          <optgroup label="Sukasari">
+            <option value="Sukasari 1">Sukasari 1</option>
+            <option value="Sukasari 2">Sukasari 2</option>
+          </optgroup>
+          <optgroup label="Ciawi">
+            <option value="Ciawi 1">Ciawi 1</option>
+            <option value="Ciawi 2">Ciawi 2</option>
+            <option value="Ciawi 3">Ciawi 3</option>
+            <option value="Ciawi 4">Ciawi 4</option>
+            <option value="Ciawi 5">Ciawi 5</option>
+            <option value="Ciawi 6">Ciawi 6</option>
+          </optgroup>
+          <optgroup label="Tajur">
+            <option value="Tajur 1">Tajur 1</option>
+            <option value="Tajur 2">Tajur 2</option>
+            <option value="Tajur 3">Tajur 3</option>
+            <option value="Tajur 4">Tajur 4</option>
+            <option value="Tajur 5">Tajur 5</option>
+            <option value="Tajur 6">Tajur 6</option>
+          </optgroup>
+          <optgroup label="Wikrama">
+            <option value="Wikrama 1">Wikrama 1</option>
+            <option value="Wikrama 2">Wikrama 2</option>
+            <option value="Wikrama 3">Wikrama 3</option>
+            <option value="Wikrama 4">Wikrama 4</option>
+            <option value="Wikrama 5">Wikrama 5</option>
+          </optgroup>
+        </select>
+      `;
+
+    const htmlSiswa = `${identitasHTML}
+        ${roleSiswaHTML}
+        ${opsiJenisKelamin}
+        ${opsiKelasHTML}
+        ${opsiRombelSiswaHTML}
+        ${opsiRayonSiswaHTML}`;
+
+    const htmlGuru = `
+      ${identitasHTML}
+      <input type="hidden" id="swal-rombel" value="${escapeAttr(rombel || "Guru Produktif")}">
+      <input type="hidden" id="swal-rayon" value="${escapeAttr(rayonDb || "Guru Produktif")}">
+    `;
+
+    const { value: formValues } = await Swal.fire({
+      didOpen: () => {
+        if (isTeacher) return;
+        document.getElementById("swal-kelas").value = kelasDb;
+        document.getElementById("swal-rombel").value = rombel;
+        document.getElementById("swal-rayon").value = normalRayonEdit(rayonDb);
+        document.getElementById("swal-jenisKelamin").value = normJenisKelamin(jenisKelamin);
+      },
+      title: isTeacher ? "Edit Data Guru" : "Edit Data Siswa",
+      html: isTeacher ? htmlGuru : htmlSiswa,
+      customClass: {
+        popup: isTeacher ? "sweetalert-popup swal-edit-guru" : "sweetalert-popup swal-edit-siswa",
+      },
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: "Update Data",
       cancelButtonText: "Batal",
       preConfirm: () => {
-        return {
+        const ambilOpsi = (elmId, nilaiLama) =>
+          document.getElementById(elmId)?.value.trim() ||
+          String(nilaiLama || "").trim();
+
+        const payload = {
+          nis: document.getElementById("swal-nis").value.trim(),
           username: document.getElementById("swal-username").value.trim(),
           email: document.getElementById("swal-email").value.trim(),
           idcard: document.getElementById("swal-idcard").value.trim(),
-          role: document.getElementById("swal-role").value,
-          rombel: document.getElementById("swal-rombel").value.trim(),
           whatsapp: document.getElementById("swal-whatsapp").value.trim(),
         };
+
+        if (isTeacher) {
+          payload.role = "teacher";
+          payload.rombel =
+            ambilOpsi("swal-rombel", rombel) || "Guru Produktif";
+          payload.rayon =
+            ambilOpsi("swal-rayon", rayonDb) || "Guru Produktif";
+        } else {
+          payload.role = document.getElementById("swal-role")?.value || role;
+          payload.kelas = ambilOpsi("swal-kelas", kelasDb);
+          payload.rombel = ambilOpsi("swal-rombel", rombel);
+          payload.rayon = ambilOpsi("swal-rayon", rayonDb);
+          payload.jenisKelamin = normJenisKelamin(
+            ambilOpsi("swal-jenisKelamin", jenisKelamin),
+          );
+        }
+
+        return payload;
       },
     });
 
     if (!formValues) return;
 
-    const updateResponse = await fetch(`${API_BASE}/api/users/${nis}`, {
+    const updateResponse = await fetch(`${API_BASE}/api/users/id/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

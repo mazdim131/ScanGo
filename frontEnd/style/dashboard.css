@@ -30,13 +30,13 @@
 .right-panel {
   flex: 1;
   min-width: 0;
-  background-color: var(--bg-content);
+  background-color: transparent;
   border-radius: 12px;
 }
 
 .main-wrapper {
   width: 100%;
-  background-color: var(--bg-content);
+  background-color: transparent;
   border-radius: 12px;
 }
 
@@ -242,7 +242,7 @@
 .main-content {
   flex: 1;
   padding: 24px 32px;
-  background-color: var(--bg-content);
+  background-color: transparent;
   transition: background-color var(--transition-speed);
   overflow-y: auto;
   min-width: 0;
@@ -701,7 +701,7 @@
 @media (max-width: 575.98px) {
   .header-panel {
     background-color: var(--bg-content);
-    border-bottom: 1px solid var(--border-sidebar);
+    border-bottom: none;
     padding-top: 10px;
     padding-bottom: 10px;
     margin-bottom: 16px;

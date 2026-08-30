@@ -6,6 +6,11 @@
   padding: 0;
 }
 
+/* Fallback kalau background body gagal load / propagation ke canvas keblokir */
+html {
+  background-color: #17181c;
+}
+
 body {
   min-height: 100vh;
   font-family: "Poppins", sans-serif;
@@ -241,47 +246,6 @@ input:focus {
 }
 
 /* RESPONSIVE */
-@media (max-width: 1920px) {
-  .card {
-    height: 720px;
-  }
-}
-
-@media (max-width: 1366px) {
-  .card {
-    height: 680px;
-  }
-
-  .left-panel {
-    padding: 40px 36px;
-  }
-}
-
-@media (max-width: 1280px) {
-  .card {
-    height: 660px;
-  }
-
-  .left-panel {
-    padding: 36px 32px;
-  }
-
-  h1 {
-    font-size: 25px;
-  }
-}
-
-@media (max-width: 1183px) {
-  .card {
-    grid-template-columns: 400px 1fr;
-    height: 640px;
-  }
-
-  .left-panel {
-    padding: 32px 28px;
-  }
-}
-
 @media (max-width: 768px) {
   .card {
     grid-template-columns: 1fr;
@@ -294,44 +258,5 @@ input:focus {
 
   .left-panel {
     padding: 32px 24px;
-  }
-}
-
-@media (max-width: 576px) {
-  main {
-    padding: 20px 14px;
-  }
-
-  .left-panel {
-    padding: 28px 20px;
-  }
-
-  .logo {
-    margin-bottom: 24px;
-  }
-
-  .logo img {
-    width: 48px;
-  }
-
-  h1 {
-    font-size: 22px;
-  }
-}
-
-/* Layar pendek (laptop/tablet landscape) agar kartu tidak terpotong */
-@media (max-height: 720px) and (min-width: 769px) {
-  .card {
-    grid-template-columns: 1fr;
-    height: auto;
-    min-height: 0;
-  }
-
-  .right-panel {
-    display: none;
-  }
-
-  .left-panel {
-    padding: 32px 28px;
   }
 }
