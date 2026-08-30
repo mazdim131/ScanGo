@@ -890,7 +890,6 @@ function initPrint() {
   elementPdf.style.overflow = "visible";
 
   elementPdf.style.zIndex = "9999";
-  elementPdf.style.pointerEvents = "none";
 
 
   // ==========================================
@@ -958,17 +957,17 @@ function initPrint() {
       <!-- TABLE -->
 
       <table style="
-          width: 100%;
-  max-width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  margin: 0;
-  padding: 0;
-  background: #ffffff;
-  color: #111827;
-  font-family: Arial, sans-serif;
-  font-size: 10px;
-  border: 1px solid #9ca3af;
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+        color: #111827;
+        font-family: Arial, sans-serif;
+        font-size: 10px;
+        border: 1px solid #9ca3af;
+      "
       border="1"
       cellspacing="0"
       cellpadding="5">

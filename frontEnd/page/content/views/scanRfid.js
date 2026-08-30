@@ -222,16 +222,25 @@ function speakAbsensi(pesan) {
     return;
   }
 
-  window.speechSynthesis.cancel();
+  const voices = speechSynthesis.getVoices();
+
+  const voiceIndonesia = voices.find(
+    voice => voice.lang === "id-ID"
+  );
+
+  speechSynthesis.cancel();
 
   const suara = new SpeechSynthesisUtterance(pesan);
 
+  suara.voice = voiceIndonesia || null;
   suara.lang = "id-ID";
+
+  // 🎙️ Karakter suara ramah
   suara.rate = 0.9;
-  suara.pitch = 1;
+  suara.pitch = 1.1;
   suara.volume = 1;
 
-  window.speechSynthesis.speak(suara);
+  speechSynthesis.speak(suara);
 }
 
 let lastCardId = null;
@@ -285,14 +294,14 @@ async function submitScan() {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
         resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.</div>`;
-        speakAbsensi("Absensi gagal. Siswa sudah absen masuk hari ini. Gunakan mode Keluar untuk absen keluar.");
+        speakAbsensi("Siswa sudah absen masuk hari ini");
         return;
       }
 
       if (dataHariIni.time_finish || dataHariIni.status_keluar) {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
-        speakAbsensi("Absensi gagal. Siswa sudah melakukan absensi masuk dan keluar hari ini.");
+        speakAbsensi("Siswa sudah melakukan absensi masuk dan keluar hari ini.");
         resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa sudah absen masuk & keluar hari ini!</div>`;
         return;
       }
@@ -317,7 +326,7 @@ async function submitScan() {
         statusEl.innerHTML =
           '<span class="scan-status-badge error"><i class="bi bi-exclamation-octagon-fill"></i> Ditolak</span>';
         resultEl.innerHTML = `<div class="alert alert-warning mt-3"><i class="bi bi-exclamation-octagon-fill"></i> Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.</div>`;
-        speakAbsensi("Absensi gagal. Siswa ini belum absen masuk hari ini. Gunakan mode Masuk terlebih dahulu.");
+        speakAbsensi("Siswa belum absen masuk hari ini.");
         return;
       }
 
