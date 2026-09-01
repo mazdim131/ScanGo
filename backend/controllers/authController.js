@@ -10,7 +10,6 @@ const resolveUserRole = (role, req) => {
     return requested;
   }
 
-  // Role "teacher" hanya boleh dibuat oleh admin/guru yang sudah login.
   if (requested === "teacher") {
     let token = req.cookies?.token;
     if (!token) {
