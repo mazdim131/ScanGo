@@ -197,6 +197,23 @@ body {
   color: var(--color-placeholder) !important;
 }
 
+/* Opsi (dropdown) pada select: teks tetap terbaca saat daftar pilihan dibuka di mode gelap,
+   karena kalau tidak keduanya bias tampil putih-diatas-putih / hitam-diatas-hitam */
+[data-theme="dark"] select option {
+  background-color: var(--color-card-bg);
+  color: var(--color-teks);
+}
+
+[data-theme="dark"] select optgroup {
+  background-color: var(--color-card-bg);
+  color: var(--color-teks-sub);
+}
+
+[data-theme="dark"] select optgroup option {
+  background-color: var(--color-card-bg);
+  color: var(--color-teks);
+}
+
 /* Bootstrap .bg-light → ikut tema gelap */
 [data-theme="dark"] .bg-light {
   background-color: var(--bg-body) !important;
