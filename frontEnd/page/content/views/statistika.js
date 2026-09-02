@@ -197,7 +197,7 @@ function renderGrafik() {
                             <div class="panel-head">
                                 <div>
                                     <h3>Distribusi Jam Tap-in</h3>
-                                    <p>Jam masuk mulai 07:00 — batas tepat waktu 07:30</p>
+                                    <p>Jam masuk 06:00 - 09:00 — batas tepat waktu 09:00</p>
                                 </div>
                             </div>
                             <div class="chart-box" id="timeChart"></div>
@@ -612,7 +612,7 @@ window.initGrafikListener = async function () {
           const dtt = new Date(attObj.created_at);
           const hrs = dtt.getHours();
           const mins = dtt.getMinutes();
-          if (hrs > 8 || (hrs === 8 && mins >= 10)) {
+          if (hrs > 9 || (hrs === 9 && mins > 0)) {
             isTerlambat = true;
           }
         }
@@ -1148,13 +1148,15 @@ window.initGrafikListener = async function () {
 
     const schoolDays = Array.from(schoolDaysMap.values());
 
-    // Untuk setiap siswa di rombel ini, hitung berapa hari tidak hadir dalam 30 hari
+    // Untuk setiap siswa di rombel ini, hitung berapa kali terlambat/alfa dalam 30 hari
     const perhatianSiswa = [];
     usersRombel.forEach((u) => {
       const uId = String(u.idcard || "").trim();
       let absentCount = 0;
+      let alfaCount = 0;
+      let terlambatCount = 0;
       schoolDays.forEach((sd) => {
-        const hadir = attendances.some((a) => {
+        const attRecord = attendances.find((a) => {
           if (!a.created_at) return false;
           const ad = new Date(a.created_at);
           return (
@@ -1164,14 +1166,34 @@ window.initGrafikListener = async function () {
             ad.getDate() === sd.getDate()
           );
         });
-        if (!hadir) absentCount++;
+
+        if (!attRecord) {
+          absentCount++;
+          alfaCount++;
+        } else {
+          const status = (attRecord.status || "Hadir").toLowerCase();
+          if (status === "alfa") {
+            absentCount++;
+            alfaCount++;
+          } else if (status === "hadir" || status === "") {
+            const ad = new Date(attRecord.created_at);
+            const hrs = ad.getHours();
+            const mins = ad.getMinutes();
+            if (hrs > 9 || (hrs === 9 && mins > 0)) {
+              absentCount++;
+              terlambatCount++;
+            }
+          }
+        }
       });
-      // Masukkan ke 'perlu perhatian' jika absen 3–5 kali atau lebih
+      // Masukkan ke 'perlu perhatian' jika terlambat/alfa 3 kali atau lebih
       if (absentCount >= 3) {
         perhatianSiswa.push({
           name: u.username,
           rombel: u.rombel,
           absentCount,
+          alfaCount,
+          terlambatCount,
         });
       }
     });
@@ -1191,10 +1213,17 @@ window.initGrafikListener = async function () {
             : s.absentCount >= 5
               ? "#F0973C"
               : "#D97706";
+
+        let details = [];
+        if (s.alfaCount > 0) details.push(`${s.alfaCount}x alfa`);
+        if (s.terlambatCount > 0)
+          details.push(`${s.terlambatCount}x terlambat`);
+        let detailText = details.join(", ");
+
         row.innerHTML = `
           <div class="avatar"></div>
           <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || "-"}</div></div>
-          <span class="rank-tag" style="background:${badgeColor}20;color:${badgeColor};border:1px solid ${badgeColor}40;">${s.absentCount}x absen</span>`;
+          <span class="rank-tag" style="background:${badgeColor}20;color:${badgeColor};border:1px solid ${badgeColor}40;">${detailText}</span>`;
         list.appendChild(row);
       });
     }
