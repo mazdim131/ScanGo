@@ -710,14 +710,14 @@ window.initGrafikListener = async function () {
     { label: "Tidak Hadir", value: countBelum + countAlfa, color: "#E25C5C" },
   ];
 
-  // Jam Tap-in — selalu tampilkan 07:00 sampai 14:00 (8 slot)
-  const TAP_START_HR = 7; // mulai jam 7 pagi
+  // Jam Tap-in — selalu tampilkan 06:00 sampai 13:00 (8 slot)
+  const TAP_START_HR = 6; // mulai jam 6 pagi
   const tLabels = [];
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 7; i++) {
     tLabels.push(String(TAP_START_HR + i).padStart(2, "0") + ":00");
   }
 
-  let tBins = [0, 0, 0, 0, 0, 0, 0, 0];
+  let tBins = [0, 0, 0, 0, 0, 0, 0];
   Array.from(hadirMap.values()).forEach((a) => {
     if (a.created_at) {
       const hrs = new Date(a.created_at).getHours();
