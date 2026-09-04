@@ -612,7 +612,7 @@ window.initGrafikListener = async function () {
           const dtt = new Date(attObj.created_at);
           const hrs = dtt.getHours();
           const mins = dtt.getMinutes();
-          if (hrs > 9 || (hrs === 9 && mins > 0)) {
+          if (hrs > 15 || (hrs === 15 && mins > 0)) {
             isTerlambat = true;
           }
         }
@@ -1179,7 +1179,7 @@ window.initGrafikListener = async function () {
             const ad = new Date(attRecord.created_at);
             const hrs = ad.getHours();
             const mins = ad.getMinutes();
-            if (hrs > 9 || (hrs === 9 && mins > 0)) {
+            if (hrs > 15 || (hrs === 15 && mins > 0)) {
               absentCount++;
               terlambatCount++;
             }
