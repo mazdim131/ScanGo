@@ -133,7 +133,7 @@ function initScanRfid() {
     clearTimeout(autoSubmitTimer);
     autoSubmitTimer = setTimeout(() => {
       const val = this.value.trim();
-      if (val.length >= 8) submitScan();
+      if (val.length >= 9) submitScan();
     }, 250);
   });
 
@@ -241,6 +241,11 @@ async function submitScan() {
   if (!cardId) {
     showToast("Masukkan ID kartu RFID terlebih dahulu", "warning");
     speakAbsensi("Masukkan ID kartu RFID terlebih dahulu");
+    return;
+  }
+  if (!/^\d{9,10}$/.test(cardId)) {
+    showToast("ID kartu (RFID) harus terdiri dari 9 sampai 10 digit", "warning");
+    speakAbsensi("ID kartu RFID harus terdiri dari 9 sampai 10 digit");
     return;
   }
   if (lastCardId === cardId) return;

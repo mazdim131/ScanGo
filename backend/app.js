@@ -224,11 +224,11 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         .json({ success: false, code: "invalid_input", message: "UID kartu atau nama siswa wajib diisi." });
     }
 
-    if (byIdcard && !/^\d+$/.test(rawIdcard)) {
-      return res.status(403).json({
+    if (byIdcard && !/^\d{9,10}$/.test(rawIdcard)) {
+      return res.status(400).json({
         success: false,
-        code: "unknown_card",
-        message: "ID RFID tidak dikenali! Silahkan registrasi terlebih dahulu.",
+        code: "invalid_card",
+        message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
       });
     }
 
@@ -663,6 +663,13 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
       .json({ success: false, message: "NIS/NIP harus berupa angka." });
   }
 
+  if (idcard !== undefined && idcard !== null && String(idcard).trim() !== "" && !/^\d{9,10}$/.test(String(idcard).trim())) {
+    return res.status(400).json({
+      success: false,
+      message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+    });
+  }
+
   const updates = {};
   if (username) updates.username = username;
   if (email) updates.email = email;
@@ -801,6 +808,20 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
       return res.status(400).json({
         success: false,
         message: "Terdapat data dengan ID kartu/NIS yang bukan angka!",
+      });
+    }
+
+    const hasInvalidCardLength = users.some(
+      (u) =>
+        u.idcard !== "" &&
+        u.idcard != null &&
+        !/^\d{9,10}$/.test(String(u.idcard)),
+    );
+
+    if (hasInvalidCardLength) {
+      return res.status(400).json({
+        success: false,
+        message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
       });
     }
 
