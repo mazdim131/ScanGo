@@ -240,11 +240,11 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         });
     }
 
-    if (byIdcard && !/^\d+$/.test(rawIdcard)) {
-      return res.status(403).json({
+    if (byIdcard && !/^\d{9,10}$/.test(rawIdcard)) {
+      return res.status(400).json({
         success: false,
-        code: "unknown_card",
-        message: "ID RFID tidak dikenali! Silahkan registrasi terlebih dahulu.",
+        code: "invalid_card",
+        message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
       });
     }
 
@@ -727,15 +727,11 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
       .json({ success: false, message: "NIS/NIP harus berupa angka." });
   }
 
-  if (
-    idcard !== undefined &&
-    idcard !== null &&
-    String(idcard).trim() !== "" &&
-    !/^\d+$/.test(String(idcard).trim())
-  ) {
-    return res
-      .status(400)
-      .json({ success: false, message: "UID RFID harus berupa angka." });
+  if (idcard !== undefined && idcard !== null && String(idcard).trim() !== "" && !/^\d{9,10}$/.test(String(idcard).trim())) {
+    return res.status(400).json({
+      success: false,
+      message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+    });
   }
 
   const updates = {};
@@ -918,6 +914,20 @@ app.post(
         });
       }
 
+      const hasInvalidCardLength = users.some(
+        (u) =>
+          u.idcard !== "" &&
+          u.idcard != null &&
+          !/^\d{9,10}$/.test(String(u.idcard)),
+      );
+
+      if (hasInvalidCardLength) {
+        return res.status(400).json({
+          success: false,
+          message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+        });
+      }
+
       const usersNormalized = [];
       const saltRounds = 10;
 
@@ -939,7 +949,10 @@ app.post(
           email: String(u.email || "").trim(),
           password: await bcrypt.hash(String(u.password || ""), saltRounds),
           role,
-          idcard: u.idcard !== "" && u.idcard != null ? String(u.idcard).trim() : null,
+          idcard:
+            u.idcard !== "" && u.idcard != null
+              ? String(u.idcard).trim()
+              : null,
           nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
           rombel: String(u.rombel || "").trim(),
           jenisKelamin: String(u.jenisKelamin || "").trim(),
@@ -972,7 +985,7 @@ app.post(
           message: "Terjadi kesalahan saat menyimpan data.",
         });
     }
-  },
+  }
 );
 
 const PORT = process.env.PORT || 3000;
