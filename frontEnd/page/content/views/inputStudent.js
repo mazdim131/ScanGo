@@ -451,6 +451,22 @@ function initInputSiswaListener() {
       return;
     }
 
+    if (!/^\d{9,10}$/.test(idcard)) {
+      showToast("ID kartu (RFID) harus terdiri dari 9 sampai 10 digit", "warning");
+      Swal.fire({
+        title: "Format ID Kartu Salah",
+        text: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+        icon: "warning",
+        customClass: {
+          popup: "sweetalert-popup",
+          confirmButton: "sweetalert-btn-success",
+        },
+        buttonsStyling: false,
+      });
+      IdRfidInput.focus();
+      return;
+    }
+
     try {
       btnDaftar.disabled = true;
       btnDaftar.innerText = "Memproses...";
@@ -1214,6 +1230,13 @@ async function actionEditSiswa(id, email) {
           whatsapp:
             document.getElementById("swal-whatsapp")?.value.trim() || "",
         };
+
+        if (!/^\d{9,10}$/.test(payload.idcard)) {
+          Swal.showValidationMessage(
+            "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+          );
+          return false;
+        }
 
         if (isTeacher) {
           payload.role = "teacher";

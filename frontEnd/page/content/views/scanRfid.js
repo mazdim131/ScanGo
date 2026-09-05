@@ -32,6 +32,8 @@ function renderScanRfid() {
             id="card-id-input"
             class="form-control"
             placeholder="Tempelkan kartu RFID (Absen Masuk)..."
+            minlength="10"
+            maxlength="10"
             autofocus
           >
           <button class="scan-btn" onclick="submitScan()">
@@ -133,7 +135,7 @@ function initScanRfid() {
     clearTimeout(autoSubmitTimer);
     autoSubmitTimer = setTimeout(() => {
       const val = this.value.trim();
-      if (val.length >= 8) submitScan();
+      if (val.length >= 9) submitScan();
     }, 250);
   });
 
@@ -147,7 +149,7 @@ async function loadDaftarSiswa() {
   try {
     const res = await fetch(`${API_BASE}/api/users`, {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
     const json = await res.json();
     if (!json.success) return;
@@ -161,9 +163,7 @@ async function loadDaftarSiswa() {
       opt.value = user.username || user.name || "";
       datalist.appendChild(opt);
     });
-  } catch (e) {
-
-  }
+  } catch (e) {}
 }
 
 function initManualNamaListener() {
@@ -197,7 +197,7 @@ async function cariNamaSiswa(nama) {
   try {
     const res = await fetch(`${API_BASE}/api/users`, {
       method: "GET",
-      credentials: "include"
+      credentials: "include",
     });
     const json = await res.json();
     if (!json.success) return;
@@ -211,8 +211,7 @@ async function cariNamaSiswa(nama) {
     } else {
       feedback.innerHTML = `<span style="color:#dc3545;"><i class="bi bi-exclamation-circle-fill"></i> Nama tidak ditemukan di database</span>`;
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 //text to speach untuk suara
@@ -243,6 +242,11 @@ async function submitScan() {
     speakAbsensi("Masukkan ID kartu RFID terlebih dahulu");
     return;
   }
+  if (!/^\d{9,10}$/.test(cardId)) {
+    showToast("ID kartu (RFID) harus terdiri dari 9 sampai 10 digit", "warning");
+    speakAbsensi("ID kartu RFID harus terdiri dari 9 sampai 10 digit");
+    return;
+  }
   if (lastCardId === cardId) return;
   lastCardId = cardId;
 
@@ -252,8 +256,7 @@ async function submitScan() {
     '<span class="scan-status-badge scanning"><i class="bi bi-arrow-repeat"></i> Memproses...</span>';
 
   const mode =
-    (typeof window.currentScanMode !== "undefined" &&
-      window.currentScanMode) ||
+    (typeof window.currentScanMode !== "undefined" && window.currentScanMode) ||
     "masuk";
 
   try {
@@ -282,16 +285,12 @@ async function submitScan() {
       speakAbsensi(
         suksesKeluar
           ? "Absen keluar berhasil dicatat"
-          : "Absen masuk berhasil dicatat"
+          : "Absen masuk berhasil dicatat",
       );
 
-      setTimeout(() => {
-        if (typeof navigateTo === "function") {
-          navigateTo("dashboard");
-        } else {
-          window.location.href = "/frontEnd/page/structure/dashboard.html";
-        }
-      }, 2900);
+      if (typeof silentRefreshDashboard === "function") {
+        silentRefreshDashboard();
+      }
       return;
     }
 
@@ -302,18 +301,23 @@ async function submitScan() {
     switch (data.code) {
       case "already_checked_in":
         alertType = "warning";
-        pesanError = "Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.";
-        ttsPesan = "Absensi gagal. Siswa sudah absen masuk hari ini. Gunakan mode Keluar untuk absen keluar.";
+        pesanError =
+          "Siswa ini sudah absen masuk hari ini. Gunakan mode <b>Keluar</b> untuk mencatat absen pulang.";
+        ttsPesan =
+          "Absensi gagal. Siswa sudah absen masuk hari ini. Gunakan mode Keluar untuk absen keluar.";
         break;
       case "already_finished":
         alertType = "warning";
         pesanError = "Siswa sudah absen masuk & keluar hari ini!";
-        ttsPesan = "Absensi gagal. Siswa sudah melakukan absensi masuk dan keluar hari ini.";
+        ttsPesan =
+          "Absensi gagal. Siswa sudah melakukan absensi masuk dan keluar hari ini.";
         break;
       case "not_checked_in":
         alertType = "warning";
-        pesanError = "Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.";
-        ttsPesan = "Absensi gagal. Siswa ini belum absen masuk hari ini. Gunakan mode Masuk terlebih dahulu.";
+        pesanError =
+          "Siswa ini belum absen masuk hari ini. Gunakan mode <b>Masuk</b> terlebih dahulu.";
+        ttsPesan =
+          "Absensi gagal. Siswa ini belum absen masuk hari ini. Gunakan mode Masuk terlebih dahulu.";
         break;
     }
 
@@ -357,8 +361,7 @@ async function submitManual() {
     '<div class="alert alert-warning">Menyimpan data...</div>';
 
   const mode =
-    (typeof window.currentScanMode !== "undefined" &&
-      window.currentScanMode) ||
+    (typeof window.currentScanMode !== "undefined" && window.currentScanMode) ||
     "masuk";
 
   try {

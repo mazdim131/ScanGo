@@ -128,6 +128,22 @@ function initRegisterHandler() {
       return;
     }
 
+    if (!/^\d{9,10}$/.test(idcard)) {
+      showToast("ID kartu (RFID) harus terdiri dari 9 sampai 10 digit", "warning");
+      Swal.fire({
+        title: "Format ID Kartu Salah",
+        text: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+        icon: "warning",
+        customClass: {
+          popup: "sweetalert-popup",
+          confirmButton: "sweetalert-btn-success",
+        },
+        buttonsStyling: false,
+      });
+      IDCardInput.focus();
+      return;
+    }
+
     try {
       btnDaftar.disabled = true;
       btnDaftar.innerText = "Memproses...";

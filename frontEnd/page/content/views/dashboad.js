@@ -361,7 +361,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
     dataFiltered.length === 0
       ? `<tr><td colspan="9" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
       : dataFiltered
-          .map((row) => {
+          .map((row, index) => {
             const jamAbsen = row.created_at
               ? new Date(row.created_at).toLocaleTimeString("id-ID", {
                   hour: "2-digit",
@@ -387,7 +387,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
 
             return `
                 <tr>
-                    <td class="text-muted d-none d-md-table-cell">${escapeHtml(row.id)}</td>
+                    <td class="text-muted d-none d-md-table-cell">${index + 1}</td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-semibold" style="color: var(--color-teks);">${escapeHtml(displayNama)}</span>
@@ -613,6 +613,23 @@ function refreshDashboardTable(loadingText, focusId) {
         }
       }
     });
+  }
+}
+
+// Update tabel & stats di background tanpa loading spinner — dipakai setelah scan berhasil
+async function silentRefreshDashboard() {
+  const tableContainer = document.getElementById("absensi-table-content");
+  const statsContainer = document.getElementById("top-stats-container");
+  if (!tableContainer || !statsContainer) return;
+
+  try {
+    const dataTerbaru = await fetchAttendanceData();
+    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    statsContainer.innerHTML = result.statsHtml;
+    tableContainer.innerHTML = result.tableHtml;
+    attachFilters();
+  } catch (err) {
+    console.error("Gagal silent refresh:", err);
   }
 }
 

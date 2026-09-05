@@ -22,6 +22,9 @@ function navigateTo(page) {
         content.innerHTML = renderDashboard();
         if (typeof initDashboardListener !== "undefined")
           initDashboardListener();
+        if (typeof setScanMode === "function") {
+          setScanMode(window.currentScanMode || "masuk");
+        }
       } else {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
       }
@@ -84,6 +87,9 @@ function navigateTo(page) {
       if (typeof renderScanRfid !== "undefined") {
         content.innerHTML = renderScanRfid();
         if (typeof initScanRfid !== "undefined") initScanRfid();
+        if (typeof setScanMode === "function") {
+          setScanMode(window.currentScanMode || "masuk");
+        }
       } else {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
       }

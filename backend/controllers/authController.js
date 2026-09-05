@@ -92,6 +92,12 @@ const register = async (req, res) => {
       });
     }
 
+    if (!/^\d{9,10}$/.test(String(idcard))) {
+      return res.status(400).json({
+        message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+      });
+    }
+
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
