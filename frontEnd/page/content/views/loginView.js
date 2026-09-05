@@ -135,7 +135,7 @@ function initLoginView() {
         buttonsStyling: false,
       }).then(() => {
         showToast("Menuju halaman dashboard (Admin)", "success");
-        navigateTo("dashboard");
+        navigateTo("data-siswa");
       });
     } catch (error) {
       showToast(`Error: ${error.message}`, "danger");

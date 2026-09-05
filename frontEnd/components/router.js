@@ -35,17 +35,25 @@ function navigateTo(page) {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
       }
       break;
+    // case "data-siswa":
+    // case "data-guru":
+    //   if (typeof renderDataSiswa !== "undefined") {
+    //     content.innerHTML =
+    //       page === "data-siswa" ? renderDataSiswa() : renderDataGuru();
+    //     if (typeof initDataTableListener !== "undefined")
+    //       initDataTableListener();
+    //   } else {
+    //     window.location.href = "/frontEnd/page/structure/dashboard.html";
+    //   }
+    //   break;
     case "data-siswa":
     case "data-guru":
-      if (typeof renderDataSiswa !== "undefined") {
-        content.innerHTML =
-          page === "data-siswa" ? renderDataSiswa() : renderDataGuru();
-        if (typeof initDataTableListener !== "undefined")
-          initDataTableListener();
-      } else {
-        window.location.href = "/frontEnd/page/structure/dashboard.html";
+      if (typeof renderLogin !== "undefined") {
+        content.innerHTML = renderLogin();
+        if (typeof initLoginView !== "undefined") initLoginView();
       }
       break;
+
     case "detail-siswa":
       if (typeof renderDetailSiswa !== "undefined") {
         content.innerHTML = renderDetailSiswa();
@@ -75,12 +83,12 @@ function navigateTo(page) {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
       }
       break;
-    case "login":
-      if (typeof renderLogin !== "undefined") {
-        content.innerHTML = renderLogin();
-        if (typeof initLoginView !== "undefined") initLoginView();
-      }
-      break;
+    // case "login":
+    //   if (typeof renderLogin !== "undefined") {
+    //     content.innerHTML = renderLogin();
+    //     if (typeof initLoginView !== "undefined") initLoginView();
+    //   }
+    //   break;
     case "print":
       if (typeof renderPrint !== "undefined") {
         content.innerHTML = renderPrint();
@@ -93,23 +101,25 @@ function navigateTo(page) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Sinkronisasi foto profil dari localStorage untuk semua halaman yang memuat router.js
-    const savedImage = localStorage.getItem("profileImageBase64");
-    if (savedImage) {
-        const profileImg = document.getElementById("profileImage");
-        if (profileImg) profileImg.src = savedImage;
+  // Sinkronisasi foto profil dari localStorage untuk semua halaman yang memuat router.js
+  const savedImage = localStorage.getItem("profileImageBase64");
+  if (savedImage) {
+    const profileImg = document.getElementById("profileImage");
+    if (profileImg) profileImg.src = savedImage;
 
-        // Fallback untuk img profile yang mungkin tidak punya ID (di sidebar menu yang ada /profiles/)
-        const sidebarImgs = document.querySelectorAll('.sidebar-menu img[src*="profiles"]');
-        sidebarImgs.forEach(img => img.src = savedImage);
-    }
+    // Fallback untuk img profile yang mungkin tidak punya ID (di sidebar menu yang ada /profiles/)
+    const sidebarImgs = document.querySelectorAll(
+      '.sidebar-menu img[src*="profiles"]',
+    );
+    sidebarImgs.forEach((img) => (img.src = savedImage));
+  }
 
-    const path = window.location.pathname;
-    if (path.includes("statistika")) {
-        navigateTo("statistika");
-    } else if (path.includes("input")) {
-        navigateTo("input-siswa");
-    } else {
-        navigateTo("dashboard");
-    }
+  const path = window.location.pathname;
+  if (path.includes("statistika")) {
+    navigateTo("statistika");
+  } else if (path.includes("input")) {
+    navigateTo("input-siswa");
+  } else {
+    navigateTo("dashboard");
+  }
 });

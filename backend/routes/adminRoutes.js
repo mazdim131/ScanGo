@@ -7,9 +7,9 @@ router.get("/dashboard-data", verifyToken, verifyAdmin, (req, res) => {
   res.status(200).json({
     message: "API Dashboard Admin",
     stats: {
-      totalUsers: 125,
-      totalScans: 450,
-      activeLogins: 12,
+      totalUsers: 1000,
+      totalScans: 1000,
+      activeLogins: 1000,
     },
   });
 });
