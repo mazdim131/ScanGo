@@ -60,13 +60,41 @@ function renderRombelOptionsSiswa(selected) {
 }
 
 const RAYON_GROUPS = [
-  ["Cicurug", ["Cicurug 1", "Cicurug 2", "Cicurug 3", "Cicurug 4", "Cicurug 5", "Cicurug 6", "Cicurug 7", "Cicurug 8", "Cicurug 9", "Cicurug 10"]],
-  ["Cisarua", ["Cisarua 1", "Cisarua 2", "Cisarua 3", "Cisarua 4", "Cisarua 5", "Cisarua 6", "Cisarua 7"]],
+  [
+    "Cicurug",
+    [
+      "Cicurug 1",
+      "Cicurug 2",
+      "Cicurug 3",
+      "Cicurug 4",
+      "Cicurug 5",
+      "Cicurug 6",
+      "Cicurug 7",
+      "Cicurug 8",
+      "Cicurug 9",
+      "Cicurug 10",
+    ],
+  ],
+  [
+    "Cisarua",
+    [
+      "Cisarua 1",
+      "Cisarua 2",
+      "Cisarua 3",
+      "Cisarua 4",
+      "Cisarua 5",
+      "Cisarua 6",
+      "Cisarua 7",
+    ],
+  ],
   ["Cibedug", ["Cibedug 1", "Cibedug 2", "Cibedug 3", "Cibedug 4"]],
   ["Sukasari", ["Sukasari 1", "Sukasari 2"]],
   ["Ciawi", ["Ciawi 1", "Ciawi 2", "Ciawi 3", "Ciawi 4", "Ciawi 5", "Ciawi 6"]],
   ["Tajur", ["Tajur 1", "Tajur 2", "Tajur 3", "Tajur 4", "Tajur 5", "Tajur 6"]],
-  ["Wikrama", ["Wikrama 1", "Wikrama 2", "Wikrama 3", "Wikrama 4", "Wikrama 5"]],
+  [
+    "Wikrama",
+    ["Wikrama 1", "Wikrama 2", "Wikrama 3", "Wikrama 4", "Wikrama 5"],
+  ],
 ];
 
 function renderRayonOptionsHTML(selected) {
@@ -516,8 +544,9 @@ async function loadTableSiswa() {
   try {
     tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>`;
 
-    const response = await fetch(`${API_BASE}/api/users`, {
+    const response = await fetch(`${API_BASE}/api/users?_t=${Date.now()}`, {
       method: "GET",
+      cache: "no-store",
       credentials: "include",
     });
 
@@ -772,7 +801,9 @@ function initImportExcelListener() {
 
         Swal.fire({
           title: "Sukses!",
-          text: result.message || `${jsonData.length} Data siswa berhasil diimport dari Excel!`,
+          text:
+            result.message ||
+            `${jsonData.length} Data siswa berhasil diimport dari Excel!`,
           icon: "success",
         });
 
@@ -901,9 +932,7 @@ function initActionButtonsListener() {
 
 async function actionEditSiswa(id, email) {
   try {
-    const row = document
-      .querySelector(`button[data-id="${id}"]`)
-      .closest("tr");
+    const row = document.querySelector(`button[data-id="${id}"]`).closest("tr");
     if (!row) return Swal.fire("Eror", "Baris data tidak ditemukan!", "error");
 
     const userData = (window.tableAllData || []).find(
@@ -952,9 +981,18 @@ async function actionEditSiswa(id, email) {
     }
 
     function normJenisKelamin(v) {
-      const low = String(v || "").trim().toLowerCase();
-      if (low === "laki-laki" || low === "laki laki" || low === "male" || low === "l") return "Laki Laki";
-      if (low === "perempuan" || low === "female" || low === "p") return "Perempuan";
+      const low = String(v || "")
+        .trim()
+        .toLowerCase();
+      if (
+        low === "laki-laki" ||
+        low === "laki laki" ||
+        low === "male" ||
+        low === "l"
+      )
+        return "Laki Laki";
+      if (low === "perempuan" || low === "female" || low === "p")
+        return "Perempuan";
       return String(v || "").trim();
     }
 
@@ -974,13 +1012,17 @@ async function actionEditSiswa(id, email) {
 
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>UID RFID</label></div>
-        <input id="swal-idcard" class="swal2-input" style="margin-top:0;" value="${escapeAttr(idcard)}">
+        <input type="text" id="swal-idcard" class="swal2-input" inputmode="numeric" pattern="[0-9]*" maxlength="10" minlength="9" style="margin-top:0; width: 100%; max-width: 100%;" placeholder="Tempelkan kartu RFID / ketik angka" value="${escapeAttr(idcard)}">
 
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>${isTeacher ? "No Whatsapp" : "No Whatsapp"}</label></div>
         <input id="swal-whatsapp" class="swal2-input" style="margin-top:0;" value="${escapeAttr(whatsapp)}">
+
+        <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
+        <label>Password Baru <span style="font-size:0.8rem; color:#888; font-weight:normal;">(Kosongkan jika tidak ingin diubah)</span></label></div>
+        <input type="password" id="swal-password" class="swal2-input" style="margin-top:0; width: 100%; max-width: 100%;" placeholder="Ketik password baru">
       `;
-    
+
     const opsiJenisKelamin = `
         <div style="text-align: left; margin-top: 15px; margin-bottom: 8px;">
         <label>Jenis Kelamin</label></div>
@@ -1144,12 +1186,15 @@ async function actionEditSiswa(id, email) {
         document.getElementById("swal-kelas").value = kelasDb;
         document.getElementById("swal-rombel").value = rombel;
         document.getElementById("swal-rayon").value = normalRayonEdit(rayonDb);
-        document.getElementById("swal-jenisKelamin").value = normJenisKelamin(jenisKelamin);
+        document.getElementById("swal-jenisKelamin").value =
+          normJenisKelamin(jenisKelamin);
       },
       title: isTeacher ? "Edit Data Guru" : "Edit Data Siswa",
       html: isTeacher ? htmlGuru : htmlSiswa,
       customClass: {
-        popup: isTeacher ? "sweetalert-popup swal-edit-guru" : "sweetalert-popup swal-edit-siswa",
+        popup: isTeacher
+          ? "sweetalert-popup swal-edit-guru"
+          : "sweetalert-popup swal-edit-siswa",
       },
       focusConfirm: false,
       showCancelButton: true,
@@ -1161,19 +1206,19 @@ async function actionEditSiswa(id, email) {
           String(nilaiLama || "").trim();
 
         const payload = {
-          nis: document.getElementById("swal-nis").value.trim(),
-          username: document.getElementById("swal-username").value.trim(),
-          email: document.getElementById("swal-email").value.trim(),
-          idcard: document.getElementById("swal-idcard").value.trim(),
-          whatsapp: document.getElementById("swal-whatsapp").value.trim(),
+          nis: document.getElementById("swal-nis")?.value.trim() || "",
+          username:
+            document.getElementById("swal-username")?.value.trim() || "",
+          email: document.getElementById("swal-email")?.value.trim() || "",
+          idcard: document.getElementById("swal-idcard")?.value.trim() || "",
+          whatsapp:
+            document.getElementById("swal-whatsapp")?.value.trim() || "",
         };
 
         if (isTeacher) {
           payload.role = "teacher";
-          payload.rombel =
-            ambilOpsi("swal-rombel", rombel) || "Guru Produktif";
-          payload.rayon =
-            ambilOpsi("swal-rayon", rayonDb) || "Guru Produktif";
+          payload.rombel = ambilOpsi("swal-rombel", rombel) || "Guru Produktif";
+          payload.rayon = ambilOpsi("swal-rayon", rayonDb) || "Guru Produktif";
         } else {
           payload.role = document.getElementById("swal-role")?.value || role;
           payload.kelas = ambilOpsi("swal-kelas", kelasDb);
@@ -1182,6 +1227,13 @@ async function actionEditSiswa(id, email) {
           payload.jenisKelamin = normJenisKelamin(
             ambilOpsi("swal-jenisKelamin", jenisKelamin),
           );
+        }
+
+        const newPassword = document
+          .getElementById("swal-password")
+          ?.value.trim();
+        if (newPassword) {
+          payload.password = newPassword;
         }
 
         return payload;
@@ -1203,9 +1255,23 @@ async function actionEditSiswa(id, email) {
     }
 
     const updateResult = await updateResponse.json();
+    const updatedUser = updateResult.user || updateResult.data;
+
+    if (updatedUser && Array.isArray(window.tableAllData)) {
+      const idx = window.tableAllData.findIndex(
+        (u) => String(u.id) === String(id),
+      );
+      if (idx !== -1) {
+        window.tableAllData[idx] = {
+          ...window.tableAllData[idx],
+          ...updatedUser,
+        };
+      }
+    }
+    renderTable();
 
     showToast("Data berhasil diperbarui!", "success");
-    loadTableSiswa();
+    await loadTableSiswa();
   } catch (error) {
     Swal.fire("Gagal Update!", error.message, "error");
   }

@@ -47,10 +47,15 @@ function navigateTo(page) {
     //   }
     //   break;
     case "data-siswa":
+      if (typeof renderLogin !== "undefined") {
+        content.innerHTML = renderLoginSiswa();
+        if (typeof initLoginView !== "undefined") initLoginViewDataSiswa();
+      }
+      break;
     case "data-guru":
       if (typeof renderLogin !== "undefined") {
-        content.innerHTML = renderLogin();
-        if (typeof initLoginView !== "undefined") initLoginView();
+        content.innerHTML = renderLoginGuru();
+        if (typeof initLoginView !== "undefined") initLoginViewDataGuru();
       }
       break;
 

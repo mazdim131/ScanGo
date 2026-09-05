@@ -65,7 +65,7 @@ const register = async (req, res) => {
     const { data: existingUser } = await supabase
       .from("users")
       .select("email")
-      .eq("email", email)
+      .ilike("email", email)
       .maybeSingle();
 
     if (existingUser) {
@@ -158,7 +158,7 @@ const login = async (req, res) => {
     const { data: user, error } = await supabase
       .from("users")
       .select("*")
-      .eq("email", email)
+      .ilike("email", email)
       .maybeSingle();
 
     if (error || !user) {
