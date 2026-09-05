@@ -138,11 +138,16 @@ const ROMBEL_GROUPS = [
   ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
   ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
   ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
-  ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+  [
+    "PMN",
+    ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"],
+  ],
 ];
 
 function normRombel(value) {
-  return String(value || "").trim().toUpperCase();
+  return String(value || "")
+    .trim()
+    .toUpperCase();
 }
 
 const KELAS_OPTIONS = ["X", "XI", "XII"];
@@ -310,7 +315,9 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
     return true;
   });
 
-  const query = String(currentSearchQuery || "").trim().toLowerCase();
+  const query = String(currentSearchQuery || "")
+    .trim()
+    .toLowerCase();
   if (query) {
     dataFiltered = dataFiltered.filter((row) => {
       const nama = row.users
@@ -318,11 +325,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
           ? row.users[0]?.username
           : row.users.username
         : "";
-      const haystack = [
-        nama,
-        row.nis,
-        row.idcard,
-      ]
+      const haystack = [nama, row.nis, row.idcard]
         .map((v) => String(v ?? "").toLowerCase())
         .join(" ");
       return haystack.includes(query);
@@ -356,7 +359,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
 
   const tableRowsHtml =
     dataFiltered.length === 0
-      ?       `<tr><td colspan="9" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
+      ? `<tr><td colspan="9" class="text-center text-muted py-4">${emptyMessage}</td></tr>`
       : dataFiltered
           .map((row) => {
             const jamAbsen = row.created_at
@@ -594,10 +597,7 @@ function refreshDashboardTable(loadingText, focusId) {
     tableContainer.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">${loadingText}</p></div>`;
     const dataTerbaru = fetchAttendanceData();
     dataTerbaru.then((data) => {
-      const result = generateKontenKelasTemplate(
-        currentSelectedClass,
-        data,
-      );
+      const result = generateKontenKelasTemplate(currentSelectedClass, data);
       statsContainer.innerHTML = result.statsHtml;
       tableContainer.innerHTML = result.tableHtml;
       attachFilters();
@@ -607,7 +607,9 @@ function refreshDashboardTable(loadingText, focusId) {
         if (focusEl) {
           focusEl.focus();
           const len = focusEl.value.length;
-          try { focusEl.setSelectionRange(len, len); } catch (e) {}
+          try {
+            focusEl.setSelectionRange(len, len);
+          } catch (e) {}
         }
       }
     });

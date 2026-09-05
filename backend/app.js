@@ -95,7 +95,10 @@ app.use(
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1400,
-  message: { success: false, message: "Terlalu banyak permintaan. Coba lagi nanti." }
+  message: {
+    success: false,
+    message: "Terlalu banyak permintaan. Coba lagi nanti.",
+  },
 });
 app.use("/api", globalLimiter);
 
@@ -134,7 +137,10 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
       console.error("Error store user lookup:", userRes.error.message);
       return res
         .status(500)
-        .json({ success: false, message: "Terjadi kesalahan saat memverifikasi kartu." });
+        .json({
+          success: false,
+          message: "Terjadi kesalahan saat memverifikasi kartu.",
+        });
     }
 
     const uservalid = userRes.data;
@@ -200,7 +206,9 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Error store attendance:", error.message);
-    res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
+    res
+      .status(500)
+      .json({ success: false, message: "Terjadi kesalahan pada server." });
   }
 });
 
@@ -212,16 +220,24 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
     const query = req.query || {};
     const rawIdcard = String(body.idcard ?? query.idcard ?? "").trim();
     const rawUsername = String(body.username ?? query.username ?? "").trim();
-    const mode = String(body.mode ?? query.mode ?? "masuk") === "keluar" ? "keluar" : "masuk";
+    const mode =
+      String(body.mode ?? query.mode ?? "masuk") === "keluar"
+        ? "keluar"
+        : "masuk";
     const macAddress = body.mac_address ?? query.mac_address ?? null;
-    const statusInput = typeof body.status === "string" ? body.status.trim() : "";
+    const statusInput =
+      typeof body.status === "string" ? body.status.trim() : "";
     const noteInput = typeof body.note === "string" ? body.note.trim() : "";
 
     const byIdcard = rawIdcard !== "";
     if (!byIdcard && !rawUsername) {
       return res
         .status(400)
-        .json({ success: false, code: "invalid_input", message: "UID kartu atau nama siswa wajib diisi." });
+        .json({
+          success: false,
+          code: "invalid_input",
+          message: "UID kartu atau nama siswa wajib diisi.",
+        });
     }
 
     if (byIdcard && !/^\d{9,10}$/.test(rawIdcard)) {
@@ -257,7 +273,10 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         console.error("Error tap user lookup:", userRes.error.message);
         return res
           .status(500)
-          .json({ success: false, message: "Terjadi kesalahan saat memverifikasi kartu." });
+          .json({
+            success: false,
+            message: "Terjadi kesalahan saat memverifikasi kartu.",
+          });
       }
       if (attRes.error) {
         console.error("Error tap attendance lookup:", attRes.error.message);
@@ -275,7 +294,9 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
 
       if (userRes.error) {
         console.error("Error tap manual user lookup:", userRes.error.message);
-        return res.status(500).json({ success: false, error: "Gagal mencari data siswa." });
+        return res
+          .status(500)
+          .json({ success: false, error: "Gagal mencari data siswa." });
       }
       if (!userRes.data) {
         return res.status(404).json({
@@ -296,7 +317,10 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         .maybeSingle();
 
       if (attRes.error) {
-        console.error("Error tap manual attendance lookup:", attRes.error.message);
+        console.error(
+          "Error tap manual attendance lookup:",
+          attRes.error.message,
+        );
         throw attRes.error;
       }
       existing = attRes.data;
@@ -355,7 +379,12 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         console.error("Error tap insert:", insertError.message);
         return res
           .status(500)
-          .json({ success: false, message: byIdcard ? "Gagal menyimpan absensi." : "Gagal menyimpan absensi manual." });
+          .json({
+            success: false,
+            message: byIdcard
+              ? "Gagal menyimpan absensi."
+              : "Gagal menyimpan absensi manual.",
+          });
       }
 
       kirimNotifikasiWeb(uservalid, "MASUK");
@@ -380,7 +409,9 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
 
     if (updateError) {
       console.error("Error tap update:", updateError.message);
-      return res.status(500).json({ success: false, message: "Gagal memperbarui absensi keluar." });
+      return res
+        .status(500)
+        .json({ success: false, message: "Gagal memperbarui absensi keluar." });
     }
 
     kirimNotifikasiWeb(uservalid, "PULANG");
@@ -393,7 +424,9 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Error tap attendance:", error.message);
-    res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
+    res
+      .status(500)
+      .json({ success: false, message: "Terjadi kesalahan pada server." });
   }
 });
 
@@ -415,7 +448,9 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
 
     if (userError) {
       console.error("Error manual user lookup:", userError.message);
-      return res.status(500).json({ success: false, error: "Gagal mencari data siswa." });
+      return res
+        .status(500)
+        .json({ success: false, error: "Gagal mencari data siswa." });
     }
 
     if (!user) {
@@ -453,7 +488,9 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Error manual attendance:", error.message);
-    res.status(500).json({ success: false, error: "Terjadi kesalahan pada server." });
+    res
+      .status(500)
+      .json({ success: false, error: "Terjadi kesalahan pada server." });
   }
 });
 
@@ -508,7 +545,9 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
     res.json({ success: true, data: dataGabungan });
   } catch (error) {
     console.error("Error get attendances:", error.message);
-    res.status(500).json({ success: false, error: "Gagal memuat data absensi." });
+    res
+      .status(500)
+      .json({ success: false, error: "Gagal memuat data absensi." });
   }
 });
 
@@ -572,7 +611,9 @@ app.put("/api/attendances/:id", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Error put attendance:", error.message);
-    res.status(500).json({ success: false, error: "Gagal memperbarui data absensi." });
+    res
+      .status(500)
+      .json({ success: false, error: "Gagal memperbarui data absensi." });
   }
 });
 
@@ -600,7 +641,9 @@ app.delete("/api/attendances/:id", verifyToken, async (req, res) => {
     res.json({ success: true, message: "Data absensi berhasil dihapus" });
   } catch (error) {
     console.error("Error delete attendance:", error.message);
-    res.status(500).json({ success: false, error: "Gagal menghapus data absensi." });
+    res
+      .status(500)
+      .json({ success: false, error: "Gagal menghapus data absensi." });
   }
 });
 
@@ -619,7 +662,9 @@ app.get("/api/users", verifyToken, async (req, res) => {
     res.json({ success: true, data: users || [] });
   } catch (error) {
     console.error("Error get users:", error.message);
-    res.status(500).json({ success: false, message: "Gagal memuat data pengguna." });
+    res
+      .status(500)
+      .json({ success: false, message: "Gagal memuat data pengguna." });
   }
 });
 
@@ -644,7 +689,9 @@ app.get("/api/users/:nis", verifyToken, async (req, res) => {
     res.json({ success: true, user: data });
   } catch (error) {
     console.error("Error get user by nis:", error.message);
-    res.status(500).json({ success: false, message: "Gagal memuat data siswa." });
+    res
+      .status(500)
+      .json({ success: false, message: "Gagal memuat data siswa." });
   }
 });
 
@@ -655,9 +702,26 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
     return res.status(400).json({ success: false, message: "ID tidak valid." });
   }
 
-  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas, nis, jenisKelamin } = req.body;
+  const {
+    username,
+    email,
+    rombel,
+    role,
+    idcard,
+    whatsapp,
+    rayon,
+    kelas,
+    nis,
+    jenisKelamin,
+    password,
+  } = req.body;
 
-  if (nis !== undefined && nis !== null && String(nis).trim() !== "" && !/^\d+$/.test(String(nis).trim())) {
+  if (
+    nis !== undefined &&
+    nis !== null &&
+    String(nis).trim() !== "" &&
+    !/^\d+$/.test(String(nis).trim())
+  ) {
     return res
       .status(400)
       .json({ success: false, message: "NIS/NIP harus berupa angka." });
@@ -671,17 +735,29 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 
   const updates = {};
-  if (username) updates.username = username;
-  if (email) updates.email = email;
-  if (rombel) updates.rombel = rombel;
-  if (role) updates.role = role;
-  if (idcard) updates.idcard = idcard;
-  if (whatsapp) updates.whatsapp = whatsapp;
-  if (rayon) updates.rayon = rayon;
-  if (kelas) updates.kelas = kelas;
-  if (jenisKelamin) updates.jenisKelamin = jenisKelamin;
+  if (username) updates.username = username.trim();
+  if (email) updates.email = email.trim();
+  if (rombel) updates.rombel = rombel.trim();
+  if (role) updates.role = role.trim();
+  if (whatsapp !== undefined) updates.whatsapp = String(whatsapp).trim();
+  if (rayon) updates.rayon = rayon.trim();
+  if (kelas !== undefined)
+    updates.kelas = role === "teacher" || !kelas ? null : String(kelas).trim();
+  if (jenisKelamin) updates.jenisKelamin = jenisKelamin.trim();
+
   if (nis !== undefined && String(nis).trim() !== "") {
     updates.nis = Number(String(nis).trim());
+  }
+
+  if (idcard !== undefined) {
+    const cleanIdcard = String(idcard).trim();
+    // Simpan sebagai string agar leading zero terjaga (misal "0255" → "0255" bukan 255)
+    updates.idcard = cleanIdcard !== "" ? cleanIdcard : null;
+  }
+
+  if (password && String(password).trim() !== "") {
+    const saltRounds = 10;
+    updates.password = await bcrypt.hash(String(password).trim(), saltRounds);
   }
 
   if (Object.keys(updates).length === 0) {
@@ -695,11 +771,16 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
       .from("users")
       .update(updates)
       .eq("id", userId)
-      .select("id");
+      .select();
 
     if (error) {
       console.error("Error update user:", error.message);
-      throw error;
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: error.message || "Gagal memperbarui data di database.",
+        });
     }
 
     if (!data || data.length === 0) {
@@ -710,10 +791,19 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
 
     return res
       .status(200)
-      .json({ success: true, message: "Data berhasil diupdate!" });
+      .json({
+        success: true,
+        message: "Data berhasil diupdate!",
+        user: data[0],
+      });
   } catch (error) {
     console.error("Error update user catch:", error.message);
-    return res.status(500).json({ success: false, message: "Terjadi kesalahan saat memperbarui data." });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Terjadi kesalahan saat memperbarui data.",
+      });
   }
 });
 
@@ -747,7 +837,12 @@ app.delete("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
       .json({ success: true, message: "Data berhasil dihapus!" });
   } catch (error) {
     console.error("Error delete user catch:", error.message);
-    return res.status(500).json({ success: false, message: "Terjadi kesalahan saat menghapus data." });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Terjadi kesalahan saat menghapus data.",
+      });
   }
 });
 
@@ -784,88 +879,114 @@ app.get("/api/users/:nis/attendances", verifyToken, async (req, res) => {
     res.json({ success: true, data: attendances || [] });
   } catch (error) {
     console.error("Error get user attendances:", error.message);
-    res.status(500).json({ success: false, error: "Gagal memuat riwayat absensi." });
+    res
+      .status(500)
+      .json({ success: false, error: "Gagal memuat riwayat absensi." });
   }
 });
 
-app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) => {
-  try {
-    const { users } = req.body;
-    if (!users || !Array.isArray(users) || users.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Data users tidak valid atau kosong!",
+app.post(
+  "/api/auth/register-bulk",
+  verifyToken,
+  verifyAdmin,
+  async (req, res) => {
+    try {
+      const { users } = req.body;
+      if (!users || !Array.isArray(users) || users.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Data users tidak valid atau kosong!",
+        });
+      }
+
+      const hasNonNumeric = users.some(
+        (u) =>
+          (u.idcard !== "" &&
+            u.idcard != null &&
+            !/^\d+$/.test(String(u.idcard))) ||
+          (u.nis !== "" && u.nis != null && !/^\d+$/.test(String(u.nis))),
+      );
+
+      if (hasNonNumeric) {
+        return res.status(400).json({
+          success: false,
+          message: "Terdapat data dengan ID kartu/NIS yang bukan angka!",
+        });
+      }
+
+      const hasInvalidCardLength = users.some(
+        (u) =>
+          u.idcard !== "" &&
+          u.idcard != null &&
+          !/^\d{9,10}$/.test(String(u.idcard)),
+      );
+
+      if (hasInvalidCardLength) {
+        return res.status(400).json({
+          success: false,
+          message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
+        });
+      }
+
+      const usersNormalized = [];
+      const saltRounds = 10;
+
+      const normRole = (raw) => {
+        const r = String(raw || "")
+          .trim()
+          .toLowerCase();
+        if (["siswa", "student", "murid", "s"].includes(r)) return "student";
+        if (["guru", "teacher", "pengajar", "g", "t"].includes(r))
+          return "teacher";
+        if (["admin", "a"].includes(r)) return "admin";
+        return r || "student";
+      };
+
+      for (const u of users) {
+        const role = normRole(u.role);
+        usersNormalized.push({
+          username: String(u.username || "").trim(),
+          email: String(u.email || "").trim(),
+          password: await bcrypt.hash(String(u.password || ""), saltRounds),
+          role,
+          idcard:
+            u.idcard !== "" && u.idcard != null
+              ? String(u.idcard).trim()
+              : null,
+          nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
+          rombel: String(u.rombel || "").trim(),
+          jenisKelamin: String(u.jenisKelamin || "").trim(),
+          whatsapp: String(u.whatsapp || "").trim(),
+          rayon: String(u.rayon || "").trim(),
+          kelas:
+            role === "teacher" && !u.kelas
+              ? null
+              : String(u.kelas || "").trim(),
+        });
+      }
+
+      const { data, error } = await supabase
+        .from("users")
+        .insert(usersNormalized)
+        .select();
+      if (error) throw error;
+
+      res.json({
+        success: true,
+        message: `${data.length} data berhasil disimpan!`,
+        data,
       });
+    } catch (error) {
+      console.error("Error register-bulk:", error.message);
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "Terjadi kesalahan saat menyimpan data.",
+        });
     }
-
-    const hasNonNumeric = users.some(
-      (u) =>
-        (u.idcard !== "" && u.idcard != null && !/^\d+$/.test(String(u.idcard))) ||
-        (u.nis !== "" && u.nis != null && !/^\d+$/.test(String(u.nis))),
-    );
-
-    if (hasNonNumeric) {
-      return res.status(400).json({
-        success: false,
-        message: "Terdapat data dengan ID kartu/NIS yang bukan angka!",
-      });
-    }
-
-    const hasInvalidCardLength = users.some(
-      (u) =>
-        u.idcard !== "" &&
-        u.idcard != null &&
-        !/^\d{9,10}$/.test(String(u.idcard)),
-    );
-
-    if (hasInvalidCardLength) {
-      return res.status(400).json({
-        success: false,
-        message: "ID kartu (RFID) harus terdiri dari 9 sampai 10 digit!",
-      });
-    }
-
-    const usersNormalized = [];
-    const saltRounds = 10;
-
-    const normRole = (raw) => {
-      const r = String(raw || "").trim().toLowerCase();
-      if (["siswa", "student", "murid", "s"].includes(r)) return "student";
-      if (["guru", "teacher", "pengajar", "g", "t"].includes(r)) return "teacher";
-      if (["admin", "a"].includes(r)) return "admin";
-      return r || "student";
-    };
-
-    for (const u of users) {
-      const role = normRole(u.role);
-      usersNormalized.push({
-        username: String(u.username || "").trim(),
-        email: String(u.email || "").trim(),
-        password: await bcrypt.hash(String(u.password || ""), saltRounds),
-        role,
-        idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
-        nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
-        rombel: String(u.rombel || "").trim(),
-        jenisKelamin: String(u.jenisKelamin || "").trim(),
-        whatsapp: String(u.whatsapp || "").trim(),
-        rayon: String(u.rayon || "").trim(),
-        kelas: role === "teacher" && !u.kelas ? null : String(u.kelas || "").trim(),
-      });
-    }
-
-    const { data, error } = await supabase.from("users").insert(usersNormalized).select();
-    if (error) throw error;
-
-    res.json({
-      success: true,
-      message: `${data.length} data berhasil disimpan!`,
-      data,
-    });
-  } catch (error) {
-    console.error("Error register-bulk:", error.message);
-    res.status(500).json({ success: false, message: "Terjadi kesalahan saat menyimpan data." });
   }
-});
+);
 
 const PORT = process.env.PORT || 3000;
 
