@@ -15,7 +15,7 @@ navbar.innerHTML = `
       <div class="navbar-nav d-flex justify-content-between align-items-center w-100 mt-2 mt-lg-0">
         
         <div class="d-flex flex-column flex-lg-row gap-2 gap-lg-4 mx-lg-auto">
-          <a class="nav-link active text-center" aria-current="page" href="/index.html">Beranda</a>     
+          <a class="nav-link active text-center" aria-current="page" href="/frontEnd/page/structure/home.html">Beranda</a>     
           <a class="nav-link text-center" href="/frontEnd/page/structure/guide.html">Panduan</a>
           <a class="nav-link text-center" href="/frontEnd/page/structure/about.html">Tentang</a>
           <a class="nav-link text-center" href="/frontEnd/page/structure/company.html">Pengembang</a>

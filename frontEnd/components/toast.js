@@ -24,7 +24,7 @@ function showToast(message, type = "success") {
 
   const toastElement = document.getElementById(toastId);
   const bootstrapToast = bootstrap.Toast.getOrCreateInstance(toastElement, {
-    delay: 5000, 
+    delay: 2500, 
   });
 
   bootstrapToast.show();

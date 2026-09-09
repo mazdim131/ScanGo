@@ -745,8 +745,8 @@ function showToast(message, type = "success") {
     toast: true,
     position: "top-end",
     showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
+    timer: 2500,
+    timerProgressBar: false,
     didOpen: (toast) => {
       toast.onmouseenter = Swal.stopTimer;
       toast.onmouseleave = Swal.resumeTimer;

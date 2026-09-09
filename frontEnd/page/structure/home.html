@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Go | Website</title>
+    <link rel="icon" type="image/png" href="/frontEnd/assets/logo/favicon.png?v20260822">
+
+    <!-- css global -->
+    <link rel="stylesheet" href="/frontEnd/style/global.css?v20260822">
+    <!-- css index -->
+    <link rel="stylesheet" href="/frontEnd/style/home.css">
+
+    <!-- css component navbar -->
+    <link rel="stylesheet" href="/frontEnd/style/components/navbar.css?v20260822">
+    <!-- css component footer -->
+    <link rel="stylesheet" href="/frontEnd/style/components/footer.css?v20260822">
+    <!-- css component changeTheme -->
+    <link rel="stylesheet" href="/frontEnd/style/components/changeTheme.css?v20260822">
+
+    <!-- link bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- link font inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+
+    <!-- link animate -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <!-- link swipper -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css">
+
+    <!-- link icon bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+</head>
+
+
+<body>
+    <header class="fixed-top w-100">
+        <div class="container animate__animated animate__fadeInDown">
+            <nav id="navbar"></nav>
+        </div>
+    </header>
+
+    <main id="">
+        <div class="container px-4">
+            <div class="row gx-5">
+                <div class="col top">
+                    <div class="p-3">
+                        <h1 class="title-index animate__animated animate__fadeInDown">
+                            Revolusi Absensi Siswa Menjadi Mudah & Cepat.
+                        </h1>
+
+                        <p class="subtitle-index animate__animated animate__fadeInDown">
+                            Sistem manajemen kehadiran modern berbasis kartu
+                            untuk efisiensi waktu belajar mengajar di sekolah Anda.
+                        </p>
+
+                        <div class="btn-index d-flex mt-5 gap-3 animate__animated animate__fadeIn">
+                            <button type="button" onclick="btnGetStarted()" class="btn btn-lg btn-started">
+                                <i class="bi bi-upc-scan"></i> Dashboard</button>
+                            <button class="btn btn-lg btn-watch" onclick="btnGuide()"><i class="bi bi-map"></i> Lihat
+                                Demo</button>
+                        </div>
+
+                        <a href="/frontEnd/page/structure/about.html#dev"
+                            class="profile-person d-flex gap-2 mt-5 animate__animated animate__fadeInUp text-decoration-none"
+                            style="color: var(--color-teks) !important;">
+                            <img src="/frontEnd/assets/profiles/dimas.webp" alt="Profile Dev" class="img-profile-dev"
+                                loading="lazy" decoding="async">
+                            <img src="/frontEnd/assets/profiles/hifzhi.webp" alt="Profile Dev" class="img-profile-dev"
+                                loading="lazy" decoding="async">
+                            <img src="/frontEnd/assets/profiles/yazid.webp" alt="Profile Dev" class="img-profile-dev"
+                                loading="lazy" decoding="async">
+                            <p class="dev-text">
+                                Lihat Profil Pengembang
+                            </p>
+                        </a>
+                    </div>
+                </div>
+                <div class="col gutter-index">
+                    <div class="p-3">
+                        <img src="/frontEnd/assets/images/hero.webp"
+                            class="img-hero rounded-4 animate__animated animate__fadeInDown" style="height: 400px;"
+                            fetchpriority="high" decoding="async">
+
+                        <div class="scango-stats-container animate__animated animate__fadeInUp">
+                            <div class="stat-item">
+                                <div class="stat-badge badge-orange"></div>
+                                <h2 class="stat-number">500k+</h2>
+                                <p class="stat-label">Total Pemindaian</p>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-badge badge-blue"></div>
+                                <h2 class="stat-number">1.5k+</h2>
+                                <p class="stat-label">Perangkat Aktif</p>
+                            </div>
+
+                            <div class="stat-item">
+                                <div class="stat-badge badge-green"></div>
+                                <h2 class="stat-number">90%</h2>
+
+                                <p class="stat-label">Dampak Nyata</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-sm">
+        </div>
+
+        <section class="tech-stack-section container-sm animate__animated animate__fadeInUp">
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/bootstrap.png" alt="Bootstrap">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/nodejs.png" alt="NodeJS">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/postgree.png" alt="PostgreSQL">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/swipper.png" alt="Swiper">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/expressjs.png" alt="ExpressJS">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/animate.png" alt="Animate CSS">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/sweetalert.png" alt="SweetAlert">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/supabase.png" alt="Supabase">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/github.png" alt="Github">
+                        </div>
+                    </div>
+
+                    <div class="swiper-slide">
+                        <div class="logo-card">
+                            <img src="/frontEnd/assets/logo/partners/techStack/vercel.png" alt="Vercel">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="container-sm">
+
+        <div class="container mt-5">
+            <div class="row align-items-center how gx-0 gx-md-5 gy-4">
+
+                <div class="col-12 col-md-6 how text-center">
+                    <img src="/frontEnd/assets/mascot/bertanya-tanya.webp" class="img-fluid"
+                        style="max-height: 500px; width: auto;" loading="lazy" decoding="async">
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <h1 class="fw-bold mb-3">Transformasi Digital Terbaik untuk Instansi Anda</h1>
+
+                    <p class="text-muted" style="color: var(--color-teks) !important;">
+                        ScanGo hadir sebagai solusi modern untuk mempermudah pengelolaan data instansi secara cepat,
+                        tepat, dan otomatis. Sistem ini didukung oleh teknologi IoT mutakhir yang mampu memproses
+                        pemindaian kartu RFID dalam hitungan detik dengan stabilitas server yang sangat tinggi.
+                    </p>
+
+                    <p class="text-muted mb-4" style="color: var(--color-teks) !important;">
+                        Melalui antarmuka yang sederhana, Anda dapat mengelola data pengguna, hingga melakukan impor
+                        data massal via Excel hanya dengan beberapa klik. ScanGo adalah pilihan terbaik untuk
+                        mentransformasi sistem absensi Anda menjadi ekosistem digital yang efisien dan akurat secara
+                        real-time.
+                    </p>
+
+                    <a href="/frontEnd/page/structure/about.html" style="color: var(--color-teks);"
+                        class="text-decoration-none fw-bold">
+                        Pelajari lebih lanjut <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container mt-5">
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="card container-sm rounded-5" style="border: none !important; padding: 20px;">
+                        <div class="card-body">
+
+                            <div class="d-flex">
+                                <button class="btn btn-light" style="border: none !important;"><i class="bi bi-palette"
+                                        style="font-size: 20px;"></i></button>
+
+                                <div class="ms-4" style="flex-direction: column;">
+                                    <h6><b>Profesional Design</b></h6>
+                                    <span style="font-size: 14px;">Tampilan profesional</span>
+                                </div>
+                            </div>
+
+                            <h5 class="mt-4">Dibuat dengan design yang profesional yang dibuat tanpa campur tangan AI
+                                melainkan dibuat manual oleh developer junior</h5>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card container-sm rounded-5" style="border: none !important; padding: 20px;">
+                        <div class="card-body">
+
+                            <div class="d-flex">
+                                <button class="btn btn-light" style="border: none !important;"><i class="bi bi-people"
+                                        style="font-size: 20px;"></i></button>
+
+                                <div class="ms-4" style="flex-direction: column;">
+                                    <h6><b>User Friendly</b></h6>
+                                    <span style="font-size: 14px;">Mudah digunakan</span>
+                                </div>
+                            </div>
+
+                            <h5 class="mt-4">Platform kami di set dengan tampilan yang sangat sederhana. Memungkinkan
+                                pengguna menggunakannya tanpa kesulitan</h5>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card container-sm rounded-5" style="border: none !important; padding: 20px;">
+                        <div class="card-body">
+
+                            <div class="d-flex">
+                                <button class="btn btn-light" style="border: none !important;"><i class="bi bi-palette"
+                                        style="font-size: 20px;"></i></button>
+
+                                <div class="ms-4" style="flex-direction: column;">
+                                    <h6><b>Make an Impact</b></h6>
+                                    <span style="font-size: 14px;">Berdampak pada lingkungan</span>
+                                </div>
+                            </div>
+
+                            <h5 class="mt-4">Pantau semua laporan keuangan di lingkungan anda kapan saja dan di mana
+                                saja hanya melalui smartphone atau laptop Anda.</h5>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="container-sm w-100 promote mt-4 rounded-4 text-center">
+            <div class="d-flex gap-2 justify-content-center">
+                <img src="/frontEnd/assets/logo/partners/wikrama.png" style="height: 50px;">
+                <img src="/frontEnd/assets/logo/partners/pplg.png" style="height: 50px;">
+            </div>
+            <h1><b>ScanGo</b></h1>
+            <h5>Mulai efisiensi Anda hari ini, cukup dengan satu ketukan kartu.</h5>
+        </div>
+    </main>
+
+
+    <footer id="footer" class="container"></footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+
+    <script>
+        function btnGetStarted() {
+            window.location.href = "/frontEnd/page/structure/signIn.html";
+        }
+
+        function btnGuide() {
+            window.location.href = "/frontEnd/page/structure/guide.html";
+        }
+
+        const swiperEl = document.querySelector(".mySwiper");
+
+        const swiper = swiperEl
+            ? new Swiper(".mySwiper", {
+                loop: true,
+                allowTouchMove: false,
+
+                autoplay: {
+                    delay: 0,
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                },
+
+                speed: 4000,
+
+                breakpoints: {
+                    320: {
+                        slidesPerView: 2,
+                        spaceBetween: 20,
+                    },
+                    768: {
+                        slidesPerView: 3,
+                        spaceBetween: 30,
+                    },
+                    1024: {
+                        slidesPerView: 5,
+                        spaceBetween: 40,
+                    },
+                },
+            })
+            : null;
+
+        if (swiper && swiperEl) {
+            swiperEl.addEventListener("mouseenter", () => {
+                swiper.autoplay.stop();
+            });
+
+            swiperEl.addEventListener("mouseleave", () => {
+                swiper.autoplay.start();
+            });
+        }
+
+    </script>
+
+    <!-- script component navbar -->
+    <script src="/frontEnd/components/navbar.js?v20260822"></script>
+    <!-- script component footer -->
+    <script src="/frontEnd/components/footer.js?v20260822"></script>
+    <!-- script component change theme -->
+    <script src="/frontEnd/components/changetheme.js?v20260822"></script>
+
+    <!-- script bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

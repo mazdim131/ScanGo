@@ -699,6 +699,27 @@
 }
 
 @media (max-width: 575.98px) {
+  .filter-toolbar {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .filter-toolbar > * {
+    flex: 1 1 100%;
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .filter-toolbar .sort {
+    flex: 1 1 100% !important;
+  }
+
+  .filter-toolbar .sort input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+
   .header-panel {
     background-color: var(--bg-content);
     border-bottom: none;
@@ -718,6 +739,16 @@
 
   .header-panel #time {
     font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .data-card {
+    padding: 16px;
   }
 }
 

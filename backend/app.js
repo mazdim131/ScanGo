@@ -105,7 +105,7 @@ app.use("/api", globalLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 
-app.post("/api/attendances/store", verifyToken, async (req, res) => {
+app.post("/api/attendances/store", async (req, res) => {
   try {
     const idcard = req.query.idcard;
     const mac_address = req.query.mac_address;
@@ -214,7 +214,7 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
 
 // Endpoint tap serbaguna: 1 request dari frontend, semua pengecekan di server.
 // Body/query: idcard ATAU username, mode ("masuk"|"keluar"), mac_address?, status?, note?
-app.post("/api/attendances/tap", verifyToken, async (req, res) => {
+app.post("/api/attendances/tap", async (req, res) => {
   try {
     const body = req.body || {};
     const query = req.query || {};

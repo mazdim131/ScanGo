@@ -26,17 +26,17 @@ function renderDashboard() {
             <i class="bi bi-upc-scan"></i>
           </div>
 
-          <div id="scan-status">
-            <marquee class="scan-status-badge idle">
-              <i class="bi bi-radio"></i> Menunggu scan kartu (Absen Masuk)...
-            </marquee>
-          </div>
-
           <div class="scan-input-group">
+            <div id="scan-status">
+              <marquee class="scan-status-badge idle">
+                <code>Menunggu scan kartu (Absen Masuk)...</code>
+              </marquee>
+            </div>
+
             <input
               type="text"
               id="card-id-input"
-              class="form-control"
+              class="form-control mt-3"
               placeholder="Tempelkan kartu RFID..."
               autofocus
             >
@@ -202,13 +202,12 @@ function setScanMode(mode) {
     }
   }
 
-  const label = mode === "masuk" ? "Absen Masuk" : "Absen Keluar";
   const statusEl = document.getElementById("scan-status");
   const input = document.getElementById("card-id-input");
   const resultEl = document.getElementById("scan-result");
 
   if (statusEl) {
-    statusEl.innerHTML = `<marquee class="scan-status-badge idle"><i class="bi bi-radio"></i> Menunggu scan kartu (${label})...</marquee>`;
+    statusEl.innerHTML = `<marquee class="scan-status-badge idle"><i class="bi bi-radio"></i> Menunggu scan kartu (${mode === "masuk" ? "Absen Masuk" : "Absen Keluar"})...</marquee>`;
   }
   if (input) {
     input.placeholder =
@@ -468,10 +467,10 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 <div class="d-flex align-items-center gap-2">
                     <h5 class="fw-bold m-0" style="color: var(--color-teks); font-size: 1.05rem;">Riwayat Absensi</h5>
                 </div>
-                <div class="d-flex gap-2 flex-wrap align-items-center">
-                    <div class="d-flex align-items-center bg-light rounded-3 px-2 border-0" style="height: 34px;">
+                <div class="filter-toolbar d-flex gap-2 flex-wrap align-items-center">
+                    <div class="sort d-flex align-items-center bg-light rounded-3 px-2 border-0" style="height: 34px;">
                         <i class="bi bi-search text-muted me-2" style="font-size: 0.85rem;"></i>
-                        <input type="text" id="pencarianTabel" class="form-control form-control-sm bg-transparent border-0 text-muted p-0" placeholder="Cari nama / NIS / RFID..." style="font-size: 0.85rem; width: 160px; outline: none; box-shadow: none;" value="${escapeHtml(currentSearchQuery)}">
+                        <input type="text" id="pencarianTabel" class="form-control form-control-sm bg-transparent border-0 text-muted p-0" placeholder="Cari nama / NIS / RFID..." style="font-size: 0.85rem; outline: none; box-shadow: none;" value="${escapeHtml(currentSearchQuery)}">
                     </div>
                     <select id="pilihanKelas" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
                       ${renderKelasOptions()}
@@ -479,7 +478,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                     <select id="pilihanRombel" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
                       ${renderRombelOptions()}
                     </select>
-                    <div class="d-flex align-items-center bg-light rounded-3 px-2 border-0" style="height: 34px;">
+                    <div class="sort d-flex align-items-center bg-light rounded-3 px-2 border-0" style="height: 34px;">
                         <i class="bi bi-calendar3 text-muted me-2" style="font-size: 0.85rem;"></i>
                         <input type="date" id="filterTanggal" class="form-control form-control-sm bg-transparent border-0 text-muted p-0" style="font-size: 0.85rem; width: 120px; outline: none; box-shadow: none;" value="${currentSelectedDate}">
                     </div>
@@ -490,7 +489,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 <table class="table align-middle custom-table mb-0 w-100">
                     <thead>
                         <tr>
-                            <th class="d-none d-md-table-cell" style="width: 8%;">ID Log</th>
+                            <th class="d-none d-md-table-cell" style="width: 8%;">No</th>
                             <th style="width: 15%;">Nama Lengkap</th>
                             <th class="d-none d-md-table-cell" style="width: 10%;">NIS</th>
                             <th class="d-none d-md-table-cell" style="width: 13%;">Id RFID</th>
@@ -624,7 +623,10 @@ async function silentRefreshDashboard() {
 
   try {
     const dataTerbaru = await fetchAttendanceData();
-    const result = generateKontenKelasTemplate(currentSelectedClass, dataTerbaru);
+    const result = generateKontenKelasTemplate(
+      currentSelectedClass,
+      dataTerbaru,
+    );
     statsContainer.innerHTML = result.statsHtml;
     tableContainer.innerHTML = result.tableHtml;
     attachFilters();

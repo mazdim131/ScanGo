@@ -351,7 +351,7 @@ async function submitManual() {
 
   if (!nama) {
     showToast("Nama siswa wajib diisi!", "warning");
-    document.getElementById("manual-nama").focus();
+    document.getElementById("manual-nama");
     return;
   }
 
@@ -397,10 +397,10 @@ async function submitManual() {
 
       showToast(pesanSukses, "success");
 
-      setTimeout(() => {
-        resultManualEl.innerHTML = "";
-        toggleAbsenMode("scan");
-      }, 1500);
+      // setTimeout(() => {
+      //   resultManualEl.innerHTML = "";
+      //   toggleAbsenMode("scan");
+      // }, 1000);
     } else {
       let alertType = "danger";
       let pesanError = data.error || data.message || "Terjadi kesalahan";

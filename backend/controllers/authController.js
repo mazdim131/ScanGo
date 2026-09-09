@@ -3,7 +3,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const resolveUserRole = (role, req) => {
-  const requested = String(role || "").trim().toLowerCase();
+  const requested = String(role || "")
+    .trim()
+    .toLowerCase();
 
   const publicRoles = ["student", "user"];
   if (publicRoles.includes(requested)) {
@@ -15,7 +17,7 @@ const resolveUserRole = (role, req) => {
     if (!token) {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith("Bearer ")) {
-         token = authHeader.split(" ")[1];
+        token = authHeader.split(" ")[1];
       }
     }
 
@@ -39,7 +41,19 @@ const resolveUserRole = (role, req) => {
 
 const register = async (req, res) => {
   try {
-    const { email, password, role, username, idcard, rombel, nis, whatsapp, rayon, kelas, jenisKelamin } = req.body;
+    const {
+      email,
+      password,
+      role,
+      username,
+      idcard,
+      rombel,
+      nis,
+      whatsapp,
+      rayon,
+      kelas,
+      jenisKelamin,
+    } = req.body;
 
     const userRole = resolveUserRole(role, req);
     const isTeacher = userRole === "teacher";
@@ -52,7 +66,7 @@ const register = async (req, res) => {
       !userRole ||
       !rombel ||
       !nis ||
-      !whatsapp || 
+      !whatsapp ||
       !rayon ||
       !jenisKelamin ||
       (!isTeacher && !kelas)
@@ -120,7 +134,7 @@ const register = async (req, res) => {
           whatsapp: whatsapp,
           rayon: rayon,
           jenisKelamin: jenisKelamin,
-          kelas: isTeacher && !kelas ? null : kelas
+          kelas: isTeacher && !kelas ? null : kelas,
         },
       ])
       .select();
@@ -195,16 +209,15 @@ const login = async (req, res) => {
         jenisKelamin: user.jenisKelamin,
       },
       process.env.JWT_SECRET,
-      // NOTE: Kadaluarsa token di-nonaktifkan sementara agar token tidak kadaluarsa.
-      // { expiresIn: "24h" },
+      // jwt expired
+      { expiresIn: "24h" },
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      // NOTE: Kadaluarsa cookie di-nonaktifkan sementara agar cookie tidak kadaluarsa.
-      // maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({

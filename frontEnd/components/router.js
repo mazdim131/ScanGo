@@ -7,6 +7,41 @@ function navigateTo(page) {
   const content = document.getElementById("content");
   if (!content) return;
 
+  const role = String(sessionStorage.getItem("role") || "").trim().toLowerCase();
+  const token = sessionStorage.getItem("token");
+  const isStudent = role === "student" || role === "user" || role === "siswa";
+
+  if (isStudent && page !== "detail-siswa") {
+    page = "detail-siswa";
+    if (typeof window.routerState !== "object" || !window.routerState) {
+      window.routerState = {};
+    }
+    
+    const savedNis = sessionStorage.getItem("nis");
+    if (savedNis) window.routerState.nis = savedNis;
+  }
+
+  const PROTECTED_PAGES = [
+    "detail-siswa",
+    "data-siswa",
+    "data-guru",
+    "print",
+    "grafik",
+    "statistika",
+    "input-siswa",
+  ];
+
+  if (!token && PROTECTED_PAGES.includes(page)) {
+    if (typeof renderLoginView !== "undefined") {
+      const loginType = page === "data-guru" ? "guru" : "siswa";
+      content.innerHTML = renderLoginView(loginType);
+      if (typeof initLoginView !== "undefined")initLoginView(loginType);
+      return;
+    }
+    window.location.href = "/frontEnd/page/structure/dashboard.html";
+    return;
+  }
+
   // Auto-close print preview overlay if open
   const printOverlay = document.getElementById("printPreviewModal");
   if (printOverlay && printOverlay.classList.contains("active")) {
@@ -38,6 +73,9 @@ function navigateTo(page) {
         window.location.href = "/frontEnd/page/structure/dashboard.html";
       }
       break;
+    case "tentang":
+      window.location.href = "/frontEnd/page/structure/home.html";
+      break;
     // case "data-siswa":
     // case "data-guru":
     //   if (typeof renderDataSiswa !== "undefined") {
@@ -50,17 +88,27 @@ function navigateTo(page) {
     //   }
     //   break;
     case "data-siswa":
-      if (typeof renderLogin !== "undefined") {
-        content.innerHTML = renderLoginSiswa();
-        if (typeof initLoginView !== "undefined") initLoginViewDataSiswa();
+    case "data-guru": {
+      const isGuru = page === "data-guru";
+      if (sessionStorage.getItem("token")) {
+        if (typeof renderDataSiswa !== "undefined") {
+          content.innerHTML = isGuru ? renderDataGuru() : renderDataSiswa();
+          if (typeof initDataTableListener !== "undefined")
+            initDataTableListener();
+        } else {
+          window.location.href = "/frontEnd/page/structure/dashboard.html";
+        }
+      } else {
+        if (typeof renderLoginView !== "undefined") {
+          content.innerHTML = renderLoginView(isGuru ? "guru" : "siswa");
+          if (typeof initLoginView !== "undefined")
+            initLoginView(isGuru ? "guru" : "siswa");
+        } else {
+          window.location.href = "/frontEnd/page/structure/dashboard.html";
+        }
       }
       break;
-    case "data-guru":
-      if (typeof renderLogin !== "undefined") {
-        content.innerHTML = renderLoginGuru();
-        if (typeof initLoginView !== "undefined") initLoginViewDataGuru();
-      }
-      break;
+    }
 
     case "detail-siswa":
       if (typeof renderDetailSiswa !== "undefined") {

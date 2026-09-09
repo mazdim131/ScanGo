@@ -42,6 +42,7 @@
 }
 
 .login-view-left-panel {
+  margin-top: 50px;
   padding: 44px 36px;
   display: flex;
   flex-direction: column;
@@ -67,6 +68,7 @@
 
 .login-view-field-group {
   margin-bottom: 14px;
+  text-align: left !important;
 }
 
 .login-view-field-group label {
@@ -126,6 +128,7 @@
   color: #222;
   background: #fff;
   outline: none;
+  text-align: left !important;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 

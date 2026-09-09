@@ -1,3 +1,5 @@
+const { text } = require("express");
+
 function renderDetailSiswa() {
   return `
         <div class="detail-siswa-wrapper">
@@ -39,6 +41,36 @@ function initDetailSiswaListener(routerState) {
   const btnEdit = document.getElementById("btnEditSiswa");
 
   btnBack.onclick = () => {
+    const role = String(sessionStorage.getItem("role") || "")
+      .trim()
+      .toLowerCase();
+    const isStudent = role === "student" || role === "user" || role === "siswa";
+
+    if (isStudent) {
+      Swal.fire({
+        title: "kembali ke halaman login?",
+        text: "Sesi login anda akan diakhiri.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Ya, Keluar",
+        cancelButtonText: "Batal",
+        customClass: {
+          popup: "sweetalert-popup",
+          confirmButton: "sweetalert-btn-danger",
+        },
+        buttonStyling: false,
+      }).then((result) => {
+        if (!result.isConfirmed) return;
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("role");
+        sessionStorage.removeItem("username");
+        sessionStorage.removeItem("nis");
+        sessionStorage.removeItem("email");
+        if (typeof navigateTo === "function") navigateTo("data-siswa");
+      });
+      return;
+    }
+
     if (typeof navigateTo === "function") navigateTo("input-siswa");
   };
 

@@ -140,7 +140,23 @@
                         if (token && !options.headers["Authorization"]) {
                             options.headers["Authorization"] = "Bearer " + token;
                         }
-                        return origFetch.call(this, url, options);
+                        return origFetch.call(this, url, options).then((response) => {
+                            if (response && response.status === 401 && sessionStorage.getItem("token") && !String(url).includes("/api/auth/login") && !window.__authRedirecting) {
+                                window.__authRedirecting = true;
+                                sessionStorage.removeItem("token");
+                                sessionStorage.removeItem("role");
+                                sessionStorage.removeItem("username");
+                                sessionStorage.removeItem("nis");
+                                sessionStorage.removeItem("email");
+
+                                if (typeof navigateTo === "function") {
+                                    navigateTo("data-siswa");
+                                } else {
+                                    window.location.href = "/frontEnd/page/structure/dashboard.html"
+                                }
+                            }
+                            return response;
+                        });
                     };
                 })();
             </script>
@@ -155,7 +171,7 @@
 
             <!-- <script src="/frontEnd/page/content/views/inputStudent.js?v20260807"></script> -->
             <!-- <script src="/frontEnd/page/content/views/dashboad.js?v20260807"></script> -->
-            <script src="/frontEnd/components/router.js?v20260905"></script>
+            <script src="/frontEnd/components/router.js?v20260908"></script>
             <script src="/frontEnd/page/content/views/scanRfid.js?v20260822"></script>
 
             <!-- script component navbar -->
