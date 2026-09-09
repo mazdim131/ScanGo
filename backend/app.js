@@ -668,6 +668,90 @@ app.get("/api/users", verifyToken, async (req, res) => {
   }
 });
 
+// Profil user yang sedang login (diidentifikasi dari token JWT, bukan NIS).
+// WAJIB didaftarkan sebelum route /api/users/:nis agar "me" tidak tertangkap
+// sebagai parameter :nis.
+app.get("/api/users/me", verifyToken, async (req, res) => {
+  try {
+    const email = (req.user.email || "").trim();
+    if (!email) {
+      return res
+        .status(401)
+        .json({ success: false, error: "Akun tidak teridentifikasi." });
+    }
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .ilike("email", email)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error get me:", error.message);
+      throw error;
+    }
+    if (!data) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Akun tidak ditemukan." });
+    }
+
+    res.json({ success: true, user: data });
+  } catch (error) {
+    console.error("Error get me:", error.message);
+    res
+      .status(500)
+      .json({ success: false, message: "Gagal memuat data akun." });
+  }
+});
+
+// Riwayat absensi user yang sedang login (diidentifikasi dari token JWT).
+app.get("/api/users/me/attendances", verifyToken, async (req, res) => {
+  try {
+    const email = (req.user.email || "").trim();
+    if (!email) {
+      return res
+        .status(401)
+        .json({ success: false, error: "Akun tidak teridentifikasi." });
+    }
+
+    const { data: user, error: userErr } = await supabase
+      .from("users")
+      .select("idcard")
+      .ilike("email", email)
+      .maybeSingle();
+
+    if (userErr) {
+      console.error("Error get me attendances user:", userErr.message);
+      throw userErr;
+    }
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Akun tidak ditemukan." });
+    }
+
+    const { data: attendances, error: attErr } = await supabase
+      .from("attendances")
+      .select("*")
+      .eq("idcard", user.idcard)
+      .order("created_at", { ascending: false })
+      .limit(15);
+
+    if (attErr) {
+      console.error("Error fetch me attendances:", attErr.message);
+      throw attErr;
+    }
+
+    res.json({ success: true, data: attendances || [] });
+  } catch (error) {
+    console.error("Error get me attendances:", error.message);
+    res
+      .status(500)
+      .json({ success: false, error: "Gagal memuat riwayat absensi." });
+  }
+});
+
 app.get("/api/users/:nis", verifyToken, async (req, res) => {
   const { nis } = req.params;
   try {

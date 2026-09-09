@@ -126,6 +126,7 @@ function initLoginView(type) {
       sessionStorage.setItem("role", data.user.role);
       sessionStorage.setItem("username", data.user.username || data.user.email);
       sessionStorage.setItem("nis", String(data.user.nis ?? ""));
+      sessionStorage.setItem("email", data.user.email || "");
 
       showToast("Login Berhasil! Selamat Datang.", "success");
 

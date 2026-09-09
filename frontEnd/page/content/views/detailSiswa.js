@@ -1,5 +1,3 @@
-const { text } = require("express");
-
 function renderDetailSiswa() {
   return `
         <div class="detail-siswa-wrapper">
@@ -74,20 +72,29 @@ function initDetailSiswaListener(routerState) {
     if (typeof navigateTo === "function") navigateTo("input-siswa");
   };
 
-  const nis = routerState?.nis;
-  if (!nis) {
-    document.getElementById("profileInfo").innerHTML = `
+  const role = String(sessionStorage.getItem("role") || "")
+    .trim()
+    .toLowerCase();
+  const isStudent = role === "student" || role === "user" || role === "siswa";
+
+  let profileUrl, historyUrl;
+  if (isStudent) {
+    profileUrl = `${API_BASE}/api/users/me`;
+    historyUrl = `${API_BASE}/api/users/me/attendances`;
+  } else {
+    const nis = routerState?.nis;
+    if (!nis) {
+      document.getElementById("profileInfo").innerHTML = `
             <p style="color:red; text-align:center; font-size: 0.85rem;">NIS tidak ditemukan. Silakan kembali.</p>`;
-    return;
+      return;
+    }
+    profileUrl = `${API_BASE}/api/users/${nis}`;
+    historyUrl = `${API_BASE}/api/users/${nis}/attendances`;
   }
 
   Promise.all([
-    fetch(`${API_BASE}/api/users/${nis}`, { credentials: "include" }).then(
-      (r) => r.json(),
-    ),
-    fetch(`${API_BASE}/api/users/${nis}/attendances`, {
-      credentials: "include",
-    }).then((r) => r.json()),
+    fetch(profileUrl, { credentials: "include" }).then((r) => r.json()),
+    fetch(historyUrl, { credentials: "include" }).then((r) => r.json()),
   ])
     .then(([userData, historyData]) => {
       if (!userData.success || !userData.user) {

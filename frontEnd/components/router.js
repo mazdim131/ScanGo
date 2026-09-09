@@ -19,6 +19,9 @@ function navigateTo(page) {
     
     const savedNis = sessionStorage.getItem("nis");
     if (savedNis) window.routerState.nis = savedNis;
+
+    const savedEmail = sessionStorage.getItem("email");
+    if (savedEmail) window.routerState.email = savedEmail;
   }
 
   const PROTECTED_PAGES = [
@@ -61,7 +64,7 @@ function navigateTo(page) {
           setScanMode(window.currentScanMode || "masuk");
         }
       } else {
-        window.location.href = "/frontEnd/page/structure/dashboard.html";
+        window.location.href = "/index.html";
       }
       break;
     case "input-siswa":
