@@ -7,9 +7,8 @@ const apiV1 = require("./routes/apiV1");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const supabase = require("./config/db");
-// Auth middleware disabled - all endpoints public
-const verifyToken = (req, res, next) => next();
-const verifyAdmin = (req, res, next) => next();
+const verifyToken = require("./middlewares/authMiddleware");
+const verifyAdmin = require("./middlewares/adminMiddleware");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -22,14 +21,41 @@ const ORIGIN_FRONTEND = (process.env.CORS_ORIGIN || "")
 
 const { rentangHariWIB } = require("./services/helper");
 
-// Helmet & body parser harus dipasang sebelum route
+/**
+ * Fungsi untuk men-test koneksi ke Supabase HTTP API
+ * Menampilkan status koneksi ke konsol tanpa memblokir server
+ */
+async function testSupabaseConnection() {
+  try {
+    const { error } = await supabase.from("test_table").select("*").limit(1);
+
+    if (error && error.code === "PGRST205") {
+      console.log(
+        "SUCCESS: HTTP API Supabase resmi terhubung! (database terbaca)"
+      );
+      return;
+    }
+
+    if (error) throw error;
+
+    console.log("HTTP API Supabase berhasil terhubung!");
+  } catch (err) {
+    console.error("Gagal koneksi ke Supabase via HTTP!");
+    console.log("Detail error: ", err);
+  }
+}
+
+// Jalankan test koneksi Supabase saat module di-load
+// ini hanya untuk menampilkan status, tidak memblokir server
+testSupabaseConnection().then(() => {
+  // Lanjutkan konfigurasi aplikasi
+}).catch((err) => {
+  console.error("Supabase connection test error:", err);
+});
+
 app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  }),
-);
-app.use(express.json({ limit: "1mb" }));
-app.use(cookieParser());
+
+  // ... rest of middleware setup
 
 // CORS: izinkan origin eksplisit (dari env) dan request same-origin.
 // Request tanpa Origin header (curl, server-to-server) selalu diizinkan.
@@ -54,14 +80,13 @@ app.use(
       allow = ORIGIN_FRONTEND.includes(origin) || sameOrigin;
     }
 
-    callback(null, {
+callback(null, {
       origin: allow,
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization", "api-token"],
     });
-  }),
-);
+  },
 
 // Rate limiter global sebelum route API
 const globalLimiter = rateLimit({
@@ -73,19 +98,6 @@ app.use("/api", globalLimiter);
 
 // API v1 routes
 app.use("/api/v1", apiV1);
-
-// Serve OpenAPI docs
-const fs = require("fs");
-const path = require("path");
-
-app.get("/openapi.yaml", (req, res) => {
-  res.type("application/yaml");
-  fs.createReadStream(path.join(__dirname, "../openapi.yaml")).pipe(res);
-});
-
-app.get("/api-docs", (req, res) => {
-  res.sendFile(path.join(__dirname, "../swagger.html"));
-});
 
 // Auth routes (public, no version prefix for backward compatibility)
 app.use("/api/auth", authRoutes);
@@ -177,7 +189,7 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
       ])
       .select();
 
-    if (insertError) {
+if (insertError) {
       console.error("Error insert attendance:", insertError.message);
       return res
         .status(500)
@@ -352,22 +364,16 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
           .json({ success: false, message: byIdcard ? "Gagal menyimpan absensi." : "Gagal menyimpan absensi manual." });
       }
 
-      res.json({
+      const pesan = byIdcard
+        ? `Absensi berhasil dicatat! Selamat belajar ${uservalid.username || "Siswa"}`
+        : `Absensi manual berhasil! ${uservalid.username} tercatat dengan RFID ${uservalid.idcard}`;
+
+      return res.json({
         success: true,
         action: "masuk",
-        message: byIdcard
-          ? `Absensi berhasil dicatat! Selamat belajar ${uservalid.username || "Siswa"}`
-          : `Absensi manual berhasil! ${uservalid.username} tercatat dengan RFID ${uservalid.idcard}`,
+        message: pesan,
         data: attendanceData,
       });
-      return;
-    }
-
-    // Jika mode keluar tapi existing null, sudah return di atas
-    // Jika mode masuk dan existing ada, sudah return di atas
-    // Jadi existing pasti ada di sini
-    if (!existing || !existing.id) {
-      return res.status(500).json({ success: false, message: "Data absensi tidak valid." });
     }
 
     const nowIso = new Date().toISOString();
@@ -381,7 +387,7 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
       return res.status(500).json({ success: false, message: "Gagal memperbarui absensi keluar." });
     }
 
-    res.json({
+    return res.json({
       success: true,
       action: "keluar",
       message: `Absen keluar untuk ${uservalid.username} berhasil dicatat!`,
@@ -816,21 +822,26 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
 
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
-  // Jika response sudah dikirim, jangan kirim lagi
-  if (res.headersSent) {
-    console.error("❌ Error setelah response sent:", err.message);
-    return;
-  }
   console.error("❌ Express error handler:", err.message);
   res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
 });
 
 const PORT = process.env.PORT || 3000;
 
+async function startServer() {
+  // Jalankan test koneksi Supabase sebelum server mulai
+  await testSupabaseConnection();
+
+  if (require.main === module) {
+    app.listen(PORT, () => {
+      console.log(`Server STANDBY di: http://localhost:${PORT}`);
+    });
+  }
+}
+
+// Jalankan startServer jika file dijalankan langsung
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server STANDBY di: http://localhost:${PORT}`);
-  });
+  startServer();
 }
 
 module.exports = app;

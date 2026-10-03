@@ -1,101 +1,7 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
+const supabase = require("../config/db");
+const { rentangHariWIB } = require("../services/helper");
 
-const app = express();
-const apiV1 = require("./routes/apiV1");
-const authRoutes = require("./routes/authRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const supabase = require("./config/db");
-// Auth middleware disabled - all endpoints public
-const verifyToken = (req, res, next) => next();
-const verifyAdmin = (req, res, next) => next();
-const cookieParser = require("cookie-parser");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
-const errorHandler = require("./middlewares/errorMiddleware");
-
-const ORIGIN_FRONTEND = (process.env.CORS_ORIGIN || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
-
-const { rentangHariWIB } = require("./services/helper");
-
-// Helmet & body parser harus dipasang sebelum route
-app.use(
-  helmet({
-    contentSecurityPolicy: false,
-  }),
-);
-app.use(express.json({ limit: "1mb" }));
-app.use(cookieParser());
-
-// CORS: izinkan origin eksplisit (dari env) dan request same-origin.
-// Request tanpa Origin header (curl, server-to-server) selalu diizinkan.
-app.use(
-  cors((req, callback) => {
-    const origin = req.get("Origin");
-    let allow = false;
-
-    if (!origin) {
-      allow = true;
-    } else {
-      const sameOrigin = (() => {
-        const reqHost = req.get("host");
-        if (!reqHost) return false;
-        try {
-          return new URL(origin).host === reqHost;
-        } catch (e) {
-          return false;
-        }
-      })();
-
-      allow = ORIGIN_FRONTEND.includes(origin) || sameOrigin;
-    }
-
-    callback(null, {
-      origin: allow,
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      allowedHeaders: ["Content-Type", "Authorization", "api-token"],
-    });
-  }),
-);
-
-// Rate limiter global sebelum route API
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1400,
-  message: { success: false, message: "Terlalu banyak permintaan. Coba lagi nanti." },
-});
-app.use("/api", globalLimiter);
-
-// API v1 routes
-app.use("/api/v1", apiV1);
-
-// Serve OpenAPI docs
-const fs = require("fs");
-const path = require("path");
-
-app.get("/openapi.yaml", (req, res) => {
-  res.type("application/yaml");
-  fs.createReadStream(path.join(__dirname, "../openapi.yaml")).pipe(res);
-});
-
-app.get("/api-docs", (req, res) => {
-  res.sendFile(path.join(__dirname, "../swagger.html"));
-});
-
-// Auth routes (public, no version prefix for backward compatibility)
-app.use("/api/auth", authRoutes);
-
-// Admin routes
-app.use("/api/admin", adminRoutes);
-
-// Attendance store (RFID card scan)
-// @route POST /api/attendances/store
-app.post("/api/attendances/store", verifyToken, async (req, res) => {
+const storeAttendance = async (req, res) => {
   try {
     const idcard = req.query.idcard;
     const mac_address = req.query.mac_address;
@@ -193,11 +99,9 @@ app.post("/api/attendances/store", verifyToken, async (req, res) => {
     console.error("Error store attendance:", error.message);
     res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
   }
-});
+};
 
-// Endpoint tap serbaguna: 1 request dari frontend, semua pengecekan di server.
-// Body/query: idcard ATAU username, mode ("masuk"|"keluar"), mac_address?, status?, note?
-app.post("/api/attendances/tap", verifyToken, async (req, res) => {
+const tapAttendance = async (req, res) => {
   try {
     const body = req.body || {};
     const query = req.query || {};
@@ -208,7 +112,8 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         ? "keluar"
         : "masuk";
     const macAddress = body.mac_address ?? query.mac_address ?? null;
-    const statusInput = typeof body.status === "string" ? body.status.trim() : "";
+    const statusInput =
+      typeof body.status === "string" ? body.status.trim() : "";
     const noteInput = typeof body.note === "string" ? body.note.trim() : "";
 
     const byIdcard = rawIdcard !== "";
@@ -352,22 +257,16 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
           .json({ success: false, message: byIdcard ? "Gagal menyimpan absensi." : "Gagal menyimpan absensi manual." });
       }
 
-      res.json({
+      const pesan = byIdcard
+        ? `Absensi berhasil dicatat! Selamat belajar ${uservalid.username || "Siswa"}`
+        : `Absensi manual berhasil! ${uservalid.username} tercatat dengan RFID ${uservalid.idcard}`;
+
+      return res.json({
         success: true,
         action: "masuk",
-        message: byIdcard
-          ? `Absensi berhasil dicatat! Selamat belajar ${uservalid.username || "Siswa"}`
-          : `Absensi manual berhasil! ${uservalid.username} tercatat dengan RFID ${uservalid.idcard}`,
+        message: pesan,
         data: attendanceData,
       });
-      return;
-    }
-
-    // Jika mode keluar tapi existing null, sudah return di atas
-    // Jika mode masuk dan existing ada, sudah return di atas
-    // Jadi existing pasti ada di sini
-    if (!existing || !existing.id) {
-      return res.status(500).json({ success: false, message: "Data absensi tidak valid." });
     }
 
     const nowIso = new Date().toISOString();
@@ -381,7 +280,7 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
       return res.status(500).json({ success: false, message: "Gagal memperbarui absensi keluar." });
     }
 
-    res.json({
+    return res.json({
       success: true,
       action: "keluar",
       message: `Absen keluar untuk ${uservalid.username} berhasil dicatat!`,
@@ -391,9 +290,9 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
     console.error("Error tap attendance:", error.message);
     res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
   }
-});
+};
 
-app.post("/api/attendances/manual", verifyToken, async (req, res) => {
+const manualAttendance = async (req, res) => {
   try {
     const { username, status, note } = req.body;
 
@@ -449,9 +348,9 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
     console.error("Error manual attendance:", error.message);
     res.status(500).json({ success: false, error: "Terjadi kesalahan pada server." });
   }
-});
+};
 
-app.get("/api/attendances", verifyToken, async (req, res) => {
+const getAttendances = async (req, res) => {
   try {
     const { data: attendances, error: attError } = await supabase
       .from("attendances")
@@ -503,9 +402,9 @@ app.get("/api/attendances", verifyToken, async (req, res) => {
     console.error("Error get attendances:", error.message);
     res.status(500).json({ success: false, error: "Gagal memuat data absensi." });
   }
-});
+};
 
-app.put("/api/attendances/:id", verifyToken, async (req, res) => {
+const updateAttendance = async (req, res) => {
   try {
     const { id } = req.params;
     const { time_finish, status, note } = req.body;
@@ -565,9 +464,9 @@ app.put("/api/attendances/:id", verifyToken, async (req, res) => {
     console.error("Error put attendance:", error.message);
     res.status(500).json({ success: false, error: "Gagal memperbarui data absensi." });
   }
-});
+};
 
-app.delete("/api/attendances/:id", verifyToken, async (req, res) => {
+const deleteAttendance = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -593,150 +492,11 @@ app.delete("/api/attendances/:id", verifyToken, async (req, res) => {
     console.error("Error delete attendance:", error.message);
     res.status(500).json({ success: false, error: "Gagal menghapus data absensi." });
   }
-});
+};
 
-app.get("/api/users", verifyToken, async (req, res) => {
+const getUserAttendances = async (req, res) => {
   try {
-    const { data: users, error } = await supabase
-      .from("users")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error fetch users:", error.message);
-      throw error;
-    }
-
-    res.json({ success: true, data: users || [] });
-  } catch (error) {
-    console.error("Error get users:", error.message);
-    res.status(500).json({ success: false, message: "Gagal memuat data pengguna." });
-  }
-});
-
-app.get("/api/users/:nis", verifyToken, async (req, res) => {
-  const { nis } = req.params;
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("nis", nis)
-      .maybeSingle();
-
-    if (error) {
-      console.error("Error get user by nis:", error.message);
-      throw error;
-    }
-    if (!data)
-      return res
-        .status(404)
-        .json({ success: false, error: "Siswa tidak ditemukan" });
-
-    res.json({ success: true, user: data });
-  } catch (error) {
-    console.error("Error get user by nis:", error.message);
-    res.status(500).json({ success: false, message: "Gagal memuat data siswa." });
-  }
-});
-
-app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
-  const { id } = req.params;
-  const userId = Number(id);
-  if (!Number.isInteger(userId) || userId <= 0) {
-    return res.status(400).json({ success: false, message: "ID tidak valid." });
-  }
-
-  const { username, email, rombel, role, idcard, whatsapp, rayon, kelas, nis } = req.body;
-
-  if (nis !== undefined && nis !== null && String(nis).trim() !== "" && !/^\d+$/.test(String(nis).trim())) {
-    return res
-      .status(400)
-      .json({ success: false, message: "NIS/NIP harus berupa angka." });
-  }
-
-  const updates = {};
-  if (username) updates.username = username;
-  if (email) updates.email = email;
-  if (rombel) updates.rombel = rombel;
-  if (role) updates.role = role;
-  if (idcard) updates.idcard = idcard;
-  if (whatsapp) updates.whatsapp = whatsapp;
-  if (rayon) updates.rayon = rayon;
-  if (kelas) updates.kelas = kelas;
-  if (nis !== undefined && String(nis).trim() !== "") {
-    updates.nis = Number(String(nis).trim());
-  }
-
-  if (Object.keys(updates).length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Tidak ada data untuk diupdate." });
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .update(updates)
-      .eq("id", userId)
-      .select("id");
-
-    if (error) {
-      console.error("Error update user:", error.message);
-      throw error;
-    }
-
-    if (!data || data.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Data tidak ditemukan." });
-    }
-
-    return res
-      .status(200)
-      .json({ success: true, message: "Data berhasil diupdate!" });
-  } catch (error) {
-    console.error("Error update user catch:", error.message);
-    return res.status(500).json({ success: false, message: "Terjadi kesalahan saat memperbarui data." });
-  }
-});
-
-app.delete("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
-  const { id } = req.params;
-  const userId = Number(id);
-  if (!Number.isInteger(userId) || userId <= 0) {
-    return res.status(400).json({ success: false, message: "ID tidak valid." });
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .delete()
-      .eq("id", userId)
-      .select("id");
-
-    if (error) {
-      console.error("Error delete user:", error.message);
-      throw error;
-    }
-
-    if (!data || data.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Data tidak ditemukan." });
-    }
-
-    return res
-      .status(200)
-      .json({ success: true, message: "Data berhasil dihapus!" });
-  } catch (error) {
-    console.error("Error delete user catch:", error.message);
-    return res.status(500).json({ success: false, message: "Terjadi kesalahan saat menghapus data." });
-  }
-});
-
-app.get("/api/users/:nis/attendances", verifyToken, async (req, res) => {
-  const { nis } = req.params;
-  try {
+    const { nis } = req.params;
     const { data: user, error: userErr } = await supabase
       .from("users")
       .select("idcard")
@@ -769,68 +529,14 @@ app.get("/api/users/:nis/attendances", verifyToken, async (req, res) => {
     console.error("Error get user attendances:", error.message);
     res.status(500).json({ success: false, error: "Gagal memuat riwayat absensi." });
   }
-});
+};
 
-app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) => {
-  try {
-    const { users } = req.body;
-    if (!users || !Array.isArray(users) || users.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Data users tidak valid atau kosong!",
-      });
-    }
-
-    const usersNormalized = users.map((u) => ({
-      ...u,
-      idcard: u.idcard !== "" && u.idcard != null ? Number(u.idcard) : null,
-      nis: u.nis !== "" && u.nis != null ? Number(u.nis) : null,
-    }));
-
-    const hasNonNumeric = users.some(
-      (u) =>
-        (u.idcard !== "" && u.idcard != null && !/^\d+$/.test(String(u.idcard))) ||
-        (u.nis !== "" && u.nis != null && !/^\d+$/.test(String(u.nis))),
-    );
-
-    if (hasNonNumeric) {
-      return res.status(400).json({
-        success: false,
-        message: "Terdapat data dengan ID kartu/NIS yang bukan angka!",
-      });
-    }
-
-    const { data, error } = await supabase.from("users").insert(usersNormalized).select();
-    if (error) throw error;
-
-    res.json({
-      success: true,
-      message: `${data.length} data berhasil disimpan!`,
-      data,
-    });
-  } catch (error) {
-    console.error("Error register-bulk:", error.message);
-    res.status(500).json({ success: false, message: "Terjadi kesalahan saat menyimpan data." });
-  }
-});
-
-// Centralized error handling middleware
-app.use((err, req, res, next) => {
-  // Jika response sudah dikirim, jangan kirim lagi
-  if (res.headersSent) {
-    console.error("❌ Error setelah response sent:", err.message);
-    return;
-  }
-  console.error("❌ Express error handler:", err.message);
-  res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
-});
-
-const PORT = process.env.PORT || 3000;
-
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server STANDBY di: http://localhost:${PORT}`);
-  });
-}
-
-module.exports = app;
+module.exports = {
+  storeAttendance,
+  tapAttendance,
+  manualAttendance,
+  getAttendances,
+  updateAttendance,
+  deleteAttendance,
+  getUserAttendances,
+};
