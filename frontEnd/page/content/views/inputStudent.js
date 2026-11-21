@@ -29,6 +29,14 @@ function initDataTableListener() {
   initInputSiswaListener();
 }
 
+function normalizeRombelValue(value) {
+  let v = String(value || "").trim().toUpperCase().replace(/\s+/g, " ");
+  // Konversi pola lama: "PPLG XI3", "PPLG X 3", "PPLG-X-3" -> "PPLG 3"
+  v = v.replace(/^([A-Z]+)\s*(X{1,3})\s*(\d+)$/, "$1 $3");
+  v = v.replace(/^([A-Z]+)-([A-Z0-9]+)-(\d+)$/, "$1 $3");
+  return v.trim();
+}
+
 function getFormContainerEl() {
   return (
     document.getElementById("formInputContainer") ||
@@ -350,9 +358,85 @@ function renderDataTableHTML(tableTitle) {
           <input type="text" id="searchTable" class="form-control form-control-sm bg-light border-0 text-muted rounded-3" style="width: 220px; height: 34px; font-size: 0.85rem;" placeholder="Cari nama / NIS / RFID...">
           <select id="filterRombelTable" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
             <option value="">Semua Rombel</option>
+            <option value="Guru Produktif">Guru Produktif</option>
+            <option value="PPLG 1">PPLG 1</option>
+            <option value="PPLG 2">PPLG 2</option>
+            <option value="PPLG 3">PPLG 3</option>
+            <option value="PPLG 4">PPLG 4</option>
+            <option value="PPLG 5">PPLG 5</option>
+            <option value="TJKT 1">TJKT 1</option>
+            <option value="TJKT 2">TJKT 2</option>
+            <option value="TJKT 3">TJKT 3</option>
+            <option value="TJKT 4">TJKT 4</option>
+            <option value="TJKT 5">TJKT 5</option>
+            <option value="DKV 1">DKV 1</option>
+            <option value="DKV 2">DKV 2</option>
+            <option value="DKV 3">DKV 3</option>
+            <option value="DKV 4">DKV 4</option>
+            <option value="DKV 5">DKV 5</option>
+            <option value="Kuliner 1">Kuliner 1</option>
+            <option value="Kuliner 2">Kuliner 2</option>
+            <option value="Kuliner 3">Kuliner 3</option>
+            <option value="Kuliner 4">Kuliner 4</option>
+            <option value="Kuliner 5">Kuliner 5</option>
+            <option value="Hotel 1">Hotel 1</option>
+            <option value="Hotel 2">Hotel 2</option>
+            <option value="Hotel 3">Hotel 3</option>
+            <option value="Hotel 4">Hotel 4</option>
+            <option value="Hotel 5">Hotel 5</option>
+            <option value="Pemasaran 1">Pemasaran 1</option>
+            <option value="Pemasaran 2">Pemasaran 2</option>
+            <option value="Pemasaran 3">Pemasaran 3</option>
+            <option value="Pemasaran 4">Pemasaran 4</option>
+            <option value="Pemasaran 5">Pemasaran 5</option>
+            <option value="MPLB 1">MPLB 1</option>
+            <option value="MPLB 2">MPLB 2</option>
+            <option value="MPLB 3">MPLB 3</option>
+            <option value="MPLB 4">MPLB 4</option>
+            <option value="MPLB 5">MPLB 5</option>
           </select>
           <select id="filterRayonTable" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
             <option value="">Semua Rayon</option>
+            <option value="Cicurug 1">Cicurug 1</option>
+            <option value="Cicurug 2">Cicurug 2</option>
+            <option value="Cicurug 3">Cicurug 3</option>
+            <option value="Cicurug 4">Cicurug 4</option>
+            <option value="Cicurug 5">Cicurug 5</option>
+            <option value="Cicurug 6">Cicurug 6</option>
+            <option value="Cicurug 7">Cicurug 7</option>
+            <option value="Cicurug 8">Cicurug 8</option>
+            <option value="Cicurug 9">Cicurug 9</option>
+            <option value="Cicurug 10">Cicurug 10</option>
+            <option value="Cisarua 1">Cisarua 1</option>
+            <option value="Cisarua 2">Cisarua 2</option>
+            <option value="Cisarua 3">Cisarua 3</option>
+            <option value="Cisarua 4">Cisarua 4</option>
+            <option value="Cisarua 5">Cisarua 5</option>
+            <option value="Cisarua 6">Cisarua 6</option>
+            <option value="Cisarua 7">Cisarua 7</option>
+            <option value="Cibedug 1">Cibedug 1</option>
+            <option value="Cibedug 2">Cibedug 2</option>
+            <option value="Cibedug 3">Cibedug 3</option>
+            <option value="Cibedug 4">Cibedug 4</option>
+            <option value="Sukasari 1">Sukasari 1</option>
+            <option value="Sukasari 2">Sukasari 2</option>
+            <option value="Ciawi 1">Ciawi 1</option>
+            <option value="Ciawi 2">Ciawi 2</option>
+            <option value="Ciawi 3">Ciawi 3</option>
+            <option value="Ciawi 4">Ciawi 4</option>
+            <option value="Ciawi 5">Ciawi 5</option>
+            <option value="Ciawi 6">Ciawi 6</option>
+            <option value="Tajur 1">Tajur 1</option>
+            <option value="Tajur 2">Tajur 2</option>
+            <option value="Tajur 3">Tajur 3</option>
+            <option value="Tajur 4">Tajur 4</option>
+            <option value="Tajur 5">Tajur 5</option>
+            <option value="Tajur 6">Tajur 6</option>
+            <option value="Wikrama 1">Wikrama 1</option>
+            <option value="Wikrama 2">Wikrama 2</option>
+            <option value="Wikrama 3">Wikrama 3</option>
+            <option value="Wikrama 4">Wikrama 4</option>
+            <option value="Wikrama 5">Wikrama 5</option>
           </select>
           <select id="filterKelasTable" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
             <option value="">Semua Kelas</option>
@@ -618,7 +702,10 @@ async function loadTableSiswa() {
       return;
     }
 
-    window.tableAllData = result.data;
+    window.tableAllData = (result.data || []).map((u) => ({
+      ...u,
+      rombel: normalizeRombelValue(u.rombel),
+    }));
     populateTableFilters();
     renderTable();
     attachTableFiltersInput();
@@ -745,16 +832,34 @@ function getSortValue(user) {
 function populateTableFilters() {
   const rombelSelect = document.getElementById("filterRombelTable");
   const rayonSelect = document.getElementById("filterRayonTable");
-  const data = window.tableAllData || [];
+
+  const rombels = [
+    "Guru Produktif",
+    "PPLG 1","PPLG 2","PPLG 3","PPLG 4","PPLG 5",
+    "TJKT 1","TJKT 2","TJKT 3","TJKT 4","TJKT 5",
+    "DKV 1","DKV 2","DKV 3","DKV 4","DKV 5",
+    "Kuliner 1","Kuliner 2","Kuliner 3","Kuliner 4","Kuliner 5",
+    "Hotel 1","Hotel 2","Hotel 3","Hotel 4","Hotel 5",
+    "Pemasaran 1","Pemasaran 2","Pemasaran 3","Pemasaran 4","Pemasaran 5",
+    "MPLB 1","MPLB 2","MPLB 3","MPLB 4","MPLB 5",
+  ];
+
+  const rayons = [
+    "Cicurug 1","Cicurug 2","Cicurug 3","Cicurug 4","Cicurug 5","Cicurug 6","Cicurug 7","Cicurug 8","Cicurug 9","Cicurug 10",
+    "Cisarua 1","Cisarua 2","Cisarua 3","Cisarua 4","Cisarua 5","Cisarua 6","Cisarua 7",
+    "Cibedug 1","Cibedug 2","Cibedug 3","Cibedug 4",
+    "Sukasari 1","Sukasari 2",
+    "Ciawi 1","Ciawi 2","Ciawi 3","Ciawi 4","Ciawi 5","Ciawi 6",
+    "Tajur 1","Tajur 2","Tajur 3","Tajur 4","Tajur 5","Tajur 6",
+    "Wikrama 1","Wikrama 2","Wikrama 3","Wikrama 4","Wikrama 5",
+  ];
 
   if (rombelSelect) {
-    const rombels = [...new Set(data.map((u) => String(u.rombel || "").trim()).filter(Boolean))].sort();
     rombelSelect.innerHTML = `<option value="">Semua Rombel</option>` + rombels.map((r) => `<option value="${r}">${r}</option>`).join("");
     rombelSelect.value = currentSelectedRombel || "";
   }
 
   if (rayonSelect) {
-    const rayons = [...new Set(data.map((u) => String(u.rayon || "").trim()).filter(Boolean))].sort();
     rayonSelect.innerHTML = `<option value="">Semua Rayon</option>` + rayons.map((r) => `<option value="${r}">${r}</option>`).join("");
     rayonSelect.value = window.currentSelectedRayon || "";
   }
