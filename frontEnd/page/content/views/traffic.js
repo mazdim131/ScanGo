@@ -807,8 +807,13 @@ function initTrafficListener() {
     }
   }
 
+  if (window.clockInterval) {
+    clearInterval(window.clockInterval);
+    window.clockInterval = null;
+  }
   if (window.trafficState.clockTimer) {
     clearInterval(window.trafficState.clockTimer);
+    window.trafficState.clockTimer = null;
   }
   updateTrafficClock();
   window.trafficState.clockTimer = setInterval(updateTrafficClock, 1000);
@@ -1507,8 +1512,13 @@ function initTrafficListener() {
     }
   }
 
+  if (window.clockInterval) {
+    clearInterval(window.clockInterval);
+    window.clockInterval = null;
+  }
   if (window.trafficState.clockTimer) {
     clearInterval(window.trafficState.clockTimer);
+    window.trafficState.clockTimer = null;
   }
   updateTrafficClock();
   window.trafficState.clockTimer = setInterval(updateTrafficClock, 1000);

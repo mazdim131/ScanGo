@@ -7,6 +7,16 @@ function navigateTo(page) {
   const content = document.getElementById("content");
   if (!content) return;
 
+  // Bersihkan timer jam agar tidak ada interval ganda antar halaman
+  if (window.clockInterval) {
+    clearInterval(window.clockInterval);
+    window.clockInterval = null;
+  }
+  if (window.trafficState && window.trafficState.clockTimer) {
+    clearInterval(window.trafficState.clockTimer);
+    window.trafficState.clockTimer = null;
+  }
+
   content.innerHTML = "";
 
   switch (page) {

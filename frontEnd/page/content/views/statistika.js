@@ -322,13 +322,17 @@ function initStatistikaListener() {
     let minutes = now.getMinutes().toString().padStart(2, "0");
     let seconds = now.getSeconds().toString().padStart(2, "0");
     let localDate = now.toLocaleDateString("id-ID", dateOptions);
-    if (timeElement) timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    if (timeElement) timeElement.textContent = `${hours}:${minutes}:${seconds} WIB`;
     if (dateElement) dateElement.textContent = `${localDate}`;
   }
 
   if (window.clockInterval) {
     clearInterval(window.clockInterval);
     window.clockInterval = null;
+  }
+  if (window.trafficState && window.trafficState.clockTimer) {
+    clearInterval(window.trafficState.clockTimer);
+    window.trafficState.clockTimer = null;
   }
   updateClock();
   window.clockInterval = setInterval(updateClock, 1000);

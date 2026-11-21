@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/auto-checkout",
-      "schedule": "50 7 * * *"
+      "schedule": "30 7 * * *"
     }
   ],
   "rewrites": [
