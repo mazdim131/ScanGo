@@ -6,10 +6,7 @@ const ROMBEL_GROUPS_PRINT = [
   ["DKV", ["DKV 1", "DKV 2", "DKV 3", "DKV 4", "DKV 5"]],
   ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
   ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
-  [
-    "PMN",
-    ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"],
-  ],
+  ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
   ["MPLB", ["MPLB 1", "MPLB 2", "MPLB 3", "MPLB 4", "MPLB 5"]],
 ];
 

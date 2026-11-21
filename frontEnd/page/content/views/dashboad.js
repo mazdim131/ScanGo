@@ -9,7 +9,7 @@ function renderDashboard() {
       <div class="scan-rfid-container">
 
         <div class="scan-card" id="container-scan-rfid" style="margin: 0; padding: 30px 24px; max-width: 100%;">
-          <div class="scan-icon-wrapper mt-2">
+          <div class="scan-icon-wrapper mt-1">
             <i class="bi bi-upc-scan"></i>
           </div>
 
@@ -37,14 +37,8 @@ function renderDashboard() {
           <div id="scan-result" class="mt-3"></div>
         </div>
 
-        <div class="scan-card" id="container-input-manual" style="display: none; margin: 0; padding: 30px 24px; max-width: 100%;">
-          <div class="scan-header" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-form); padding-bottom: 10px;">
-            <h3>Input Manual</h3>
-            <p>Pilih nama dan isi keterangan absensi siswa</p>
-          </div>
-
+        <div class="scan-card" id="container-input-manual" style="display: none; margin: 0; padding: 10px 24px; max-width: 100%;">
           <div class="scan-input-group" style="text-align: left; gap: 15px;">
-          
             <div>
               <label style="font-size: 0.85rem; font-weight: 600; color: var(--color-teks); display: block; margin-bottom: 5px;">Nama Siswa</label>
               <input type="text" id="manual-nama" class="form-control" placeholder="Ketik nama siswa..." list="daftar-siswa" style="width: 100%;">
@@ -103,7 +97,7 @@ if (typeof window.currentSearchQuery === "undefined")
   window.currentSearchQuery = "";
 if (typeof window.currentAttendancePage === "undefined")
   window.currentAttendancePage = 1;
-const ATTENDANCE_PAGE_SIZE = 5;
+const ATTENDANCE_PAGE_SIZE = 3;
 if (typeof window.currentScanMode === "undefined")
   window.currentScanMode = "masuk";
 
@@ -221,16 +215,17 @@ async function initDashboardListener() {
     let seconds = now.getSeconds().toString().padStart(2, "0");
     let localDate = now.toLocaleDateString("id-ID", dateOptions);
 
-    if (timeElement) timeElement.innerHTML = `${hours}:${minutes}:${seconds}`;
-    if (dateElement) dateElement.innerHTML = `${localDate}`;
+    if (timeElement) timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    if (dateElement) dateElement.textContent = `${localDate}`;
   }
 
-  if (typeof clockInterval !== "undefined" && clockInterval !== null) {
-    clearInterval(clockInterval);
+  if (window.clockInterval) {
+    clearInterval(window.clockInterval);
+    window.clockInterval = null;
   }
 
   updateClock();
-  clockInterval = setInterval(updateClock, 1000);
+  window.clockInterval = setInterval(updateClock, 1000);
 
   initTabs();
   if (typeof initScanRfid === "function") initScanRfid();
@@ -380,7 +375,6 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
 
             return `
                 <tr>
-                    <td class="text-muted d-none d-md-table-cell">${escapeHtml(row.id)}</td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-semibold" style="color: var(--color-teks);">${escapeHtml(displayNama)}</span>
@@ -470,7 +464,6 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
                 <table class="table align-middle custom-table mb-0 w-100">
                     <thead>
                         <tr>
-                            <th class="d-none d-md-table-cell" style="width: 8%;">ID Log</th>
                             <th style="width: 15%;">Nama Lengkap</th>
                             <th class="d-none d-md-table-cell" style="width: 10%;">NIS</th>
                             <th class="d-none d-md-table-cell" style="width: 13%;">Id RFID</th>

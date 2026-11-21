@@ -322,15 +322,16 @@ function initStatistikaListener() {
     let minutes = now.getMinutes().toString().padStart(2, "0");
     let seconds = now.getSeconds().toString().padStart(2, "0");
     let localDate = now.toLocaleDateString("id-ID", dateOptions);
-    if (timeElement) timeElement.innerHTML = `${hours}:${minutes}:${seconds}`;
-    if (dateElement) dateElement.innerHTML = `${localDate}`;
+    if (timeElement) timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    if (dateElement) dateElement.textContent = `${localDate}`;
   }
 
-  if (typeof clockInterval !== "undefined" && clockInterval !== null) {
-    clearInterval(clockInterval);
+  if (window.clockInterval) {
+    clearInterval(window.clockInterval);
+    window.clockInterval = null;
   }
   updateClock();
-  clockInterval = setInterval(updateClock, 1000);
+  window.clockInterval = setInterval(updateClock, 1000);
 
   // ── Dropdown Kelas (Semua / X / XI / XII) ──
   const kelasSelect = document.getElementById("filterKelas");

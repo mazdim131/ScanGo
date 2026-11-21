@@ -1,6 +1,10 @@
 if (typeof window.tableAllData === "undefined") window.tableAllData = [];
 if (typeof window.tableSortKey === "undefined") window.tableSortKey = "nama";
 if (typeof window.tableSortDir === "undefined") window.tableSortDir = "asc";
+if (typeof window.tablePage === "undefined") window.tablePage = 1;
+if (typeof window.currentSelectedRayon === "undefined") window.currentSelectedRayon = null;
+if (typeof window.currentSelectedKelasTable === "undefined") window.currentSelectedKelasTable = null;
+const TABLE_PAGE_SIZE = 36;
 if (typeof window.tableSearchQuery === "undefined")
   window.tableSearchQuery = "";
 if (typeof window.tableRoleFilter === "undefined")
@@ -344,6 +348,26 @@ function renderDataTableHTML(tableTitle) {
         </h5>
         <div class="table-actions">
           <input type="text" id="searchTable" class="form-control form-control-sm bg-light border-0 text-muted rounded-3" style="width: 220px; height: 34px; font-size: 0.85rem;" placeholder="Cari nama / NIS / RFID...">
+          <select id="filterRombelTable" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
+            <option value="">Semua Rombel</option>
+          </select>
+          <select id="filterRayonTable" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
+            <option value="">Semua Rayon</option>
+          </select>
+          <select id="filterKelasTable" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
+            <option value="">Semua Kelas</option>
+            <option value="X">Kelas X</option>
+            <option value="XI">Kelas XI</option>
+            <option value="XII">Kelas XII</option>
+          </select>
+          <select id="sortBy" class="form-select form-select-sm bg-light border-0 text-muted rounded-3" style="width: auto; height: 34px; font-size: 0.85rem;">
+            <option value="nama">Urutkan: Nama</option>
+            <option value="rombel">Urutkan: Rombel</option>
+            <option value="rayon">Urutkan: Rayon</option>
+            <option value="kelas">Urutkan: Kelas</option>
+            <option value="idcard">Urutkan: RFID</option>
+          </select>
+          <button type="button" id="sortDirBtn" class="btn btn-sm btn-light border-0 rounded-3" style="height:34px;" title="Ubah arah urut">▲</button>
           <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" style="display: none;">
           <button type="button" id="btnImportManual" class="btn-import btn-import-manual">
             <i class="bi bi-pencil-square"></i> Input Manual
@@ -372,6 +396,7 @@ function renderDataTableHTML(tableTitle) {
           <tbody id="tableSiswaBody"></tbody>
         </table>
       </div>
+      <div id="tablePagination" class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2"></div>
     </div>
   </div>
 `;
@@ -594,8 +619,9 @@ async function loadTableSiswa() {
     }
 
     window.tableAllData = result.data;
+    populateTableFilters();
     renderTable();
-    attachRombelFilterInput();
+    attachTableFiltersInput();
   } catch (error) {
     console.error("Error loading table: ", error);
     tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Koneksi ke server terputus!</td></tr>`;
@@ -610,6 +636,12 @@ function renderTable() {
 
   if (currentSelectedRombel) {
     rows = rows.filter((u) => String(u.rombel || "") === currentSelectedRombel);
+  }
+  if (window.currentSelectedRayon) {
+    rows = rows.filter((u) => String(u.rayon || "") === window.currentSelectedRayon);
+  }
+  if (window.currentSelectedKelasTable) {
+    rows = rows.filter((u) => String(u.kelas || "").toUpperCase() === String(window.currentSelectedKelasTable).toUpperCase());
   }
 
   if (window.tableRoleFilter) {
@@ -648,19 +680,27 @@ function renderTable() {
     return tableSortDir === "asc" ? cmp : -cmp;
   });
 
+  const totalItems = rows.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / TABLE_PAGE_SIZE));
+  if (window.tablePage > totalPages) window.tablePage = totalPages;
+  if (window.tablePage < 1) window.tablePage = 1;
+  const page = window.tablePage;
+  const pageRows = rows.slice((page - 1) * TABLE_PAGE_SIZE, page * TABLE_PAGE_SIZE);
+
   tableBody.innerHTML = "";
 
-  if (rows.length === 0) {
+  if (pageRows.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--color-teks-sub);">Tidak ada data yang cocok.</td></tr>`;
     updateSortIndicator();
+    renderTablePagination(totalItems, totalPages, page);
     return;
   }
 
-  rows.forEach((user, index) => {
+  pageRows.forEach((user, index) => {
     const userEmail = user.email || user.Email || "";
     const row = document.createElement("tr");
     row.innerHTML = `
-        <td>${index + 1}</td>
+        <td>${(page - 1) * TABLE_PAGE_SIZE + index + 1}</td>
         <td>
           <strong>${user.username}</strong><br>
           <small style="color:var(--color-teks-sub);">${user.nis}</small>
@@ -682,6 +722,7 @@ function renderTable() {
 
   initActionButtonsListener();
   updateSortIndicator();
+  renderTablePagination(totalItems, totalPages, page);
 }
 
 function getSortValue(user) {
@@ -701,11 +742,84 @@ function getSortValue(user) {
   }
 }
 
+function populateTableFilters() {
+  const rombelSelect = document.getElementById("filterRombelTable");
+  const rayonSelect = document.getElementById("filterRayonTable");
+  const data = window.tableAllData || [];
+
+  if (rombelSelect) {
+    const rombels = [...new Set(data.map((u) => String(u.rombel || "").trim()).filter(Boolean))].sort();
+    rombelSelect.innerHTML = `<option value="">Semua Rombel</option>` + rombels.map((r) => `<option value="${r}">${r}</option>`).join("");
+    rombelSelect.value = currentSelectedRombel || "";
+  }
+
+  if (rayonSelect) {
+    const rayons = [...new Set(data.map((u) => String(u.rayon || "").trim()).filter(Boolean))].sort();
+    rayonSelect.innerHTML = `<option value="">Semua Rayon</option>` + rayons.map((r) => `<option value="${r}">${r}</option>`).join("");
+    rayonSelect.value = window.currentSelectedRayon || "";
+  }
+
+  const kelasSelect = document.getElementById("filterKelasTable");
+  if (kelasSelect) {
+    kelasSelect.value = window.currentSelectedKelasTable || "";
+  }
+}
+
+function attachTableFiltersInput() {
+  const rombelSelect = document.getElementById("filterRombelTable");
+  if (rombelSelect) {
+    rombelSelect.removeEventListener("change", handleRombelFilterTable);
+    rombelSelect.addEventListener("change", handleRombelFilterTable);
+  }
+  const rayonSelect = document.getElementById("filterRayonTable");
+  if (rayonSelect) {
+    rayonSelect.removeEventListener("change", handleRayonFilterTable);
+    rayonSelect.addEventListener("change", handleRayonFilterTable);
+  }
+  const kelasSelect = document.getElementById("filterKelasTable");
+  if (kelasSelect) {
+    kelasSelect.removeEventListener("change", handleKelasFilterTable);
+    kelasSelect.addEventListener("change", handleKelasFilterTable);
+  }
+}
+
+function handleRombelFilterTable(e) {
+  currentSelectedRombel = e.target.value || null;
+  window.tablePage = 1;
+  renderTable();
+}
+
+function handleRayonFilterTable(e) {
+  window.currentSelectedRayon = e.target.value || null;
+  window.tablePage = 1;
+  renderTable();
+}
+
+function handleKelasFilterTable(e) {
+  window.currentSelectedKelasTable = e.target.value || null;
+  window.tablePage = 1;
+  renderTable();
+}
+
 function attachTableListeners() {
   const searchInput = document.getElementById("searchTable");
   if (searchInput) {
     searchInput.removeEventListener("input", handleTableSearchInput);
     searchInput.addEventListener("input", handleTableSearchInput);
+  }
+
+  const sortBy = document.getElementById("sortBy");
+  if (sortBy) {
+    sortBy.value = window.tableSortKey || "nama";
+    sortBy.removeEventListener("change", handleSortByChange);
+    sortBy.addEventListener("change", handleSortByChange);
+  }
+
+  const sortDirBtn = document.getElementById("sortDirBtn");
+  if (sortDirBtn) {
+    sortDirBtn.textContent = window.tableSortDir === "asc" ? "▲" : "▼";
+    sortDirBtn.removeEventListener("click", handleSortDirToggle);
+    sortDirBtn.addEventListener("click", handleSortDirToggle);
   }
 
   document.querySelectorAll("th[data-sort]").forEach((th) => {
@@ -714,8 +828,23 @@ function attachTableListeners() {
   });
 }
 
+function handleSortByChange(e) {
+  window.tableSortKey = e.target.value;
+  window.tablePage = 1;
+  renderTable();
+}
+
+function handleSortDirToggle() {
+  window.tableSortDir = window.tableSortDir === "asc" ? "desc" : "asc";
+  const btn = document.getElementById("sortDirBtn");
+  if (btn) btn.textContent = window.tableSortDir === "asc" ? "▲" : "▼";
+  window.tablePage = 1;
+  renderTable();
+}
+
 function handleTableSearchInput(e) {
   tableSearchQuery = e.target.value.trim();
+  window.tablePage = 1;
   renderTable();
 }
 
@@ -727,8 +856,47 @@ function handleTableSortClick(e) {
     tableSortKey = key;
     tableSortDir = "asc";
   }
+  window.tablePage = 1;
   renderTable();
 }
+
+function renderTablePagination(totalItems, totalPages, page) {
+  const container = document.getElementById("tablePagination");
+  if (!container) return;
+  if (totalItems === 0) {
+    container.innerHTML = "";
+    return;
+  }
+  container.innerHTML = `
+    <small class="text-muted">Halaman ${page} dari ${totalPages} · Total ${totalItems} data</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item ${page <= 1 ? "disabled" : ""}">
+          <a class="page-link" href="#" onclick="goToTablePage(${page - 1}); return false;">Prev</a>
+        </li>
+        ${Array.from({ length: totalPages }, (_, i) => i + 1)
+          .map(
+            (p) =>
+              `<li class="page-item ${p === page ? "active" : ""}">
+                <a class="page-link" href="#" onclick="goToTablePage(${p}); return false;">${p}</a>
+              </li>`
+          )
+          .join("")}
+        <li class="page-item ${page >= totalPages ? "disabled" : ""}">
+          <a class="page-link" href="#" onclick="goToTablePage(${page + 1}); return false;">Next</a>
+        </li>
+      </ul>
+    </nav>
+  `;
+}
+
+window.goToTablePage = function (page) {
+  const totalItems = (window.tableAllData || []).length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / TABLE_PAGE_SIZE));
+  if (page < 1 || page > totalPages) return;
+  window.tablePage = page;
+  renderTable();
+};
 
 function updateSortIndicator() {
   document.querySelectorAll("th[data-sort]").forEach((th) => {
@@ -873,11 +1041,20 @@ function initImportExcelListener() {
 
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+        const rawJsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-        if (jsonData.length === 0) {
+        if (rawJsonData.length === 0) {
           throw new Error("File excel kosong atau format tidak sesuai!");
         }
+
+        // Normalisasi nama kolom (case-insensitive + trim) agar header tidak harus persis lowercase
+        const jsonData = rawJsonData.map((row) => {
+          const normalized = {};
+          Object.keys(row || {}).forEach((key) => {
+            normalized[String(key).trim().toLowerCase()] = row[key];
+          });
+          return normalized;
+        });
 
         const cleanedData = jsonData.filter((row) =>
           Object.values(row).some((value) => String(value ?? "").trim() !== ""),
@@ -945,11 +1122,41 @@ function initImportExcelListener() {
           jenisKelamin: String(row.jenisKelamin ?? "").trim(),
         }));
 
+        const existing = window.tableAllData || [];
+        const existingKeys = new Set(
+          existing.flatMap((u) => [
+            String(u.nis ?? "").trim(),
+            String(u.idcard ?? "").trim(),
+            String(u.email ?? "").trim().toLowerCase(),
+          ]),
+        );
+
+        const toImport = normalizedUsers.filter((u) => {
+          const keys = [
+            String(u.nis ?? "").trim(),
+            String(u.idcard ?? "").trim(),
+            String(u.email ?? "").trim().toLowerCase(),
+          ];
+          return !keys.some((k) => k && existingKeys.has(k));
+        });
+
+        const skipped = normalizedUsers.length - toImport.length;
+
+        if (toImport.length === 0) {
+          Swal.fire({
+            title: "Tidak ada data baru",
+            text: `Semua ${normalizedUsers.length} baris sudah terdaftar (duplikat).`,
+            icon: "info",
+          });
+          excelInput.value = "";
+          return;
+        }
+
         const response = await fetch(`${API_BASE}/api/auth/register-bulk`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ users: normalizedUsers }),
+          body: JSON.stringify({ users: toImport }),
         });
 
         if (!response.ok) {
@@ -961,7 +1168,7 @@ function initImportExcelListener() {
 
         Swal.fire({
           title: "Sukses!",
-          text: `${cleanedData.length} Data berhasil diimport dari Excel!`,
+          text: `${toImport.length} data berhasil diimport${skipped > 0 ? ` (${skipped} duplikat dilewati)` : ""}.`,
           icon: "success",
         });
 
@@ -1418,6 +1625,7 @@ async function handleRombelFilterInput() {
   const selectElement = document.getElementById("pilihanRombel");
   if (!selectElement) return;
   currentSelectedRombel = selectElement.value || null;
+  window.tablePage = 1;
   renderTable();
 }
 

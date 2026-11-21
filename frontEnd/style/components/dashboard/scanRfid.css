@@ -194,9 +194,9 @@
   font-size: 0.92rem;
   font-weight: 600;
   font-family: "Inter", "Poppins", sans-serif;
-  color: #4f46e5;
-  background: transparent;
-  border: 1px solid #4f46e5;
+  color: white;
+  background: #4f46e5;
+  border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
