@@ -1169,44 +1169,10 @@ function initImportExcelListener() {
           throw new Error("File excel kosong atau format tidak sesuai!");
         }
 
-        const requiredHeaders = [
-          "username",
-          "email",
-          "password",
-          "role",
-          "idcard",
-          "nis",
-          "whatsapp",
-          "rombel",
-        ];
+        // Validasi header dihilangkan: kolom tidak wajib lengkap.
 
-        const actualHeaders = Object.keys(jsonData[0] || {});
-        const missingHeaders = requiredHeaders.filter(
-          (header) => !actualHeaders.includes(header),
-        );
 
-        if (missingHeaders.length > 0) {
-          throw new Error(
-            "Header Excel tidak lengkap. Kolom yang kurang: " +
-              missingHeaders.join(", "),
-          );
-        }
-
-        const invalidRows = cleanedData.filter((row, index) => {
-          const idcard = String(row.idcard ?? "").trim();
-          const nis = String(row.nis ?? "").trim();
-          const role = String(row.role ?? "").trim().toLowerCase();
-
-          if (!nis || !/^\d+$/.test(nis)) return true;
-          if (role !== "student" && role !== "siswa" && role !== "teacher" && role !== "guru") return true;
-          return false;
-        });
-
-        if (invalidRows.length > 0) {
-          throw new Error(
-            "Terdapat data dengan nis bukan angka atau role tidak valid (harus student/teacher/siswa/guru).",
-          );
-        }
+        // Validasi baris dihilangkan.
 
         const normalizedUsers = cleanedData.map((row) => ({
           username: String(row.username ?? "").trim(),
