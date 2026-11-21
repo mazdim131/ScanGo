@@ -26,10 +26,10 @@ const rentangHariWIB = (customDateStr) => {
   }
 
   // No date argument -> today's WIB calendar day.
-  const now = new Date();
-  const y = now.getUTCFullYear();
-  const m = now.getUTCMonth();
-  const d = now.getUTCDate();
+  const wibNow = new Date(Date.now() + WIB_OFFSET_MS);
+  const y = wibNow.getUTCFullYear();
+  const m = wibNow.getUTCMonth() + 1; // 1-based (toWibDayMs expects 1-based month)
+  const d = wibNow.getUTCDate();
   const { startWib, endWib } = toWibDayMs(y, m, d);
   return { startWib, endWib };
 };
