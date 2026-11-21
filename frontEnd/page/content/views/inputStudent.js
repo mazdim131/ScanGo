@@ -162,6 +162,13 @@ function renderFormSiswaHTML() {
             <option value="Pemasaran 4">Pemasaran 4</option>
             <option value="Pemasaran 5">Pemasaran 5</option>
           </optgroup>
+          <optgroup label="MPLB">
+            <option value="MPLB 1">MPLB 1</option>
+            <option value="MPLB 2">MPLB 2</option>
+            <option value="MPLB 3">MPLB 3</option>
+            <option value="MPLB 4">MPLB 4</option>
+            <option value="MPLB 5">MPLB 5</option>
+          </optgroup>
         </select>
       </div>
 
@@ -1232,6 +1239,13 @@ const jenisKelaminDb = userData?.jenisKelamin || "";
             <option value="Pemasaran 4">Pemasaran 4</option>
             <option value="Pemasaran 5">Pemasaran 5</option>
           </optgroup>
+          <optgroup label="MPLB">
+            <option value="MPLB 1">MPLB 1</option>
+            <option value="MPLB 2">MPLB 2</option>
+            <option value="MPLB 3">MPLB 3</option>
+            <option value="MPLB 4">MPLB 4</option>
+            <option value="MPLB 5">MPLB 5</option>
+          </optgroup>
         </select>
       </div>
       `;
@@ -1313,7 +1327,20 @@ const jenisKelaminDb = userData?.jenisKelamin || "";
       didOpen: () => {
         if (isTeacher) return;
         document.getElementById("swal-kelas").value = kelasDb;
-        document.getElementById("swal-rombel").value = rombel;
+        // Normalisasi nilai rombel agar opsi (termasuk MPLB) terpilih meski beda spasi/case
+        const rombelSelect = document.getElementById("swal-rombel");
+        if (rombelSelect) {
+          const target = String(rombel || "").trim().toUpperCase();
+          let matched = false;
+          for (const opt of rombelSelect.options) {
+            if (String(opt.value || "").trim().toUpperCase() === target) {
+              rombelSelect.value = opt.value;
+              matched = true;
+              break;
+            }
+          }
+          if (!matched) rombelSelect.value = rombel;
+        }
         document.getElementById("swal-rayon").value = normalRayonEdit(rayonDb);
       },
       title: isTeacher ? "Edit Data Guru" : "Edit Data Siswa",

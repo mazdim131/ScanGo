@@ -20,7 +20,7 @@ const ORIGIN_FRONTEND = (process.env.CORS_ORIGIN || "")
   .map((s) => s.trim())
   .filter(Boolean);
 
-const { rentangHariWIB, masukStatus } = require("./services/helper");
+const { rentangHariWIB, masukStatus, getWibMinutesNow } = require("./services/helper");
 
 // Helmet & body parser harus dipasang sebelum route
 app.use(
@@ -366,6 +366,32 @@ app.post("/api/attendances/tap", verifyToken, async (req, res) => {
         .select("id, created_at, status");
 
       if (insertError) {
+        if (insertError.code === "23505") {
+          const { data: existingNow } = await supabase
+            .from("attendances")
+            .select("id, time_finish")
+            .eq("idcard", byIdcard ? rawIdcard : String(uservalid.idcard))
+            .gte("created_at", startWib)
+            .lte("created_at", endWib)
+            .maybeSingle();
+
+          if (existingNow?.time_finish) {
+            return res.status(409).json({
+              success: false,
+              code: "already_finished",
+              message: "Kartu ini sudah absen masuk & keluar hari ini.",
+              attendance_id: existingNow.id,
+            });
+          }
+
+          return res.status(409).json({
+            success: false,
+            code: "already_checked_in",
+            message: "Kartu ini sudah absen hari ini.",
+            attendance_id: existingNow?.id,
+          });
+        }
+
         console.error("Error tap insert:", insertError.message);
         return res
           .status(500)
@@ -441,6 +467,26 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
       });
     }
 
+    const { startWib, endWib } = rentangHariWIB();
+    const { data: existingManual } = await supabase
+      .from("attendances")
+      .select("id, time_finish")
+      .eq("idcard", String(user.idcard))
+      .gte("created_at", startWib)
+      .lte("created_at", endWib)
+      .maybeSingle();
+
+    if (existingManual) {
+      return res.status(409).json({
+        success: false,
+        code: existingManual.time_finish ? "already_finished" : "already_checked_in",
+        error: existingManual.time_finish
+          ? "Siswa ini sudah absen masuk & keluar hari ini."
+          : "Siswa ini sudah absen hari ini.",
+        attendance_id: existingManual.id,
+      });
+    }
+
     const { data: attendanceData, error: insertError } = await supabase
       .from("attendances")
       .insert([
@@ -454,6 +500,13 @@ app.post("/api/attendances/manual", verifyToken, async (req, res) => {
       .select();
 
     if (insertError) {
+      if (insertError.code === "23505") {
+        return res.status(409).json({
+          success: false,
+          code: "already_checked_in",
+          error: "Siswa ini sudah absen hari ini.",
+        });
+      }
       console.error("Error manual insert:", insertError.message);
       return res
         .status(500)
@@ -690,23 +743,23 @@ app.put("/api/users/id/:id", verifyToken, verifyAdmin, async (req, res) => {
   }
 
   const updates = {};
-  if (username) updates.username = username;
-  if (email) updates.email = email;
-  if (rombel) updates.rombel = rombel;
-  if (role) updates.role = role;
-  if (idcard) updates.idcard = idcard;
-  if (whatsapp) updates.whatsapp = whatsapp;
-  if (rayon) updates.rayon = rayon;
-  if (kelas) updates.kelas = kelas;
-  if (jenisKelamin) updates.jenisKelamin = jenisKelamin;
+  if (username !== undefined) updates.username = String(username).trim();
+  if (email !== undefined) updates.email = String(email).trim();
+  if (rombel !== undefined) updates.rombel = String(rombel).trim();
+  if (role !== undefined) updates.role = String(role).trim();
+  if (idcard !== undefined) updates.idcard = String(idcard).trim();
+  if (whatsapp !== undefined) updates.whatsapp = String(whatsapp).trim();
+  if (rayon !== undefined) updates.rayon = String(rayon).trim();
+  if (kelas !== undefined) updates.kelas = String(kelas).trim();
+  if (jenisKelamin !== undefined) updates.jenisKelamin = String(jenisKelamin).trim();
   if (nis !== undefined && String(nis).trim() !== "") {
     updates.nis = Number(String(nis).trim());
   }
 
   if (Object.keys(updates).length === 0) {
     return res
-      .status(400)
-      .json({ success: false, message: "Tidak ada data untuk diupdate." });
+      .status(200)
+      .json({ success: true, message: "Tidak ada perubahan data." });
   }
 
   try {
@@ -853,6 +906,45 @@ app.post("/api/auth/register-bulk", verifyToken, verifyAdmin, async (req, res) =
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
+
+// Scheduler auto-checkout harian pukul 14:30 WIB (sistem yang melakukan absen keluar)
+let lastAutoCheckoutDate = null;
+
+const runAutoCheckoutOnce = async (reason) => {
+  const today = new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  if (lastAutoCheckoutDate === today) return;
+  lastAutoCheckoutDate = today;
+  try {
+    const { performAutoCheckout } = require("./controllers/attendanceController");
+    const result = await performAutoCheckout();
+    console.log(`[AutoCheckout][${reason}]`, result.message);
+  } catch (e) {
+    console.error(`[AutoCheckout][${reason}] error:`, e.message);
+    // izinkan retry hari yang sama jika gagal
+    lastAutoCheckoutDate = null;
+  }
+};
+
+// Cek saat server start: jika sudah lewat 14:30 WIB hari ini, jalankan sekali
+(async () => {
+  const mins = getWibMinutesNow();
+  if (mins >= 14 * 60 + 30) {
+    await runAutoCheckoutOnce("startup");
+  }
+})();
+
+// Interval tiap 30 detik, window 14:30-14:35 agar tidak miss
+setInterval(async () => {
+  try {
+    const mins = getWibMinutesNow();
+    // Window 5 menit: 14:30 s/d 14:35
+    if (mins >= 14 * 60 + 30 && mins <= 14 * 60 + 35) {
+      await runAutoCheckoutOnce("interval");
+    }
+  } catch (e) {
+    console.error("[AutoCheckout] error:", e.message);
+  }
+}, 30 * 1000);
 
 if (require.main === module) {
   app.listen(PORT, () => {

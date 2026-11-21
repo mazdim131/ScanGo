@@ -1,25 +1,44 @@
 const rentangHariWIB = (customDateStr) => {
+  // WIB = UTC + 7h. Supabase TIMESTAMP columns are stored/queried in UTC.
+  // We must return startWib / endWib as UTC ISO strings that represent the
+  // WIB calendar day 00:00:00.000 until 23:59:59.999. A WIB midnight equals
+  // UTC 17:00 on the previous calendar day.
   const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+  const toWibDayMs = (y, m, d) => {
+    // WIB midnight of local y-m-d
+    const wibMidnight = new Date(Date.UTC(y, m - 1, d, 0, 0, 0));
+    // Represent that same instant as a UTC ISO string (UTC = WIB - 7h).
+    const utcMidnight = new Date(wibMidnight.getTime() - WIB_OFFSET_MS);
+    const endWib = new Date(utcMidnight.getTime() + 24 * 60 * 60 * 1000 - 1);
+    return { startWib: utcMidnight.toISOString(), endWib: endWib.toISOString() };
+  };
+
   if (customDateStr) {
     const parts = String(customDateStr).split("-").map(Number);
     if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
-      const [year, month, day] = parts;
-      const startWib = new Date(Date.UTC(year, month - 1, day, 0, 0, 0) - WIB_OFFSET_MS);
-      const endWib = new Date(startWib.getTime() + 24 * 60 * 60 * 1000 - 1);
-      return { startWib: startWib.toISOString(), endWib: endWib.toISOString() };
+      const { startWib, endWib } = toWibDayMs(parts[0], parts[1], parts[2]);
+      return {
+        startWib: new Date(startWib).toISOString(),
+        endWib: new Date(endWib).toISOString(),
+      };
     }
   }
-  const startWib = new Date(Date.now() + WIB_OFFSET_MS);
-  startWib.setUTCHours(0, 0, 0, 0);
-  const endWib = new Date(startWib.getTime() + 24 * 60 * 60 * 1000 - 1);
-  return { startWib: startWib.toISOString(), endWib: endWib.toISOString() };
+
+  // No date argument -> today's WIB calendar day.
+  const now = new Date();
+  const y = now.getUTCFullYear();
+  const m = now.getUTCMonth();
+  const d = now.getUTCDate();
+  const { startWib, endWib } = toWibDayMs(y, m, d);
+  return { startWib, endWib };
 };
 
 // Konstanta jam absensi (dalam menit dari 00:00 WIB)
 const MASUK_START_MIN = 4 * 60 + 30; // 04:30
 const MASUK_ON_TIME_END_MIN = 7 * 60; // 07:00
 const MASUK_LATE_END_MIN = 10 * 60; // 10:00
-const PULANG_MIN = 14 * 60 + 50; // 14:50
+const PULANG_MIN = 14 * 60 + 30; // 14:30
 
 const getWibNow = () => new Date(Date.now() + 7 * 60 * 60 * 1000);
 

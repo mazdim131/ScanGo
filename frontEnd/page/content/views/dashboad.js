@@ -27,11 +27,7 @@ function renderDashboard() {
               placeholder="Tempelkan kartu RFID..."
               autofocus
             >
-            <button class="scan-btn" onclick="submitScan()">
-              <i class="bi bi-upc-scan"></i> Scan Sekarang
-            </button>
 
-            <div class="scan-divider">atau</div>
 
             <button class="inputManual-btn" onclick="toggleAbsenMode('manual')">
               <i class="bi bi-pencil-square"></i> Input Manual
@@ -129,6 +125,7 @@ const ROMBEL_GROUPS = [
   ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
   ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
   ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+  ["MPLB", ["MPLB 1", "MPLB 2", "MPLB 3", "MPLB 4", "MPLB 5"]]
 ];
 
 function normRombel(value) {
@@ -595,19 +592,26 @@ function attachFilters() {
   }
 }
 
+let isScanSubmitting = false;
+let cardInputTimer = null;
+
 function handleCardInputKeydown(e) {
   if (e.key === "Enter") {
     e.preventDefault();
+    if (isScanSubmitting) return;
+    clearTimeout(cardInputTimer);
+    cardInputTimer = null;
     submitScan();
   }
 }
 
-let cardInputTimer = null;
 function handleCardInputChange(e) {
+  if (isScanSubmitting) return;
   const val = (e.target.value || "").trim();
   if (val.length < 8) return;
   clearTimeout(cardInputTimer);
   cardInputTimer = setTimeout(() => {
+    if (isScanSubmitting) return;
     if ((document.getElementById("card-id-input")?.value || "").trim() === val) {
       submitScan();
     }
@@ -722,7 +726,7 @@ async function submitManual() {
     return;
   }
   try {
-    const res = await fetch(`${API_BASE}/api/attendances/manual`, {
+    const res = await fetch(`${API_BASE}/api/v1/attendances/manual`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: nama, status, note }),
@@ -730,6 +734,14 @@ async function submitManual() {
     const json = await res.json();
     if (resultEl) {
       resultEl.innerHTML = `<div class="${json.success ? "text-success" : "text-danger"} small">${escapeHtml(json.message || json.error || "Selesai")}</div>`;
+    }
+    if (!json.success) {
+      const msg = json.message || json.error || "Absensi ditolak.";
+      if (typeof Swal !== "undefined") {
+        Swal.fire({ icon: "warning", title: "Absensi ditolak", text: msg });
+      } else {
+        alert(msg);
+      }
     }
     if (json.success) {
       document.getElementById("manual-nama").value = "";
@@ -742,29 +754,46 @@ async function submitManual() {
 }
 
 async function submitScan() {
-  const idcard = (document.getElementById("card-id-input")?.value || "").trim();
+  const input = document.getElementById("card-id-input");
+  const idcard = (input?.value || "").trim();
   const resultEl = document.getElementById("scan-result");
+
   if (!idcard) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">UID kartu wajib diisi.</div>`;
     return;
   }
+
+  isScanSubmitting = true;
+  clearTimeout(cardInputTimer);
+  cardInputTimer = null;
+  if (input) input.disabled = true;
+
   try {
-    const res = await fetch(`${API_BASE}/api/attendances/tap`, {
+    const res = await fetch(`${API_BASE}/api/v1/attendances/tap`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idcard, mode: currentScanMode || "masuk" }),
     });
-    const json = await res.json();
+    let json = {};
+    try { json = await res.json(); } catch (e) { json = { success: false, message: "Respon server tidak valid." }; }
     if (resultEl) {
       resultEl.innerHTML = `<div class="${json.success ? "text-success" : "text-danger"} small">${escapeHtml(json.message || "Selesai")}</div>`;
     }
     if (json.success) {
-      const input = document.getElementById("card-id-input");
       if (input) input.value = "";
       refreshDashboardTable("Memperbarui data...");
+    } else {
+      const msg = json.message || json.error || "Absensi gagal.";
+      if (typeof Swal !== "undefined") {
+        Swal.fire({ icon: "warning", title: "Absensi", text: msg });
+      }
     }
   } catch (e) {
-    if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Gagal menyimpan.</div>`;
+    if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Gagal koneksi ke server.</div>`;
+  } finally {
+    isScanSubmitting = false;
+    if (input) input.disabled = false;
+    if (input) input.focus();
   }
 }
 

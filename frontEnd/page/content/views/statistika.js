@@ -242,6 +242,7 @@ const ROMBEL_GROUPS_STAT = [
   ["KLN", ["Kuliner 1", "Kuliner 2", "Kuliner 3", "Kuliner 4", "Kuliner 5"]],
   ["HTL", ["Hotel 1", "Hotel 2", "Hotel 3", "Hotel 4", "Hotel 5"]],
   ["PMN", ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"]],
+  ["MPLB", ["MPLB 1", "MPLB 2", "MPLB 3", "MPLB 4", "MPLB 5"]],
 ];
 
 function renderRombelOptionsStat() {
@@ -415,6 +416,97 @@ function normalizeRombel(r) {
   return String(r || "").trim().toUpperCase();
 }
 // ─────────────────────────────────────────────────────────────────────
+
+// ===================== Pagination: Tidak Hadir Hari Ini (client-side) =====================
+const ABSENT_PAGE_SIZE = 5;
+if (typeof window.currentAbsentPage === "undefined") window.currentAbsentPage = 1;
+if (typeof window.absentStudentsData === "undefined") window.absentStudentsData = [];
+
+function buildAbsentRow(s) {
+  let tagHtml = "";
+  if (s.status === "Sakit") tagHtml = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
+  else if (s.status === "Izin") tagHtml = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
+  else if (s.status === "Alfa") tagHtml = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
+  else tagHtml = `<span class="rank-tag absent">Belum Absen</span>`;
+
+  const row = document.createElement("div");
+  row.className = "rank-item";
+  row.innerHTML = `
+      <div class="avatar"></div>
+      <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
+      ${tagHtml}`;
+  return row;
+}
+
+window.renderAbsentPage = function () {
+  const list = document.getElementById("absentList");
+  if (!list) return;
+
+  const students = window.absentStudentsData || [];
+  const totalItems = students.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ABSENT_PAGE_SIZE));
+  if (window.currentAbsentPage > totalPages) window.currentAbsentPage = totalPages;
+  if (window.currentAbsentPage < 1) window.currentAbsentPage = 1;
+  const page = window.currentAbsentPage;
+
+  const pageData = students.slice(
+    (page - 1) * ABSENT_PAGE_SIZE,
+    page * ABSENT_PAGE_SIZE
+  );
+
+  list.innerHTML = "";
+  if (pageData.length === 0) {
+    list.innerHTML = `<div style="padding:16px;text-align:center;color:var(--color-sub);font-size:13px;">Tidak ada siswa</div>`;
+  } else {
+    pageData.forEach((s) => list.appendChild(buildAbsentRow(s)));
+  }
+
+  // Kontainer pagination (di-append di dalam list agar pasti terlihat)
+  let pag = document.getElementById("absentPagination");
+  if (pag) pag.remove();
+  pag = document.createElement("div");
+  pag.id = "absentPagination";
+  list.appendChild(pag);
+
+  // Selalu tampilkan kontrol pagination agar fitur terlihat,
+  // meskipun jumlah data hanya 1 halaman.
+  if (totalItems === 0) {
+    pag.innerHTML = "";
+    return;
+  }
+
+  pag.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+      <small class="text-muted">Halaman ${page} dari ${totalPages} · Total ${totalItems} siswa</small>
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item ${page <= 1 ? "disabled" : ""}">
+            <a class="page-link" href="#" onclick="goToAbsentPage(${page - 1}); return false;">Prev</a>
+          </li>
+          ${Array.from({ length: totalPages }, (_, i) => i + 1)
+            .map(
+              (p) =>
+                `<li class="page-item ${p === page ? "active" : ""}">
+                  <a class="page-link" href="#" onclick="goToAbsentPage(${p}); return false;">${p}</a>
+                </li>`
+            )
+            .join("")}
+          <li class="page-item ${page >= totalPages ? "disabled" : ""}">
+            <a class="page-link" href="#" onclick="goToAbsentPage(${page + 1}); return false;">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  `;
+};
+
+window.goToAbsentPage = function (page) {
+  const students = window.absentStudentsData || [];
+  const totalPages = Math.max(1, Math.ceil(students.length / ABSENT_PAGE_SIZE));
+  if (page < 1 || page > totalPages) return;
+  window.currentAbsentPage = page;
+  renderAbsentPage();
+};
 
 // ===================== 1. Kehadiran 7 Hari Terakhir (single line) =====================
 window.initGrafikListener = async function () {
@@ -840,23 +932,13 @@ window.initGrafikListener = async function () {
     const list = document.getElementById("absentList");
     const countPill = document.getElementById("absentCountPill");
     if (!list) return;
-    list.innerHTML = "";
-    absentStudents.forEach((s) => {
-      const row = document.createElement("div");
-      row.className = "rank-item";
-      let tagHtml = "";
-      if (s.status === "Sakit") tagHtml = `<span class="rank-tag sakit" style="background:#DBEAFE;color:#2563EB;">Sakit</span>`;
-      else if (s.status === "Izin") tagHtml = `<span class="rank-tag izin" style="background:#F3E8FF;color:#7C3AED;">Izin</span>`;
-      else if (s.status === "Alfa") tagHtml = `<span class="rank-tag alfa" style="background:#FEE2E2;color:#DC2626;">Alfa</span>`;
-      else tagHtml = `<span class="rank-tag absent">Belum Absen</span>`;
 
-      row.innerHTML = `
-      <div class="avatar"></div>
-      <div class="rank-info"><div class="nm">${s.name}</div><div class="rb">${s.rombel || '-'}</div></div>
-      ${tagHtml}`;
-      list.appendChild(row);
-    });
+    // Simpan data untuk pagination (client-side, tanpa ubah database)
+    window.absentStudentsData = absentStudents;
+    window.currentAbsentPage = 1;
     if (countPill) countPill.textContent = absentStudents.length + " siswa";
+
+    renderAbsentPage();
   })();
 
   // ===================== 4. Status Tap Hari Ini (list: belum di atas, sudah di bawah) =====================

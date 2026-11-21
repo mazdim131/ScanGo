@@ -10,6 +10,7 @@ const ROMBEL_GROUPS_PRINT = [
     "PMN",
     ["Pemasaran 1", "Pemasaran 2", "Pemasaran 3", "Pemasaran 4", "Pemasaran 5"],
   ],
+  ["MPLB", ["MPLB 1", "MPLB 2", "MPLB 3", "MPLB 4", "MPLB 5"]],
 ];
 
 const RAYON_MAP_PRINT = {

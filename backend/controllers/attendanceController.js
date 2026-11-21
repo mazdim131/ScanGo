@@ -217,10 +217,10 @@ const tapAttendance = async (req, res) => {
       });
     }
 
-    // Aturan absensi: 1x masuk + 1x keluar per kartu per hari
+    // Aturan sederhana: data tetap masuk, tidak memblokir
     if (existing?.time_finish) {
-      return res.status(409).json({
-        success: false,
+      return res.json({
+        success: true,
         code: "already_finished",
         message: "Kartu ini sudah absen masuk & keluar hari ini.",
         attendance_id: existing.id,
@@ -228,19 +228,40 @@ const tapAttendance = async (req, res) => {
     }
 
     if (mode === "masuk" && existing) {
-      return res.status(409).json({
-        success: false,
+      return res.json({
+        success: true,
         code: "already_checked_in",
         message: "Kartu ini sudah absen hari ini.",
         attendance_id: existing.id,
       });
     }
 
+    // Jika keluar tapi belum ada record masuk, tetap buat record baru (data masuk dulu)
     if (mode === "keluar" && !existing) {
-      return res.status(409).json({
-        success: false,
-        code: "not_checked_in",
-        message: "Kartu ini belum absen masuk hari ini.",
+      const macDefault = byIdcard ? "RFID Reader Card 135KHZ" : "Manual Input";
+      const insertPayload = {
+        idcard: byIdcard ? rawIdcard : String(uservalid.idcard),
+        mac_address: macAddress || macDefault,
+        status: statusInput || "Hadir",
+        time_finish: new Date().toISOString(),
+      };
+      if (!byIdcard) insertPayload.note = noteInput || "Tidak ada catatan";
+
+      const { data: attendanceData, error: insertError } = await supabase
+        .from("attendances")
+        .insert([insertPayload])
+        .select("id, created_at, status");
+
+      if (insertError) {
+        console.error("Error tap insert (keluar):", insertError.message);
+        return res.status(500).json({ success: false, message: "Gagal menyimpan absensi." });
+      }
+
+      return res.json({
+        success: true,
+        action: "keluar",
+        message: `Absen keluar untuk ${uservalid.username || "Siswa"} berhasil dicatat!`,
+        data: attendanceData,
       });
     }
 
@@ -249,14 +270,8 @@ const tapAttendance = async (req, res) => {
       let statusInsert = statusInput;
       if (!statusInsert) {
         const computed = masukStatus();
-        if (!computed) {
-          return res.status(403).json({
-            success: false,
-            code: "outside_window",
-            message: "Di luar jam absensi masuk (04:30 - 10:00).",
-          });
-        }
-        statusInsert = computed;
+        // Jangan blokir data: jika di luar window, tetap catat sebagai Hadir
+        statusInsert = computed || "Hadir";
       }
       const insertPayload = {
         idcard: byIdcard ? rawIdcard : String(uservalid.idcard),
@@ -271,6 +286,26 @@ const tapAttendance = async (req, res) => {
         .select("id, created_at, status");
 
       if (insertError) {
+        // Tangani race condition / duplikat (unique constraint)
+        if (insertError.code === "23505") {
+          const { data: existingNow } = await supabase
+            .from("attendances")
+            .select("id, time_finish")
+            .eq("idcard", byIdcard ? rawIdcard : String(uservalid.idcard))
+            .gte("created_at", startWib)
+            .lte("created_at", endWib)
+            .maybeSingle();
+
+          return res.json({
+            success: true,
+            code: existingNow?.time_finish ? "already_finished" : "already_checked_in",
+            message: existingNow?.time_finish
+              ? "Kartu ini sudah absen masuk & keluar hari ini."
+              : "Kartu ini sudah absen hari ini.",
+            attendance_id: existingNow?.id,
+          });
+        }
+
         console.error("Error tap insert:", insertError.message);
         return res
           .status(500)
@@ -340,6 +375,26 @@ const manualAttendance = async (req, res) => {
       });
     }
 
+    const { startWib, endWib } = rentangHariWIB();
+    const { data: existing } = await supabase
+      .from("attendances")
+      .select("id, time_finish")
+      .eq("idcard", String(user.idcard))
+      .gte("created_at", startWib)
+      .lte("created_at", endWib)
+      .maybeSingle();
+
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        code: existing.time_finish ? "already_finished" : "already_checked_in",
+        error: existing.time_finish
+          ? "Siswa ini sudah absen masuk & keluar hari ini."
+          : "Siswa ini sudah absen hari ini.",
+        attendance_id: existing.id,
+      });
+    }
+
     const { data: attendanceData, error: insertError } = await supabase
       .from("attendances")
       .insert([
@@ -353,6 +408,13 @@ const manualAttendance = async (req, res) => {
       .select();
 
     if (insertError) {
+      if (insertError.code === "23505") {
+        return res.status(409).json({
+          success: false,
+          code: "already_checked_in",
+          error: "Siswa ini sudah absen hari ini.",
+        });
+      }
       console.error("Error manual insert:", insertError.message);
       return res
         .status(500)
@@ -819,6 +881,30 @@ const getTrafficAnalytics = async (req, res) => {
   }
 };
 
+const performAutoCheckout = async () => {
+  const { startWib, endWib } = rentangHariWIB();
+  const nowIso = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from("attendances")
+    .update({ time_finish: nowIso, updated_at: nowIso })
+    .is("time_finish", null)
+    .gte("created_at", startWib)
+    .lte("created_at", endWib)
+    .select("id");
+
+  if (error) {
+    console.error("Error auto-checkout:", error.message);
+    return { success: false, message: "Gagal auto checkout.", count: 0 };
+  }
+
+  return {
+    success: true,
+    message: `Auto checkout selesai. ${data?.length || 0} siswa di-set absen keluar.`,
+    count: data?.length || 0,
+  };
+};
+
 const autoCheckout = async (req, res) => {
   try {
     // Proteksi cron: jika CRON_SECRET diset, wajib cocok
@@ -831,27 +917,11 @@ const autoCheckout = async (req, res) => {
       }
     }
 
-    const { startWib, endWib } = rentangHariWIB();
-    const nowIso = new Date().toISOString();
-
-    const { data, error } = await supabase
-      .from("attendances")
-      .update({ time_finish: nowIso, updated_at: nowIso })
-      .is("time_finish", null)
-      .gte("created_at", startWib)
-      .lte("created_at", endWib)
-      .select("id");
-
-    if (error) {
-      console.error("Error auto-checkout:", error.message);
-      return res.status(500).json({ success: false, message: "Gagal auto checkout." });
+    const result = await performAutoCheckout();
+    if (!result.success) {
+      return res.status(500).json(result);
     }
-
-    return res.json({
-      success: true,
-      message: `Auto checkout selesai. ${data?.length || 0} siswa di-set absen keluar.`,
-      count: data?.length || 0,
-    });
+    return res.json(result);
   } catch (error) {
     console.error("Error auto-checkout:", error.message);
     res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
@@ -868,4 +938,5 @@ module.exports = {
   deleteAttendance,
   getUserAttendances,
   autoCheckout,
+  performAutoCheckout,
 };

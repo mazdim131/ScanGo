@@ -21,6 +21,10 @@ ALTER TABLE public.attendances ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ D
 CREATE INDEX IF NOT EXISTS idx_attendances_idcard ON public.attendances (idcard);
 CREATE INDEX IF NOT EXISTS idx_attendances_created_at ON public.attendances (created_at);
 
+-- Cegah duplikat absensi untuk kartu yang sama pada hari yang sama (WIB)
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_attendance_card_day
+  ON public.attendances (idcard, ((created_at AT TIME ZONE 'Asia/Jakarta')::date));
+
 -- Optional: foreign key jika kolom users.idcard ada
 DO $$
 BEGIN
