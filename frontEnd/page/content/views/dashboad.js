@@ -713,7 +713,10 @@ async function loadSiswaList() {
   }
 }
 
+let isManualSubmitting = false;
+
 async function submitManual() {
+  if (isManualSubmitting) return;
   const nama = (document.getElementById("manual-nama")?.value || "").trim();
   const status = document.getElementById("manual-status")?.value || "Hadir";
   const note = (document.getElementById("manual-keterangan")?.value || "").trim();
@@ -722,6 +725,9 @@ async function submitManual() {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Nama siswa wajib diisi.</div>`;
     return;
   }
+  isManualSubmitting = true;
+  const btn = document.querySelector('button[onclick="submitManual()"]');
+  if (btn) btn.disabled = true;
   try {
     const res = await fetch(`${API_BASE}/api/v1/attendances/manual`, {
       method: "POST",
@@ -747,6 +753,10 @@ async function submitManual() {
     }
   } catch (e) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Gagal menyimpan.</div>`;
+  } finally {
+    isManualSubmitting = false;
+    const btn = document.querySelector('button[onclick="submitManual()"]');
+    if (btn) btn.disabled = false;
   }
 }
 
