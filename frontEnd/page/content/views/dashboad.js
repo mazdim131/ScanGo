@@ -192,9 +192,45 @@ function setScanMode(mode) {
         ? "Tempelkan kartu RFID (Absen Masuk)..."
         : "Tempelkan kartu RFID (Absen Keluar)...";
     input.value = "";
-    input.focus();
+    // pastikan kursor siap input
+    setTimeout(() => {
+      try { input.focus(); } catch (e) {}
+    }, 0);
   }
   if (resultEl) resultEl.innerHTML = "";
+}
+
+function focusAbsensiInput() {
+  const scanCard = document.getElementById("container-scan-rfid");
+  const manualCard = document.getElementById("container-input-manual");
+  if (scanCard && scanCard.style.display !== "none") {
+    const input = document.getElementById("card-id-input");
+    if (input && !isScanSubmitting) {
+      try { input.focus(); } catch (e) {}
+    }
+    return;
+  }
+  if (manualCard && manualCard.style.display !== "none") {
+    const input = document.getElementById("manual-nama");
+    if (input && !isManualSubmitting) {
+      try { input.focus(); } catch (e) {}
+    }
+  }
+}
+
+// Jaga agar input absensi selalu siap (kursor tidak hilang)
+function ensureAbsensiInputFocus() {
+  const active = document.activeElement;
+  const isFormField =
+    active &&
+    (active.tagName === "INPUT" ||
+      active.tagName === "SELECT" ||
+      active.tagName === "TEXTAREA");
+  // jangan rebut fokus saat user sedang mengetik di field lain
+  if (isFormField && active !== document.getElementById("card-id-input") && active !== document.getElementById("manual-nama")) {
+    return;
+  }
+  focusAbsensiInput();
 }
 
 async function initDashboardListener() {
@@ -233,6 +269,26 @@ async function initDashboardListener() {
 
   initTabs();
   if (typeof initScanRfid === "function") initScanRfid();
+
+  // Fokus awal ke input absensi
+  setTimeout(focusAbsensiInput, 100);
+
+  // Listener global: kembalikan fokus setelah klik di area non-form
+  if (!window._absensiFocusClickBound) {
+    window._absensiFocusClickBound = true;
+    document.addEventListener("click", function () {
+      setTimeout(ensureAbsensiInputFocus, 0);
+    });
+    window.addEventListener("focus", function () {
+      setTimeout(ensureAbsensiInputFocus, 0);
+    });
+  }
+
+  // Interval penjaga fokus (selalu siap input)
+  if (window._absensiFocusInterval) {
+    clearInterval(window._absensiFocusInterval);
+  }
+  window._absensiFocusInterval = setInterval(ensureAbsensiInputFocus, 1500);
 }
 
 async function fetchAttendanceData() {
@@ -649,6 +705,8 @@ function refreshDashboardTable(loadingText, focusId) {
           const len = focusEl.value.length;
           try { focusEl.setSelectionRange(len, len); } catch (e) {}
         }
+      } else {
+        setTimeout(focusAbsensiInput, 0);
       }
     });
   }
@@ -692,9 +750,17 @@ function toggleAbsenMode(mode) {
   if (mode === "manual") {
     scanCard.style.display = "none";
     manualCard.style.display = "block";
+    setTimeout(() => {
+      const input = document.getElementById("manual-nama");
+      if (input) try { input.focus(); } catch (e) {}
+    }, 0);
   } else {
     manualCard.style.display = "none";
     scanCard.style.display = "block";
+    setTimeout(() => {
+      const input = document.getElementById("card-id-input");
+      if (input) try { input.focus(); } catch (e) {}
+    }, 0);
   }
 }
 
@@ -750,6 +816,10 @@ async function submitManual() {
       document.getElementById("manual-nama").value = "";
       document.getElementById("manual-keterangan").value = "";
       refreshDashboardTable("Memperbarui data...");
+      setTimeout(() => {
+        const input = document.getElementById("manual-nama");
+        if (input) try { input.focus(); } catch (e) {}
+      }, 100);
     }
   } catch (e) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Gagal menyimpan.</div>`;
