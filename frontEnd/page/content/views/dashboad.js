@@ -110,6 +110,25 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function showToast(message, type = "info") {
+  if (typeof Swal !== "undefined" && Swal.mixin) {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+    });
+    Toast.fire({
+      icon: type === "danger" ? "error" : type,
+      title: message,
+    });
+  } else {
+    // fallback non-blocking-ish
+    console.log(`[${type}] ${message}`);
+  }
+}
+
 // Daftar rombel disamakan dengan pilihan di inputStudent.js
 const ROMBEL_GROUPS = [
   ["TEACHER", ["Guru Produktif"]],
@@ -414,6 +433,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
               ? new Date(row.created_at).toLocaleTimeString("id-ID", {
                   hour: "2-digit",
                   minute: "2-digit",
+                  second: "2-digit",
                   hour12: false,
                 })
               : "-";
@@ -422,6 +442,7 @@ function generateKontenKelasTemplate(namaKelas, dataAbsensi) {
               ? new Date(row.time_finish).toLocaleTimeString("id-ID", {
                   hour: "2-digit",
                   minute: "2-digit",
+                  second: "2-digit",
                   hour12: false,
                 })
               : "-";
@@ -789,6 +810,8 @@ async function submitManual() {
   const resultEl = document.getElementById("manual-result");
   if (!nama) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Nama siswa wajib diisi.</div>`;
+    showToast("Nama siswa wajib diisi.", "warning");
+    focusAbsensiInput();
     return;
   }
   isManualSubmitting = true;
@@ -806,11 +829,12 @@ async function submitManual() {
     }
     if (!json.success) {
       const msg = json.message || json.error || "Absensi ditolak.";
-      if (typeof Swal !== "undefined") {
-        Swal.fire({ icon: "warning", title: "Absensi ditolak", text: msg });
-      } else {
-        alert(msg);
-      }
+      if (resultEl) resultEl.innerHTML = `<div class="text-danger small">${escapeHtml(msg)}</div>`;
+      showToast(msg, "warning");
+      setTimeout(() => window.location.reload(), 300);
+    } else {
+      showToast(json.message || "Absensi berhasil.", "success");
+      setTimeout(() => window.location.reload(), 300);
     }
     if (json.success) {
       document.getElementById("manual-nama").value = "";
@@ -823,6 +847,8 @@ async function submitManual() {
     }
   } catch (e) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Gagal menyimpan.</div>`;
+    showToast("Gagal menyimpan.", "danger");
+    setTimeout(() => window.location.reload(), 300);
   } finally {
     isManualSubmitting = false;
     const btn = document.querySelector('button[onclick="submitManual()"]');
@@ -837,6 +863,8 @@ async function submitScan() {
 
   if (!idcard) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">UID kartu wajib diisi.</div>`;
+    showToast("UID kartu wajib diisi.", "warning");
+    focusAbsensiInput();
     return;
   }
 
@@ -859,14 +887,18 @@ async function submitScan() {
     if (json.success) {
       if (input) input.value = "";
       refreshDashboardTable("Memperbarui data...");
+      showToast(json.message || "Absensi berhasil.", "success");
+      setTimeout(() => window.location.reload(), 300);
     } else {
       const msg = json.message || json.error || "Absensi gagal.";
-      if (typeof Swal !== "undefined") {
-        Swal.fire({ icon: "warning", title: "Absensi", text: msg });
-      }
+      if (resultEl) resultEl.innerHTML = `<div class="text-danger small">${escapeHtml(msg)}</div>`;
+      showToast(msg, "warning");
+      setTimeout(() => window.location.reload(), 300);
     }
   } catch (e) {
     if (resultEl) resultEl.innerHTML = `<div class="text-danger small">Gagal koneksi ke server.</div>`;
+    showToast("Gagal koneksi ke server.", "danger");
+    setTimeout(() => window.location.reload(), 300);
   } finally {
     isScanSubmitting = false;
     if (input) input.disabled = false;
@@ -883,7 +915,7 @@ async function editAttendancesStatus(id, currentStatus) {
 
   const statusValid = ["Hadir", "Sakit", "Izin", "Alpa"];
   if (!statusValid.includes(statusBaru.trim())) {
-    alert("Status tidak valid! Masukkan: Hadir, Sakit, Izin, atau Alpa");
+    showToast("Status tidak valid! Masukkan: Hadir, Sakit, Izin, atau Alpa", "warning");
     return;
   }
 
@@ -899,14 +931,14 @@ async function editAttendancesStatus(id, currentStatus) {
 
     const result = await response.json();
     if (response.ok && result.success) {
-      alert("Status absensi berhasil diperbarui!");
+      showToast("Status absensi berhasil diperbarui!", "success");
       initTabs();
     } else {
-      alert("Gagal memperbarui status: " + (result.message || "Error server"));
+      showToast("Gagal memperbarui status: " + (result.message || "Error server"), "danger");
     }
   } catch (error) {
     console.error(error);
-    alert("Terjadi kesalahan koneksi saat memperbarui data");
+    showToast("Terjadi kesalahan koneksi saat memperbarui data", "danger");
   }
 }
 
@@ -922,13 +954,13 @@ async function deleteAttendanceLog(id) {
 
     const result = await response.json();
     if (response.ok && result.success) {
-      alert("Log absensi berhasil dihapus!");
+      showToast("Log absensi berhasil dihapus!", "success");
       initTabs();
     } else {
-      alert("Gagal menghapus log: " + (result.message || "Error server"));
+      showToast("Gagal menghapus log: " + (result.message || "Error server"), "danger");
     }
   } catch (error) {
     console.error(error);
-    alert("Terjadi kesalahan koneksi saat menghapus data");
+    showToast("Terjadi kesalahan koneksi saat menghapus data", "danger");
   }
 }

@@ -395,13 +395,20 @@ const manualAttendance = async (req, res) => {
       });
     }
 
+    // Validasi status: input antara jam 07:00 - 14:30 terhitung terlambat
+    let finalStatus = status || "Hadir";
+    const autoStatus = masukStatus();
+    if (autoStatus === "terlambat" && (!status || status === "Hadir")) {
+      finalStatus = "terlambat";
+    }
+
     const { data: attendanceData, error: insertError } = await supabase
       .from("attendances")
       .insert([
         {
           idcard: user.idcard,
           mac_address: "Manual Input",
-          status: status || "Hadir",
+          status: finalStatus,
           note: note || "Tidak ada catatan",
         },
       ])

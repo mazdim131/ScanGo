@@ -37,7 +37,7 @@ const rentangHariWIB = (customDateStr) => {
 // Konstanta jam absensi (dalam menit dari 00:00 WIB)
 const MASUK_START_MIN = 4 * 60 + 30; // 04:30
 const MASUK_ON_TIME_END_MIN = 7 * 60; // 07:00
-const MASUK_LATE_END_MIN = 10 * 60; // 10:00
+const MASUK_LATE_END_MIN = 14 * 60 + 30; // 14:30
 const PULANG_MIN = 14 * 60 + 30; // 14:30
 
 const getWibNow = () => new Date(Date.now() + 7 * 60 * 60 * 1000);
